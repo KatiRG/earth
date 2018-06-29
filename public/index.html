@@ -66,6 +66,7 @@
             </p>
             <p>Data | <span id="data-layer"></span></p>
             <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
+
             <p>Source | <span id="data-center"></span></p>
             <p>Control | <span
                 class="text-button" id="nav-now" title="Current Conditions">Now</span><span
@@ -78,9 +79,9 @@
             </p>
             <p>Mode | <span
                 class="text-button" id="wind-mode-enable">Air</span> – <span
-                class="text-button" id="ocean-mode-enable">Ocean</span>
+                class="text-button" id="ocean-mode-enable">Ocean</span> 
             </p>
-            <p class="wind-mode">Height | <span
+           <!--  <p class="wind-mode">Height | <span
                 class="surface text-button" id="surface-level" title="Surface">Sfc</span> – <span
                 class="surface text-button" id="isobaric-1000hPa">1000</span> – <span
                 class="surface text-button" id="isobaric-850hPa">850</span> – <span
@@ -88,20 +89,33 @@
                 class="surface text-button" id="isobaric-500hPa">500</span> – <span
                 class="surface text-button" id="isobaric-250hPa">250</span> – <span
                 class="surface text-button" id="isobaric-70hPa">70</span> – <span
-                class="surface text-button" id="isobaric-10hPa">10</span> hPa
+                class="surface text-button" id="isobaric-10hPa">10</span> hPa 
+            </p> -->
+
+            <!-- on crée les différents boutons avec des id particuliers afin qu'ils soient 
+                indentifiables dans le fichier earth.js qui va leur attribuer des fonctions particulières
+             -->
+
+             <p class="wind-mode">Données |<span
+                class="mode text-button" id="temp" title="Surface">Temperature</span> – <span
+                class="mode text-button" id="precip">Precipitation</span> – <span
+                class="mode text-button" id="cloud">Nuages</span>
             </p>
-            <p class="wind-mode">Overlay | <span
-                class="text-button" id="overlay-off">None</span> – <span
-                class="text-button" id="overlay-wind" title="Wind Speed">Wind</span> – <span
-                class="text-button" id="overlay-temp" title="Temperature">Temp</span> – <span
-                class="text-button" id="overlay-relative_humidity" title="Relative Humidity">RH</span> – <span
-                class="text-button" id="overlay-air_density" title="Air Density">AD</span> – <span
-                class="text-button" id="overlay-wind_power_density" title="Wind Power Density">WPD</span>
-            </p>
-            <p class="wind-mode"><span style="visibility:hidden">Overlay</span> | <span
-                class="text-button" id="overlay-total_precipitable_water" title="Total Precipitable Water">TPW</span> – <span
-                class="text-button" id="overlay-total_cloud_water" title="Total Cloud Water">TCW</span> – <span
-                class="text-button" id="overlay-mean_sea_level_pressure" title="Mean Sea Level Pressure">MSLP</span>
+
+            <p class="wind-mode">...TimeLine | <span
+                class="mois text-button" id="Janvier" title="Janvier">J</span> – <span
+                class="mois text-button" id="Fevrier" title="Janvier">F</span> – <span
+                class="mois text-button" id="Mars" title="Mars">M</span> – <span
+                class="mois text-button" id="Avril" title="Avril">A</span> – <span
+                class="mois text-button" id="Mai" title="Mai">M</span> – <span
+                class="mois text-button" id="Juin" title="Juin">J</span> – <span
+                class="mois text-button" id="Juillet" title="Juillet">J</span> – <span
+                class="mois text-button" id="Aout" title="Aout">A</span> – <span
+                class="mois text-button" id="Septembre" title="Septembre">S</span> – <span
+                class="mois text-button" id="Octobre" title="Octobre">O</span> – <span
+                class="mois text-button" id="Novembre" title="Novembre">N</span> – <span
+                class="mois text-button" id="Decembre" title="Decembre">D</span> 
+                
             </p>
             <p class="ocean-mode invisible">Animate | <span
                 class="text-button" id="animate-currents" title="Currents">Currents</span>
@@ -110,7 +124,16 @@
                 class="text-button" id="overlay-ocean-off">None</span> – <span
                 class="text-button" id="overlay-currents" title="Currents">Currents</span>
             </p>
-            <p class="ocean-mode invisible"><span style="visibility:hidden">Overlay</span> |</p>
+
+
+	  <!-- <p class="climate-mode invisible">Period |<span
+            </p>
+
+	   <p class="climate-mode invisible">Overlay | <span
+                class="text-button" id="overlay-ocean-off">None</span> – <span
+                class="text-button" id="overlay-currents" title="Currents">Currents</span>
+       </p>
+ --> 
             <p>Projection | <span
                 class="proj text-button" id="atlantis" title="Atlantis">A</span> – <span
                 class="proj text-button" id="azimuthal_equidistant" title="Azimuthal Equidistant">AE</span> – <span

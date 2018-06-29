@@ -6,6 +6,9 @@
  *
  * https://github.com/cambecc/earth
  */
+
+ //ce fichier s'occupe entre autre, de lier les informations affichées par le menu dans index.html à une action particulière.
+//en utilisant id pour les identifier
 (function() {
     "use strict";
 
@@ -217,15 +220,15 @@
             log.time("building meshes");
             var o = topo.objects;
             var coastLo = topojson.feature(topo, µ.isMobile() ? o.coastline_tiny : o.coastline_110m);
-            var coastHi = topojson.feature(topo, µ.isMobile() ? o.coastline_110m : o.coastline_50m);
-            var lakesLo = topojson.feature(topo, µ.isMobile() ? o.lakes_tiny : o.lakes_110m);
-            var lakesHi = topojson.feature(topo, µ.isMobile() ? o.lakes_110m : o.lakes_50m);
+            // var coastHi = topojson.feature(topo, µ.isMobile() ? o.coastline_110m : o.coastline_50m);
+            // var lakesLo = topojson.feature(topo, µ.isMobile() ? o.lakes_tiny : o.lakes_110m);
+            // var lakesHi = topojson.feature(topo, µ.isMobile() ? o.lakes_110m : o.lakes_50m);
             log.timeEnd("building meshes");
             return {
-                coastLo: coastLo,
-                coastHi: coastHi,
-                lakesLo: lakesLo,
-                lakesHi: lakesHi
+                coastLo: coastLo
+                // coastHi: coastHi,
+                // lakesLo: lakesLo,
+                // lakesHi: lakesHi
             };
         });
     }
@@ -298,7 +301,7 @@
 
         var path = d3.geo.path().projection(globe.projection).pointRadius(7);
         var coastline = d3.select(".coastline");
-        var lakes = d3.select(".lakes");
+        // var lakes = d3.select(".lakes");
         d3.selectAll("path").attr("d", path);  // do an initial draw -- fixes issue with safari
 
         function drawLocationMark(point, coord) {
@@ -337,15 +340,16 @@
             inputController, {
                 moveStart: function() {
                     coastline.datum(mesh.coastLo);
-                    lakes.datum(mesh.lakesLo);
+                    // lakes.datum(mesh.lakesLo);
                     rendererAgent.trigger("start");
                 },
                 move: function() {
                     doDraw_throttled();
                 },
                 moveEnd: function() {
-                    coastline.datum(mesh.coastHi);
-                    lakes.datum(mesh.lakesHi);
+                      coastline.datum(mesh.coastLo);
+                    // coastline.datum(mesh.coastHi);
+                    // lakes.datum(mesh.lakesHi);
                     d3.selectAll("path").attr("d", path);
                     rendererAgent.trigger("render");
                 },
@@ -938,7 +942,7 @@
                 rebuildRequired = true;
             }
             // Build a new grid if the new overlay type is different from the current one.
-            var overlayType = configuration.get("overlayType") || "default";
+            var overlayType = configuration.get("overlayType") || "Janvier";
             if (_.indexOf(changed, "overlayType") >= 0 && overlayType !== "off") {
                 var grids = (gridAgent.value() || {}), primary = grids.primaryGrid, overlay = grids.overlayGrid;
                 if (!overlay) {
@@ -1026,13 +1030,19 @@
                     d3.select("#nav-forward").attr("title", "+5 Days");
                     d3.select("#nav-forward-more").attr("title", "+1 Month");
                     break;
+		case "ocean":
+                    d3.select("#nav-backward-more").attr("title", "-1 Month");
+                    d3.select("#nav-backward").attr("title", "-5 Days");
+                    d3.select("#nav-forward").attr("title", "+5 Days");
+                    d3.select("#nav-forward-more").attr("title", "+1 Month");
+                    break;
             }
         });
 
         // Add handlers for mode buttons.
         d3.select("#wind-mode-enable").on("click", function() {
             if (configuration.get("param") !== "wind") {
-                configuration.save({param: "wind", surface: "surface", level: "level", overlayType: "default"});
+                configuration.save({param: "wind", mode:"temp", overlayType: "Janvier"});
             }
         });
         configuration.on("change:param", function(x, param) {
@@ -1058,10 +1068,12 @@
                 stopCurrentAnimation(true);  // cleanup particle artifacts over continents
             }
         });
+	
+
         configuration.on("change:param", function(x, param) {
             d3.select("#ocean-mode-enable").classed("highlighted", param === "ocean");
         });
-
+	
         // Add logic to disable buttons that are incompatible with each other.
         configuration.on("change:overlayType", function(x, ot) {
             d3.select("#surface-level").classed("disabled", ot === "air_density" || ot === "wind_power_density");
@@ -1086,21 +1098,43 @@
         });
 
         // Add handlers for all wind level buttons.
-        d3.selectAll(".surface").each(function() {
-            var id = this.id, parts = id.split("-");
-            bindButtonToConfiguration("#" + id, {param: "wind", surface: parts[0], level: parts[1]});
+
+        //on configure tous les boutons de "mode" de cette manière :
+        //le paramètre mode va être utilisé par product.js pour chercher le fichier correspondant
+        d3.selectAll(".mode").each(function() {
+            var id = this.id, type = id;
+            bindButtonToConfiguration("#" + id, {param: "wind", mode: type});
         });
 
         // Add handlers for ocean animation types.
         bindButtonToConfiguration("#animate-currents", {param: "ocean", surface: "surface", level: "currents"});
 
         // Add handlers for all overlay buttons.
-        products.overlayTypes.forEach(function(type) {
-            bindButtonToConfiguration("#overlay-" + type, {overlayType: type});
+        
+
+        //grâce a la fonction "bindButtonToConfiguration()" on attribue une liste de paramètres que le bouton
+        //concerné enverra au fichier product.js, ici, le bouton Overlay Janvier envoie 
+        //un param de type "wind" et un overlay type de type "Janvier"
+
+        // bindButtonToConfiguration("#overlay-Janvier", {param: "wind", overlayType: "Janvier"});
+        // bindButtonToConfiguration("#overlay-Fevrier", {param: "wind", overlayType: "Fevrier"});
+        // bindButtonToConfiguration("#overlay-Mars", {param: "wind", overlayType: "Mars"});
+        // bindButtonToConfiguration("#overlay-Avril", {param: "wind", overlayType: "Avril"});
+        // bindButtonToConfiguration("#overlay-Mai", {param: "wind", overlayType: "Mai"});
+        // bindButtonToConfiguration("#overlay-Juin", {param: "wind", overlayType: "Juin"});
+        // bindButtonToConfiguration("#overlay-Juillet", {param: "wind", overlayType: "Juillet"});
+        // bindButtonToConfiguration("#overlay-Aout", {param: "wind", overlayType: "Aout"});
+        // bindButtonToConfiguration("#overlay-Septembre", {param: "wind", overlayType: "Septembre"});
+        // bindButtonToConfiguration("#overlay-Octobre", {param: "wind", overlayType: "Octobre"});
+        // bindButtonToConfiguration("#overlay-Novembre", {param: "wind", overlayType: "Novembre"});
+        // bindButtonToConfiguration("#overlay-Decembre", {param: "wind", overlayType: "Decembre"});
+
+        //chaque bouton de type mois envoie une information param="wind" et overlayType="nomMois"
+        //pour Fevrier : param="Fevrier" overlayType="Fevrier"
+         d3.selectAll(".mois").each(function() {
+            var id = this.id, ot = id;
+            bindButtonToConfiguration("#" + id, {param: "wind", overlayType: id});
         });
-        bindButtonToConfiguration("#overlay-wind", {param: "wind", overlayType: "default"});
-        bindButtonToConfiguration("#overlay-ocean-off", {overlayType: "off"});
-        bindButtonToConfiguration("#overlay-currents", {overlayType: "default"});
 
         // Add handlers for all projection buttons.
         globes.keys().forEach(function(p) {

@@ -1,4 +1,4 @@
-/**
+        /**
  * products - defines the behavior of weather data grids, including grid construction, interpolation, and color scales.
  *
  * Copyright (c) 2014 Cameron Beccario
@@ -6,10 +6,36 @@
  *
  * https://github.com/cambecc/earth
  */
+
+ // ce fichier recupere les données envoyées par index.html, les traite et affiche les informations demandées par l'utilisateur,
+ // dans ce cas, il y a un fichier par type d'informations (vent, temperature, precipitation)
+ // chaque fichier contient les informations des 12 mois de l'année dans cette forme la :
+ // les fichier json utilisés ont la forme suivante :
+ //                                                                            file[0] : uData de Janvier
+ //                                                                            file[1] : vData de Fevrier
+ //                                                                            file[2] : uData de Janvier
+ //                                                                            file[3] : vData de Fevrier
+ //                                                                            ...
+ //                                                                            (pour un fichier de vent)
+
+ //                                                                            file[0] : Data de Janvier
+ //                                                                            file[1] : Data de Fevrier
+ //                                                                            file[2] : Data de Mars
+ //                                                                            file[3] : Data de Avril
+
+                                                                            //...
+ dict= ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre']
+ // dict est utilisé pour chercher les données correspondantes au mois choisi, 
+ // si on cherche les données de Mars par exemple, on va utiliser son index dans le dictionnaire (2) pour 
+ // recuperer les données dans le fichier :  var record = file[2], data = record.data;
+
+ k=1 //k est la variable permettant de parcourir le fichier, dans le cas general, il va avoir la valeur 
+    //k=dict.indexOf(attr.overlayType)
+    // donc si overlayType est mars, il va chercher : dict.indexOf(mars)=2, donc file[2] qui correspond bien aux données de mars
 var products = function() {
     "use strict";
 
-    var WEATHER_PATH = "/data/weather";
+    var WEATHER_PATH = "/data/weather/current";
     var OSCAR_PATH = "/data/oscar";
     var catalogs = {
         // The OSCAR catalog is an array of file names, sorted and prefixed with yyyyMMdd. Last item is the
@@ -41,12 +67,29 @@ var products = function() {
      * @param {String?} level
      * @returns {String}
      */
-    function gfs1p0degPath(attr, type, surface, level) {
-        var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
-        var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
-        return [WEATHER_PATH, dir, file].join("/");
+    // function gfs1p0degPath(type) {
+    //     var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour, dossier;
+    //     var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
+    //     return [WEATHER_PATH, dossier, file].join("/");
+    // }
+
+//construction du nom de fichier utilisé 
+  function gfs1p0degPath(type) {
+        var file = type +".json";
+        return [WEATHER_PATH,file].join("/");
     }
 
+//   function gfs1p0degPath(attr, type, surface, level) {
+//         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
+//         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
+//         return [WEATHER_PATH, dir, file].join("/");
+// }
+
+//  function gfs1p0degPath(attr, type, surface, level) {
+//         var dir = type;
+//         var file = [attr,type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
+//         return [WEATHER_PATH, dir, file].join("/");
+// }
     function gfsDate(attr) {
         if (attr.date === "current") {
             // Construct the date from the current time, rounding down to the nearest three-hour block.
@@ -108,9 +151,9 @@ var products = function() {
     }
 
     var FACTORIES = {
-
+//affichage des données en fonction du choix de l'utilisateur 
         "wind": {
-            matches: _.matches({param: "wind"}),
+            matches: _.matches({param: "wind"}),//si information "param" envoyée est de type "wind", on rentre dans la fonction
             create: function(attr) {
                 return buildProduct({
                     field: "vector",
@@ -119,12 +162,25 @@ var products = function() {
                         name: {en: "Wind", ja: "風速"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath(attr, "wind", attr.surface, attr.level)],
+                    paths: [gfs1p0degPath("wind")],//construction du fichier avec "wind" comme nom
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var uData = file[0].data, vData = file[1].data;
+                        if (dict.indexOf(attr.overlayType)!==-1){//recherche du bon mois grâce au dictionnaire des mois 
+                            k=dict.indexOf(attr.overlayType)//si le mois n'est pas trouvé, on met Janvier (le premier) par defaut
+                        }else{
+                            k=0
+                        }
+
+                        var uData = file[k*2].data, vData = file[k*2+1].data;
+                        //un fichier de vent contient pour chaque mois
+                        // deux parties (u du vecteur et v du vecteur)
+                        // elles sont disposées a la suite, on a : uJanvier
+                        //                                         vJanvier
+                        //                                         uFevrier 
+                        //                                         vFevrier
+                        //                                         ...
                         return {
-                            header: file[0].header,
+                            header: file[k*2].header,
                             interpolate: bilinearInterpolateVector,
                             data: function(i) {
                                 return [uData[i], vData[i]];
@@ -148,8 +204,8 @@ var products = function() {
             }
         },
 
-        "temp": {
-            matches: _.matches({param: "wind", overlayType: "temp"}),
+            "temp": {
+            matches: _.matches({param: "wind", mode :"temp"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction 
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
@@ -158,10 +214,15 @@ var products = function() {
                         name: {en: "Temp", ja: "気温"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath(attr, "temp", attr.surface, attr.level)],
+                    paths: [gfs1p0degPath("temp")],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[0], data = record.data;
+                        if (dict.indexOf(attr.overlayType)!==-1){
+                            k=dict.indexOf(attr.overlayType)
+                        }else{
+                            k=0
+                        }
+                        var record = file[k], data = record.data;
                         return {
                             header: record.header,
                             interpolate: bilinearInterpolateScalar,
@@ -195,8 +256,10 @@ var products = function() {
             }
         },
 
+
+
         "relative_humidity": {
-            matches: _.matches({param: "wind", overlayType: "relative_humidity"}),
+            matches: _.matches({param: "wind",  overlayType: "relative_humidity"}),
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
@@ -205,7 +268,7 @@ var products = function() {
                         name: {en: "Relative Humidity", ja: "相対湿度"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath(attr, "relative_humidity", attr.surface, attr.level)],
+                    paths: [gfs1p0degPath(attr, "relative_humidity" , attr.surface, attr.level)],
                     date: gfsDate(attr),
                     builder: function(file) {
                         var vars = file.variables;
@@ -322,7 +385,7 @@ var products = function() {
         },
 
         "total_cloud_water": {
-            matches: _.matches({param: "wind", overlayType: "total_cloud_water"}),
+            matches: _.matches({param: "wind",mode:"cloud"}),
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
@@ -331,10 +394,10 @@ var products = function() {
                         name: {en: "Total Cloud Water", ja: "雲水量"},
                         qualifier: ""
                     }),
-                    paths: [gfs1p0degPath(attr, "total_cloud_water")],
+                    paths: [gfs1p0degPath("cloud")],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[0], data = record.data;
+                        var record = file[dict.indexOf(attr.overlayType)], data = record.data;
                         return {
                             header: record.header,
                             interpolate: bilinearInterpolateScalar,
@@ -349,8 +412,16 @@ var products = function() {
                     scale: {
                         bounds: [0, 1],
                         gradient: µ.segmentedColorScale([
-                            [0.0, [5, 5, 89]],
-                            [0.2, [170, 170, 230]],
+                            [0.0, [0, 0, 0]],
+                            [0.1, [25, 25, 25]],
+                            [0.2, [50, 50, 50]],
+                            [0.3, [75, 75, 75]],
+                            [0.4, [100, 100, 100]],
+                            [0.5, [125, 125, 125]],
+                            [0.6, [150, 150, 150]],
+                            [0.7, [175, 175, 175]],
+                            [0.8, [200, 200, 200]],
+                            [0.9, [225, 225, 225]],
                             [1.0, [255, 255, 255]]
                         ])
                     }
@@ -359,7 +430,7 @@ var products = function() {
         },
 
         "total_precipitable_water": {
-            matches: _.matches({param: "wind", overlayType: "total_precipitable_water"}),
+            matches: _.matches({param: "wind",mode: "precip"}),
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
@@ -368,10 +439,10 @@ var products = function() {
                         name: {en: "Total Precipitable Water", ja: "可降水量"},
                         qualifier: ""
                     }),
-                    paths: [gfs1p0degPath(attr, "total_precipitable_water")],
+                    paths: [gfs1p0degPath("precip")],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[0], data = record.data;
+                        var record = file[dict.indexOf(attr.overlayType)], data = record.data;
                         return {
                             header: record.header,
                             interpolate: bilinearInterpolateScalar,
@@ -384,16 +455,17 @@ var products = function() {
                         {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
                     ],
                     scale: {
-                        bounds: [0, 70],
+                        bounds: [0, 255],
                         gradient:
                             µ.segmentedColorScale([
                                 [0, [230, 165, 30]],
-                                [10, [120, 100, 95]],
-                                [20, [40, 44, 92]],
-                                [30, [21, 13, 193]],
-                                [40, [75, 63, 235]],
-                                [60, [25, 255, 255]],
-                                [70, [150, 255, 255]]
+                                [0.00005, [120, 100, 95]],
+                                [0.0001, [40, 44, 92]],
+                                [0.00015, [21, 13, 193]],
+                                [0.0002, [75, 63, 235]],
+                                [0.00025, [25, 255, 255]],
+                                [0.0003, [150, 255, 255]],
+                                [0.00035, [200, 255, 255]]
                             ])
                     }
                 });
@@ -566,6 +638,8 @@ var products = function() {
         var rx = (1 - x);
         var ry = (1 - y);
         return g00 * rx * ry + g10 * x * ry + g01 * rx * y + g11 * x * y;
+    
+    
     }
 
     function bilinearInterpolateVector(x, y, g00, g10, g01, g11) {
