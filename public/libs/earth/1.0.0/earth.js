@@ -467,6 +467,10 @@
         var primaryGrid = grids.primaryGrid;
         var overlayGrid = grids.overlayGrid;
 
+        console.log('mask: ', mask)
+        console.log('primaryGrid: ', primaryGrid)
+        console.log('overlayGrid: ', overlayGrid)
+
         log.time("interpolating field");
         var d = when.defer(), cancel = this.cancel;
 
@@ -973,6 +977,8 @@
         rendererAgent.listenTo(globeAgent, "update", startRendering);
 
         function startInterpolation() {
+            console.log('globeAgent: ', globeAgent)
+            console.log('globeAgent.value: ', globeAgent.value)
             fieldAgent.submit(interpolateField, globeAgent.value(), gridAgent.value());
         }
         function cancelInterpolation() {

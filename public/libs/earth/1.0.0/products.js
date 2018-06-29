@@ -26,7 +26,7 @@ var products = function() {
                 return gfsStep(this.date, step);
             },
             load: function(cancel) {
-                var me = this;
+                var me = this;                
                 return when.map(this.paths, µ.loadJson).then(function(files) {
                     return cancel.requested ? null : _.extend(me, buildGrid(me.builder.apply(me, files)));
                 });
@@ -44,6 +44,7 @@ var products = function() {
     function gfs1p0degPath(attr, type, surface, level) {
         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
         var file = [stamp, type, surface, level, "gfs", "1.0"].filter(µ.isValue).join("-") + ".json";
+        console.log('file: ', file)
         return [WEATHER_PATH, dir, file].join("/");
     }
 
@@ -123,6 +124,8 @@ var products = function() {
                     date: gfsDate(attr),
                     builder: function(file) {
                         var uData = file[0].data, vData = file[1].data;
+                        console.log('wind uData: ', uData) //Array 65160 rows
+                        console.log('wind vData: ', vData) //Array 65160 rows
                         return {
                             header: file[0].header,
                             interpolate: bilinearInterpolateVector,
@@ -151,6 +154,8 @@ var products = function() {
         "temp": {
             matches: _.matches({param: "wind", overlayType: "temp"}),
             create: function(attr) {
+                console.log('**************** attr:', attr)
+                console.log('**************** attr.overlayType:', attr.overlayType)
                 return buildProduct({
                     field: "scalar",
                     type: "temp",
@@ -166,17 +171,22 @@ var products = function() {
                             header: record.header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
-                                return data[i];
+                                if (i==1) console.log('data[1]', Math.abs(data[1]))
+                                //return data[i];
+                                return Math.abs(data[i]) + 273.15;
                             }
                         }
                     },
                     units: [
-                        {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
+                        {label: "°C", conversion: function(x) { 
+                            console.log('units C: ', x)
+                            return x - 273.15; 
+                        },       precision: 1},
                         {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
                         {label: "K",  conversion: function(x) { return x; },                precision: 1}
                     ],
                     scale: {
-                        bounds: [193, 328],
+                        bounds: [193, 328],                        
                         gradient: µ.segmentedColorScale([
                             [193,     [37, 4, 42]],
                             [206,     [41, 10, 130]],
@@ -462,6 +472,9 @@ var products = function() {
                         },
                         builder: function(file) {
                             var uData = file[0].data, vData = file[1].data;
+                            console.log('currents uData: ', uData) //Array 519,480 rows
+                            console.log('currents vData: ', vData) //Array 519,480 rows
+
                             return {
                                 header: file[0].header,
                                 interpolate: bilinearInterpolateVector,
