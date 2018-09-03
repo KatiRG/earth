@@ -18,6 +18,7 @@
     <link rel="apple-touch-icon" sizes="152x152" href="/ipad-icon.png"/>
     <link rel="stylesheet" type="text/css" href="/styles/styles.css"/>
 
+    
     <link rel="alternate" hreflang="x-default" href="http://earth.nullschool.net/"/>
     <link rel="alternate" hreflang="ja" href="http://earth.nullschool.net/jp/"/>
 </head>
@@ -67,7 +68,11 @@
             <p>Data | <span id="data-layer"></span></p>
             <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
 
-            <p>Source | <span id="data-center"></span></p>
+            <!--<p>Source | <span id="data-center"></span></p>-->
+            <p>
+                <!--<input id="files" class="file" type="file"> Upload netCDF: -->
+                <input type="file" class="filestyle" data-classButton="btn btn-primary" data-buttonText="Your label here.">
+
             <p>Control | <span
                 class="text-button" id="nav-now" title="Current Conditions">Now</span><span
                 class="text-button" id="nav-backward-more"> « </span> – <span
