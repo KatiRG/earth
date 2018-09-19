@@ -82,12 +82,13 @@ var products = function() {
     }
 
     //my fn
-    function myfile(temp_var) {
+    function myfile(temp_var, month) {
         console.log("temp_var: ", temp_var)
+        console.log("month k: ", k)
+        console.log("dataArray from index.html: ", dataArray)
+        console.log("data for month k: ", dataArray[k])
       
-
-
-        return "something for now";
+        return dataArray[k];
     }
 
 //   function gfs1p0degPath(attr, type, surface, level) {
@@ -229,8 +230,7 @@ var products = function() {
                     date: gfsDate(attr),
                     builder: function(file) {
                         console.log("file HERE: ", file)
-                        console.log("paths: ",[gfs1p0degPath("temp")])
-                        console.log("mypaths: ", [myfile("t2m")])
+                        console.log("paths: ",[gfs1p0degPath("temp")])                        
                         console.log("attr: ",attr)
                         console.log("attr.overlayType: ",attr.overlayType)
                         console.log("dict.indexOf(attr.overlayType): ",dict.indexOf(attr.overlayType))
@@ -239,14 +239,20 @@ var products = function() {
                         }else{
                             k=0
                         }
-                        console.log("month k: ", k)
+                        console.log("month k in FACTORIES: ", k)
                         console.log("file: ", file)
+                        console.log("file[k]: ", file[k])
+                        // console.log("mypaths: ", [myfile("t2m", k)])
+                        var mydata = myfile("t2m", k)
+                        console.log("mydata: ", mydata)
+
                         var record = file[k], data = record.data;
                         return {
                             header: record.header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
-                                return data[i];
+                                // return data[i];
+                                return mydata[i];
                             }
                         }
                     },

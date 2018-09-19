@@ -187,6 +187,7 @@
         console.log("in here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
         var reader;
+        var dataArray;
         
         function abortRead() {  reader.abort(); }
 
@@ -202,9 +203,18 @@
             reader.onload = function(e) {
                 // console.log("whatis evt: ", evt)
                 console.log("filename from evt: ", evt.target.files[0].name)
+                reader = new netcdfjs(this.result);
+                console.log("reader: ", reader); //shows correct size of lat and lon
+
+                var ncvar = "t2m"; //"lat"; //"precip6HourQCD"; //"staticIds"; //"t2m"; //"wmoId"; //"t2m"; //
+                dataArray = reader.getDataVariable(ncvar); //variable array returned by getDataVariable()
+                
+                console.log("reader.getDataVariable(ncvar): ", dataArray);
+                console.log("reader.getDataVariable(ncvar) month 0: ", dataArray[0]);
+
             } //end reader.onload
             
-            reader.readAsArrayBuffer(evt.target.files[0]);
+            reader.readAsArrayBuffer(evt.target.files[0]); //need this otherwise reader fns not called
         } //end fn handleFileSelect
 
         //Start event listener to check if a file has been selected
