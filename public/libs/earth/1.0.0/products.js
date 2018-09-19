@@ -80,16 +80,7 @@ var products = function() {
         console.log("file: ", [WEATHER_PATH,file].join("/"))
         return [WEATHER_PATH,file].join("/");
     }
-
-    //my fn
-    function myfile(temp_var, month) {
-        console.log("temp_var: ", temp_var)
-        console.log("month k: ", k)
-        console.log("dataArray from index.html: ", dataArray)
-        console.log("data for month k: ", dataArray[k])
-      
-        return dataArray[k];
-    }
+ 
 
 //   function gfs1p0degPath(attr, type, surface, level) {
 //         var dir = attr.date, stamp = dir === "current" ? "current" : attr.hour;
@@ -238,21 +229,28 @@ var products = function() {
                             k=dict.indexOf(attr.overlayType)
                         }else{
                             k=0
-                        }
-                        console.log("month k in FACTORIES: ", k)
-                        console.log("file: ", file)
-                        console.log("file[k]: ", file[k])
-                        // console.log("mypaths: ", [myfile("t2m", k)])
-                        var mydata = myfile("t2m", k)
-                        console.log("mydata: ", mydata)
+                        }            
+                          
+                        var myData = myRecord.data[k],
+                            myHeader = myRecord.header;                        
+                        console.log("myHeader: ", myHeader)
+
+
 
                         var record = file[k], data = record.data;
+                        console.log("record: ", record)
+
+                        console.log('----')
+                        console.log("myData: ", myData)
+                        console.log("data: ", data)
+                        console.log('----')
+                        
                         return {
-                            header: record.header,
+                            header: myHeader, //record.header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
                                 // return data[i];
-                                return mydata[i];
+                                return myData[i];
                             }
                         }
                     },
