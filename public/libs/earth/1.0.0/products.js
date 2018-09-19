@@ -73,10 +73,21 @@ var products = function() {
     //     return [WEATHER_PATH, dossier, file].join("/");
     // }
 
-//construction du nom de fichier utilisé 
-  function gfs1p0degPath(type) {
-        var file = type +".json";
+    //construction du nom de fichier utilisé 
+    function gfs1p0degPath(type) {//called from FACTORIES for the given match
+        var file = type +".json"; //type is passed from FACTORIES line 'paths: [gfs1p0degPath(file)]'
+        console.log("type in gfs1p0degPath: ", type)
+        console.log("file: ", [WEATHER_PATH,file].join("/"))
         return [WEATHER_PATH,file].join("/");
+    }
+
+    //my fn
+    function myfile(temp_var) {
+        console.log("temp_var: ", temp_var)
+      
+
+
+        return "something for now";
     }
 
 //   function gfs1p0degPath(attr, type, surface, level) {
@@ -169,7 +180,7 @@ var products = function() {
                             k=dict.indexOf(attr.overlayType)//si le mois n'est pas trouvé, on met Janvier (le premier) par defaut
                         }else{
                             k=0
-                        }
+                        }                        
 
                         var uData = file[k*2].data, vData = file[k*2+1].data;
                         //un fichier de vent contient pour chaque mois
@@ -205,7 +216,7 @@ var products = function() {
         },
 
             "temp": {
-            matches: _.matches({param: "wind", mode :"temp"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction 
+            matches: _.matches({param: "wind", mode :"temp"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction             
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
@@ -214,14 +225,22 @@ var products = function() {
                         name: {en: "Temp", ja: "気温"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath("temp")],
+                    paths: [gfs1p0degPath("temp")],                    
                     date: gfsDate(attr),
                     builder: function(file) {
+                        console.log("file HERE: ", file)
+                        console.log("paths: ",[gfs1p0degPath("temp")])
+                        console.log("mypaths: ", [myfile("t2m")])
+                        console.log("attr: ",attr)
+                        console.log("attr.overlayType: ",attr.overlayType)
+                        console.log("dict.indexOf(attr.overlayType): ",dict.indexOf(attr.overlayType))
                         if (dict.indexOf(attr.overlayType)!==-1){
                             k=dict.indexOf(attr.overlayType)
                         }else{
                             k=0
                         }
+                        console.log("month k: ", k)
+                        console.log("file: ", file)
                         var record = file[k], data = record.data;
                         return {
                             header: record.header,

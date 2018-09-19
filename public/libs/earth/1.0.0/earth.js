@@ -857,12 +857,14 @@
      * from newAttr, unless a custom set of keys is provided.
      */
     function bindButtonToConfiguration(elementId, newAttr, keys) {
+        //console.log('newAttr: ', newAttr)
         keys = keys || _.keys(newAttr);
         d3.select(elementId).on("click", function() {
             if (d3.select(elementId).classed("disabled")) return;
             configuration.save(newAttr);
         });
         configuration.on("change", function(model) {
+            //console.log("model: ",  model)
             var attr = model.attributes;
             d3.select(elementId).classed("highlighted", _.isEqual(_.pick(attr, keys), _.pick(newAttr, keys)));
         });
@@ -1102,7 +1104,8 @@
         //on configure tous les boutons de "mode" de cette manière :
         //le paramètre mode va être utilisé par product.js pour chercher le fichier correspondant
         d3.selectAll(".mode").each(function() {
-            var id = this.id, type = id;
+            var id = this.id, type = id;            
+            console.log("this in selectAll .mode: ", this)            
             bindButtonToConfiguration("#" + id, {param: "wind", mode: type});
         });
 
@@ -1133,6 +1136,8 @@
         //pour Fevrier : param="Fevrier" overlayType="Fevrier"
          d3.selectAll(".mois").each(function() {
             var id = this.id, ot = id;
+            //console.log("this in selectAll .mois: ", this)
+            //console.log("ot: ", ot) //??
             bindButtonToConfiguration("#" + id, {param: "wind", overlayType: id});
         });
 

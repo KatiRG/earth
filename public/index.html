@@ -71,7 +71,7 @@
             <!--<p>Source | <span id="data-center"></span></p>-->
             <p>
                 <!--<input id="files" class="file" type="file"> Upload netCDF: -->
-                <input type="file" class="filestyle" data-classButton="btn btn-primary" data-buttonText="Your label here.">
+                <input type="file" id="files" class="file" data-classButton="btn btn-primary" data-buttonText="Your label here.">
 
             <p>Control | <span
                 class="text-button" id="nav-now" title="Current Conditions">Now</span><span
@@ -179,6 +179,50 @@
     <script src="/libs/earth/1.0.0/globes.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/products.js" charset="utf-8"></script>
     <script src="/libs/earth/1.0.0/earth.js" charset="utf-8"></script>
+
+    <!-- netcdfjs modified from original 'http://www.lactame.com/lib/netcdfjs/0.3.0/netcdfjs.min.js' to read more than one gridpoint-->
+    <script src="/libs/netcdfjs/netcdfjs.js" charset="utf-8"></script>
+
+    <script type="text/javascript">
+        console.log("in here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        var reader;
+        
+        function abortRead() {  reader.abort(); }
+
+        function handleFileSelect(evt) {
+            console.log("HELLO from fn handleFileSelect")
+            reader = new FileReader();
+            reader.onerror = errorHandler;
+
+            reader.onabort = function(e) {
+                alert('File read cancelled');
+            };
+
+            reader.onload = function(e) {
+                // console.log("whatis evt: ", evt)
+                console.log("filename from evt: ", evt.target.files[0].name)
+            } //end reader.onload
+            
+            reader.readAsArrayBuffer(evt.target.files[0]);
+        } //end fn handleFileSelect
+
+        //Start event listener to check if a file has been selected
+        run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+        //error fn
+        function errorHandler(evt) {
+          switch(evt.target.error.code) {
+            case evt.target.error.NOT_FOUND_ERR:
+              alert('File Not Found!'); break;
+            case evt.target.error.NOT_READABLE_ERR:
+              alert('File is not readable');break;
+            case evt.target.error.ABORT_ERR: break;
+            default: alert('An error occurred reading this file.');
+          };
+        }
+
+    </script>
 
 </body>
 </html>
