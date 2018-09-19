@@ -28,6 +28,8 @@ function handleFileSelect(evt) {
     reader = new netcdfjs(this.result);
     reader.getDataVariable('wmoId'); // go to offset and read it
 
+    console.log("reader: ", reader)
+
    //... your program here  ..//
 
   }
