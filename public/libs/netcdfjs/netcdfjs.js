@@ -50,55 +50,64 @@
                 var l, numpts;
                 console.log("this.buffer: ", this.buffer)
 
-                numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
-                        this.header.dimensions.find(function (val) {return val.name === "lon";}).size - 1;
-                console.log("numpts: ", numpts)
-
-                return l = 'string' == typeof k ? 
-                    this.header.variables.find(function(m) { return m.name === k }) : k, 
-                    e.notNetcdf(void 0 == l, 'variable not found'), 
-                    this.buffer.seek(l.offset), l.record ? f.record(this.buffer, l, this.header.recordDimension, numpts) : f.nonRecord(this.buffer, l);
-
-                //LONG FORM (copied from src/index.js)
-                // var data=f; //mine
-                // console.log("data: ", data)
-                // var variable;
-                //     if (typeof k === 'string') {
-                //         // search the variable
-                //         console.log('this.header.variables: ', this.header.variables)
-                //         variable = this.header.variables.find(function (val) {
-                //             return val.name === k;
-                //         });
-                //     } else {
-                //         variable = k;
-                //     }
-                // // search for lat and lon size
-                // var numpts; //total number of points = lat*long-1                
-                // console.log('this.header.dimensions: ', this.header.dimensions)          
-                
                 // numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
                 //         this.header.dimensions.find(function (val) {return val.name === "lon";}).size - 1;
-                // console.log("numpts: ", numpts)
+                numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
+                        this.header.dimensions.find(function (val) {return val.name === "lon";}).size;
+                console.log("numpts: ", numpts)
+
+                // return l = 'string' == typeof k ? 
+                //     this.header.variables.find(function(m) { return m.name === k }) : k, 
+                //     e.notNetcdf(void 0 == l, 'variable not found'), 
+                //     this.buffer.seek(l.offset), l.record ? f.record(this.buffer, l, this.header.recordDimension, numpts) : f.nonRecord(this.buffer, l);
+
+                //LONG FORM (copied from src/index.js)
+                var data=f; //mine
+                console.log("data: ", data)
+                var variable;
+                    if (typeof k === 'string') {
+                        // search the variable
+                        console.log('this.header.variables: ', this.header.variables)
+                        variable = this.header.variables.find(function (val) {
+                            return val.name === k;
+                        });
+                    } else {
+                        variable = k;
+                    }
+                // search for lat and lon size
+                var numpts; //total number of points = lat*long-1                
+                console.log('this.header.dimensions: ', this.header.dimensions)
+                
+                // numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
+                //         this.header.dimensions.find(function (val) {return val.name === "lon";}).size - 1; //ORIG
+                numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
+                        this.header.dimensions.find(function (val) {return val.name === "lon";}).size;
+                console.log("numpts: ", numpts)
                     
 
-                //     // throws if variable not found
-                //     // utils.notNetcdf((variable === undefined), 'variable not found');
+                    // throws if variable not found
+                    // utils.notNetcdf((variable === undefined), 'variable not found');
 
-                //     // go to the offset position
-                //     this.buffer.seek(variable.offset);
+                    // go to the offset position
+                    this.buffer.seek(variable.offset);
 
-                //     if (variable.record) {
-                //         // record variable case
-                //         console.log("record variable case") //YES for our file
-                //         console.log("variable: ", variable)
-                //         //console.log("this.header: ", this.header)
-                //         console.log("this.header.recordDimension: ", this.header.recordDimension)
-                //         return data.record(this.buffer, variable, this.header.recordDimension, numpts);
-                //     } else {
-                //         console.log("non-record variable case")
-                //         // non-record variable case
-                //         return data.nonRecord(this.buffer, variable);
-                //     }
+                    console.log("******************************************variable.record: ", variable.record)
+                    if (variable.record) { //records are for netCDF variable data
+                        // record variable case                      
+                        return data.record(this.buffer, variable, this.header.recordDimension, numpts);
+                    } else { //nonRecords are for lat, lon data
+                        console.log("non-record variable case")
+                        console.log("this: ", this)
+                        console.log("lat size: ", this.header.dimensions.find(function (val) {return val.name === "lat";}).size)
+                        console.log("lon size: ", this.header.dimensions.find(function (val) {return val.name === "lon";}).size)
+                        console.log("variable: ", variable)
+
+                        var nx = this.header.dimensions.find(function (val) {return val.name === "lon";}).size,
+                            ny = this.header.dimensions.find(function (val) {return val.name === "lat";}).size,
+                            dx = 360/nx, dy = 180/ny;
+                        // non-record variable case
+                        return data.nonRecord(this.buffer, variable, dx, dy);
+                    }
             }
         }        
         a.exports = j        
@@ -268,26 +277,31 @@
     function(a, b, c) {  //data.js (supports 2-D variables)
         'use strict';
         const d = c(4);
-        a.exports.nonRecord = function(f, g) { 
+        a.exports.nonRecord = function(f, g, dx, dy) {
+            var delta, s0;
+            console.log("EXPORTS NONRECORD!!!!!!!!!!!!!!!!!!!!")
+            console.log("g: ", g)
             const h = d.str2num(g.type);
             var j = g.size / d.num2bytes(h),
-                k = Array(j);
-            for (var l = 0; l < j; l++) k[l] = d.readType(f, h, 1);
+                k = Array(j);           
+            for (var l = 0; l < j; l++) {
+                //k[l] = d.readType(f, h, 1); //ORIG. What are these numbers?
+                k[l] =  (g.name==="lat" ? 90 - (l)* dy : -180 + (l)* dx) //actual lat and lon in degrees
+            }
             return k
         }, a.exports.record = function(f, g, h, numpts) { //f = ?? (contains offset value), g = "variable", h = header.recordDimension ("timecounter", length 12)
             const j = d.str2num(g.type);
             // console.log("f in exports.record: ", f) //f = ?? (contains offset value)
             // console.log("g in exports.record: ", g) //g = "variable"
             // console.log("g.dimensions in exports.record: ", g.dimensions) //h = header.recordDimension ("timecounter", length 12)
-            // console.log("numpts in exports.record: ", numpts)
             var k = h.length, //12
                 l = Array(k);
             // console.log("h in exports.record: ", h) //timecounter, length=12
             const m = h.recordStep; //36912
             for (var o = 0; o < k; o++) {
-                // var p = f.offset; //454692 ORIG         
+                var p = f.offset; //454692 ORIG         
                 // l[o] = d.readType(f, j, 1), f.seek(p + m) //orig
-                l[o] = d.readType(f, j, numpts)
+                l[o] = d.readType(f, j, numpts), f.seek(p + m) //NB: NECESSARY TO SEEK!! OTHERWISE FILE NOT POSITIONED PROPERLY FOR NEXT MONTH
             }
             return l
         }
