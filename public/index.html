@@ -183,8 +183,7 @@
     <!-- netcdfjs modified from original 'http://www.lactame.com/lib/netcdfjs/0.3.0/netcdfjs.min.js' to read more than one gridpoint-->
     <script src="/libs/netcdfjs/netcdfjs.js" charset="utf-8"></script>
 
-    <script type="text/javascript">
-        console.log("in here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    <script type="text/javascript">        
 
         var reader;        
         var myRecord = {};
@@ -220,10 +219,10 @@
                    "data": dataArray
                 }
                 
-                console.log("myRecord: ", myRecord)
-                console.log("reader.getDataVariable(ncvar): ", dataArray);
-                console.log("reader.getDataVariable(ncvar) month 0: ", dataArray[0]);
-                console.log("reader.getDataVariable(ncvar) month 1: ", dataArray[1]);
+                // console.log("myRecord: ", myRecord)
+                // console.log("reader.getDataVariable(ncvar): ", dataArray);
+                // console.log("reader.getDataVariable(ncvar) month 0: ", dataArray[0]);
+                // console.log("reader.getDataVariable(ncvar) month 1: ", dataArray[1]);
 
             } //end reader.onload
             

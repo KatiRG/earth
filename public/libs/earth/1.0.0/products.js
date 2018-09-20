@@ -219,23 +219,15 @@ var products = function() {
                     }),
                     paths: [gfs1p0degPath("temp")],                    
                     date: gfsDate(attr),
-                    builder: function(file) {
-                        console.log("file HERE: ", file)
-                        console.log("paths: ",[gfs1p0degPath("temp")])                        
-                        console.log("attr: ",attr)
-                        console.log("attr.overlayType: ",attr.overlayType)
-                        console.log("dict.indexOf(attr.overlayType): ",dict.indexOf(attr.overlayType))
+                    builder: function(file) {                                                        
                         if (dict.indexOf(attr.overlayType)!==-1){
                             k=dict.indexOf(attr.overlayType)
                         }else{
                             k=0
-                        }            
-                          
+                        }                                      
                         var myData = myRecord.data[k],
                             myHeader = myRecord.header;                        
                         console.log("myHeader: ", myHeader)
-
-
 
                         var record = file[k], data = record.data;
                         console.log("record: ", record)

@@ -44,14 +44,12 @@
             get variables() {
                 return this.header.variables
             }            
-            getDataVariable(k) {
-                console.log("this: ", this) //shows correct size of lat and lon
+            getDataVariable(k) {               
 
-                var l, numpts;
-                console.log("this.buffer: ", this.buffer)
+                var l, numpts;               
 
                 // numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
-                //         this.header.dimensions.find(function (val) {return val.name === "lon";}).size - 1;
+                //         this.header.dimensions.find(function (val) {return val.name === "lon";}).size - 1; //ORIG
                 numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
                         this.header.dimensions.find(function (val) {return val.name === "lon";}).size;
                 console.log("numpts: ", numpts)
@@ -62,12 +60,10 @@
                 //     this.buffer.seek(l.offset), l.record ? f.record(this.buffer, l, this.header.recordDimension, numpts) : f.nonRecord(this.buffer, l);
 
                 //LONG FORM (copied from src/index.js)
-                var data=f; //mine
-                console.log("data: ", data)
+                var data=f; //CN
                 var variable;
                     if (typeof k === 'string') {
-                        // search the variable
-                        console.log('this.header.variables: ', this.header.variables)
+                        // search for the variable
                         variable = this.header.variables.find(function (val) {
                             return val.name === k;
                         });
@@ -75,37 +71,29 @@
                         variable = k;
                     }
                 // search for lat and lon size
-                var numpts; //total number of points = lat*long-1                
-                console.log('this.header.dimensions: ', this.header.dimensions)
+                var numpts; //total number of points = lat*long-1
                 
                 // numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
                 //         this.header.dimensions.find(function (val) {return val.name === "lon";}).size - 1; //ORIG
                 numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
                         this.header.dimensions.find(function (val) {return val.name === "lon";}).size;
-                console.log("numpts: ", numpts)
                     
-
                     // throws if variable not found
                     // utils.notNetcdf((variable === undefined), 'variable not found');
 
                     // go to the offset position
                     this.buffer.seek(variable.offset);
-
-                    console.log("******************************************variable.record: ", variable.record)
+                   
                     if (variable.record) { //records are for netCDF variable data
                         // record variable case                      
+                        // return data.record(this.buffer, variable, this.header.recordDimension); //ORIG
                         return data.record(this.buffer, variable, this.header.recordDimension, numpts);
-                    } else { //nonRecords are for lat, lon data
-                        console.log("non-record variable case")
-                        console.log("this: ", this)
-                        console.log("lat size: ", this.header.dimensions.find(function (val) {return val.name === "lat";}).size)
-                        console.log("lon size: ", this.header.dimensions.find(function (val) {return val.name === "lon";}).size)
-                        console.log("variable: ", variable)
-
+                    } else { //nonRecords are for lat, lon data                      
                         var nx = this.header.dimensions.find(function (val) {return val.name === "lon";}).size,
                             ny = this.header.dimensions.find(function (val) {return val.name === "lat";}).size,
                             dx = 360/nx, dy = 180/ny;
                         // non-record variable case
+                        // return data.nonRecord(this.buffer, variable); //ORIG
                         return data.nonRecord(this.buffer, variable, dx, dy);
                     }
             }
@@ -278,9 +266,6 @@
         'use strict';
         const d = c(4);
         a.exports.nonRecord = function(f, g, dx, dy) {
-            var delta, s0;
-            console.log("EXPORTS NONRECORD!!!!!!!!!!!!!!!!!!!!")
-            console.log("g: ", g)
             const h = d.str2num(g.type);
             var j = g.size / d.num2bytes(h),
                 k = Array(j);           
