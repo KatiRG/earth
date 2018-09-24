@@ -102,10 +102,40 @@ app.use(express.static("public"));
 // app.use(getFromJS());
 
 //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
+// app.get('/endpointJSONP', function (req, res) {
+//     //LOG  
+//     console.log('JSONP response');
+//     console.log(req.query);
+//     //JSONP Response (doc: http://expressjs.com/api.html#res.jsonp) 
+//     res.jsonp(req.query) 
+// });
+
 app.get('/endpointJSONP', function (req, res) {
+    const { spawn } = require('child_process');
+    // const ls = spawn('ls', ['-lh', '/usr']);
+    const ls = spawn('ls', ['-lh', req.query.message]);
+    //ncks -3 foo4c.nc foo3.nc
+
+    process.argv[0] == 'ncks'
+    process.argv[1] == '-3'
+    process.argv[2] == '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc'
+    process.argv[3] == '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc'
+    const nco_convert = spawn('ncks', [process.argv[1], process.argv[2], process.argv[3]]);
+
+    ls.stdout.on('data', (data) => {
+        console.log("$data: ", `${data}`)
+      console.log(`stdout: ${data}`);   //`${data}` is the output of ls   
+    });
+
+    nco_convert.stdout.on('data', (data) => {
+        console.log("$data in nco_convert: ", `${data}`)
+      // console.log(`stdout: ${data}`);   //`${data}` is the output of ls   
+    });
+
     //LOG  
     console.log('JSONP response');
     console.log(req.query);
+    console.log(req.query.message);
     //JSONP Response (doc: http://expressjs.com/api.html#res.jsonp) 
     res.jsonp(req.query) 
 });

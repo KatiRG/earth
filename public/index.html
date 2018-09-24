@@ -189,7 +189,7 @@
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <script type="text/javascript">
-
+    
         var reader;        
         var myRecord = {};
         
@@ -201,15 +201,17 @@
             reader = new FileReader();
             reader.onerror = errorHandler;
 
+
             reader.onabort = function(e) {
                 alert('File read cancelled');
             };
 
-            reader.onload = function(e) {
-                //console.log("this: ", this)
+            reader.onload = function(e) {                
+                // console.log("this: ", this)
+                console.log("evt.target.value: ", evt.target.value)
                 console.log("filename from evt: ", evt.target.files[0].name)
                 reader = new netcdfjs(this.result);
-                console.log("reader: ", reader); //shows correct size of lat and lon
+                console.log("reader: ", reader); //shows correct size of lat and lon        
 
                 var ncvar = "t2m"; //"lat"; //"precip6HourQCD"; //"staticIds"; //"t2m"; //"wmoId"; //"t2m"; //
                 var dataArray = reader.getDataVariable(ncvar); //variable array returned by getDataVariable()
@@ -233,6 +235,7 @@
             } //end reader.onload
             
             reader.readAsArrayBuffer(evt.target.files[0]); //need this otherwise reader fns not called
+
         } //end fn handleFileSelect
 
         //Start event listener to check if a file has been selected

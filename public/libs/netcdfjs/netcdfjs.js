@@ -254,90 +254,43 @@
             0 != d.offset % 4 && d.skip(4 - d.offset % 4)
         }
         a.exports.notNetcdf = function(e, f) {
-            console.log("go server side a: ", a)
-           
-            // //Ajax request to server
-            // //https://stackoverflow.com/questions/13342466/send-post-request-from-client-to-node-js
-            // jQuery.ajax({
-            //     type: 'POST',
-            //     url: 'http://127.0.0.1:8080/',
-            //     async: false,
-            //     contentType: "text/plain; charset=utf-8",  // this is the content type sent from client to server
-            //     dataType: "jsonp",
-            //     jsonpCallback: '_testcb',
-            //     cache: false,
-            //     timeout: 5000,
-            //     success: function (data) {
-            //         //call _testcb
-            //         console.log("call _testcb")
-            //         _testcb(data);
-            //     },
-            //     error: function (jqXHR, textStatus, errorThrown) {
-            //         console.log('error ' + textStatus + " " + errorThrown);
-            //            alert('error ' + textStatus + " " + errorThrown);
-            //     }
-            // });
-
-           
-            // function _testcb(data) {
-            //     //write your code here to loop on json data recieved from server
-            //     console.log("do something _testcb")
-            //  }
-
-            // //https://stackoverflow.com/questions/47119024/using-ajax-post-to-send-data-to-node-js-server
-            // var postData = {"ElementName":"ElementValue"}
-
-            // var headerSetting = {
-            //     "api-key": 1,
-            //     // "UDID": getUDID(),
-            //     // "device-type": getDeviceType(),
-            //     "Authorization": "Authorization"
-            // };        
-
-            // requestMedia.done(function (data) {
-            //     if (data.status) {
-            //         console.log("success: ", data);
-            //     } else {
-            //         console.log("fail in requestMedia.done: ", data);
-            //         //alert_message("fail" + "success");
-            //         // TODO: Handle not uploaded media
-            //     }
-            //     return;
-            // });
-            // requestMedia.fail(function (jqXHR, textStatus) {
-            //     // TODO: Handle not uploaded media
-            //     console.log("fail in requestMedia.fail")
-            //     //alert_message("fail");
-            //     return
-            // });
             
-
-            //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
-            var data = {};
-            data.title="title";
-            data.message = "message";
-           
-            $.ajax({
-                dataType: 'jsonp',
-                data: JSON.stringify(data),
-                jsonp: 'callback',                
-                url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
-                success: function (data) {
-                    console.log('--------------------BACK TO CLIENT----------------------------')
-                    console.log('Success: ', JSON.stringify(data))
-                },
-                error: function (xhr, status, error) {
-                    // console.log('Error: ' + error.message);
-                    // $('#lblResponse').html('Error connecting to the server.');
-                },
-            });
+            // if (f == "should start with CDF") {
+            if (e) {
+                console.log("go server side a: ", a)
+                console.log("go server side e: ", e)
+                console.log("go server side f: ", f)
+                      
+                //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
+                var data = {};
+                data.title="file to convert";
+                data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
+               
+                $.ajax({
+                    dataType: 'jsonp',
+                    data: data,    //JSON.stringify(data),                
+                    jsonp: 'callback',
+                    url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
+                    success: function (data) {
+                        console.log('--------------------BACK TO CLIENT----------------------------')
+                        // console.log('Success: ', JSON.stringify(data))
+                        console.log('Success: ', data)
+                    },
+                    error: function (xhr, status, error) {
+                        // console.log('Error: ' + error.message);
+                        // $('#lblResponse').html('Error connecting to the server.');
+                    },
+                });
+            }
         
 
 
         
 
             if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
-        }, a.exports.padding = c, a.exports.readName = function(e) {
+        }, 
+
+        a.exports.padding = c, a.exports.readName = function(e) {
             var f = e.readUint32(),
                 g = e.readChars(f);
             return c(e), g
