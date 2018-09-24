@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html itemscope itemtype="http://schema.org/Map" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <head>
     <meta charset="utf-8"/>
     <title>earth :: an animated map of global wind and weather</title>
@@ -183,7 +184,11 @@
     <!-- netcdfjs modified from original 'http://www.lactame.com/lib/netcdfjs/0.3.0/netcdfjs.min.js' to read more than one gridpoint-->
     <script src="/libs/netcdfjs/netcdfjs.js" charset="utf-8"></script>
 
-    <script type="text/javascript">        
+    <script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript">
 
         var reader;        
         var myRecord = {};
@@ -192,6 +197,7 @@
 
         function handleFileSelect(evt) {
             console.log("HELLO from fn handleFileSelect")
+            console.log("evt: ", evt)
             reader = new FileReader();
             reader.onerror = errorHandler;
 
@@ -200,7 +206,7 @@
             };
 
             reader.onload = function(e) {
-                // console.log("whatis evt: ", evt)
+                //console.log("this: ", this)
                 console.log("filename from evt: ", evt.target.files[0].name)
                 reader = new netcdfjs(this.result);
                 console.log("reader: ", reader); //shows correct size of lat and lon
