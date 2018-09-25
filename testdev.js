@@ -116,11 +116,13 @@ app.get('/endpointJSONP', function (req, res) {
     const ls = spawn('ls', ['-lh', req.query.message]);
     //ncks -3 foo4c.nc foo3.nc
 
-    process.argv[0] == 'ncks'
-    process.argv[1] == '-3'
-    process.argv[2] == '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc'
-    process.argv[3] == '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc'
-    const nco_convert = spawn('ncks', [process.argv[1], process.argv[2], process.argv[3]]);
+    // process.argv[0] == 'ncks'
+    // process.argv[1] == `-3`
+    // process.argv[2] == '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc'
+    // process.argv[3] == '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc'
+    // const nco_convert = spawn('ncks', [process.argv[1], process.argv[2], process.argv[3]]);
+
+    const nco_convert = spawn('ncks', ['-3', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc']);
 
     ls.stdout.on('data', (data) => {
         console.log("$data: ", `${data}`)
