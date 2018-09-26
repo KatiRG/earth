@@ -1,6 +1,6 @@
-(function(b, c) {
+(function(b, c) {    
     'object' == typeof exports && 'object' == typeof module ? module.exports = c() : 'function' == typeof define && define.amd ? define([], c) : 'object' == typeof exports ? exports.netcdfjs = c() : b.netcdfjs = c()
-})(this, function() {
+})(this, function() {   
     return function(a) {
         function b(d) {
             if (c[d]) return c[d].exports;
@@ -11,28 +11,35 @@
             };
             return a[d].call(e.exports, e, e.exports, b), e.loaded = !0, e.exports
         }
-        var c = {};       
+        var c = {};        
         return b.m = a, b.c = c, b.p = '', b(0)
     }
     //FN 1
     ([function(a, b, c) { //index.js        
-        'use strict'; //strict mode, you can not, for example, use undeclared variables
+        'use strict'; //strict mode, you can not, for example, use undeclared variables       
 
         const d = c(1),
             e = c(2),
             f = c(3),
             g = c(5);   
         class j {
-            constructor(k) {
-                const l = new d(k);
-                l.setBigEndian(), e.notNetcdf('CDF' !== l.readChars(3), 'should start with CDF');
+            constructor(k) {                
+                const l = new d(k);                
+                l.setBigEndian(),
+                // e.notNetcdf('CDF' !== l.readChars(3), 'should start with CDF');
+                e.convertNetcdf('CDF' !== l.readChars(3), 'converting netCDF 4x to 3x');
+                // console.log("TRACE 1: ", l.readChars(3))
+
                 const m = l.readByte();
-                e.notNetcdf(2 === m, '64-bit offset format not supported yet'), e.notNetcdf(1 !== m, 'unknown version'), this.header = g(l), this.header.version = m, this.buffer = l
+                // e.notNetcdf(2 === m, '64-bit offset format not supported yet'), 
+                // e.notNetcdf(1 !== m, 'unknown version'), 
+
+                this.header = g(l), this.header.version = m, this.buffer = l
             }
             get version() {
                 return 1 === this.header.version ? 'classic format' : '64-bit offset format'
             }
-            get recordDimension() {                
+            get recordDimension() {
                 return this.header.recordDimension
             }
             get dimensions() {
@@ -43,8 +50,9 @@
             }
             get variables() {
                 return this.header.variables
-            }            
-            getDataVariable(k) {               
+            }      
+            getDataVariable(k) {
+                console.log("TRACE 2")
 
                 var l, numpts;               
 
@@ -105,6 +113,7 @@
         'use strict';
         const c = 8192,
             d = [];
+        console.log("TRACE 3")
         a.exports = class {
             constructor(f, g) {
                 g = g || {}, f === void 0 && (f = c), 'number' == typeof f && (f = new ArrayBuffer(f));
@@ -254,6 +263,7 @@
             0 != d.offset % 4 && d.skip(4 - d.offset % 4)
         }
         a.exports.notNetcdf = function(e, f) {
+            console.log("TRACE a.exports.notNetcdf");
             
             // if (f == "should start with CDF") {
             if (e) {
@@ -282,12 +292,41 @@
                     },
                 });
             }
-        
 
+            // if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
+        }, 
+        a.exports.convertNetcdf = function(e, f) {
+            console.log("TRACE a.exports.convertNetcdf");
+            
+            // if (f == "should start with CDF") {
+            if (e) {
+                console.log("go server side a: ", a)
+                console.log("go server side e: ", e)
+                console.log("go server side f: ", f)
+                      
+                //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
+                var data = {};
+                data.title="file to convert";
+                data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
+               
+                $.ajax({
+                    dataType: 'jsonp',
+                    data: data,    //JSON.stringify(data),                
+                    jsonp: 'callback',
+                    url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
+                    success: function (data) {
+                        console.log('--------------------BACK TO CLIENT----------------------------')
+                        // console.log('Success: ', JSON.stringify(data))
+                        console.log('Success: ', data)
+                    },
+                    error: function (xhr, status, error) {
+                        // console.log('Error: ' + error.message);
+                        // $('#lblResponse').html('Error connecting to the server.');
+                    },
+                });
+            }
 
-        
-
-            if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
+            // if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
         }, 
 
         a.exports.padding = c, a.exports.readName = function(e) {
