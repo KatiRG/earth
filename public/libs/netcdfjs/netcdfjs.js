@@ -23,12 +23,11 @@
             f = c(3),
             g = c(5);   
         class j {
-            constructor(k) {                
-                const l = new d(k);                
+            constructor(k) {
+                const l = new d(k);
                 l.setBigEndian(),
-                // e.notNetcdf('CDF' !== l.readChars(3), 'should start with CDF');
-                e.convertNetcdf('CDF' !== l.readChars(3), 'converting netCDF 4x to 3x');
-                // console.log("TRACE 1: ", l.readChars(3))
+                // e.notNetcdf('CDF' !== l.readChars(3), 'should start with CDF');               
+                e.convertNetcdf('CDF' !== l.readChars(3), 'converting netCDF 4x to 3x');                
 
                 const m = l.readByte();
                 // e.notNetcdf(2 === m, '64-bit offset format not supported yet'), 
@@ -113,7 +112,7 @@
         'use strict';
         const c = 8192,
             d = [];
-        console.log("TRACE 3")
+        console.log("TRACE 0")
         a.exports = class {
             constructor(f, g) {
                 g = g || {}, f === void 0 && (f = c), 'number' == typeof f && (f = new ArrayBuffer(f));
@@ -191,8 +190,11 @@
                 return this.offset += 4, f
             }
             readUint32() {
-                var f = this._data.getUint32(this.offset, this.littleEndian);
-                return this.offset += 4, f
+                if (v3Flag) {//CN
+                    console.log("header.js v3Flag: ", v3Flag)
+                    var f = this._data.getUint32(this.offset, this.littleEndian);
+                    return this.offset += 4, f
+                }
             }
             readFloat32() {
                 var f = this._data.getFloat32(this.offset, this.littleEndian);
@@ -264,42 +266,23 @@
         }
         a.exports.notNetcdf = function(e, f) {
             console.log("TRACE a.exports.notNetcdf");
-            
-            // if (f == "should start with CDF") {
-            if (e) {
-                console.log("go server side a: ", a)
-                console.log("go server side e: ", e)
-                console.log("go server side f: ", f)
-                      
-                //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
-                var data = {};
-                data.title="file to convert";
-                data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
-               
-                $.ajax({
-                    dataType: 'jsonp',
-                    data: data,    //JSON.stringify(data),                
-                    jsonp: 'callback',
-                    url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
-                    success: function (data) {
-                        console.log('--------------------BACK TO CLIENT----------------------------')
-                        // console.log('Success: ', JSON.stringify(data))
-                        console.log('Success: ', data)
-                    },
-                    error: function (xhr, status, error) {
-                        // console.log('Error: ' + error.message);
-                        // $('#lblResponse').html('Error connecting to the server.');
-                    },
-                });
-            }
+            console.log("*****************************************")
+            console.log("e in notNetcdf: ", e)
+            console.log("f in notNetcdf: ", f)        
 
-            // if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
+            //if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
         }, 
         a.exports.convertNetcdf = function(e, f) {
             console.log("TRACE a.exports.convertNetcdf");
-            
-            // if (f == "should start with CDF") {
-            if (e) {
+            console.log("################################################")
+            console.log("e in convertNetcdf: ", e) 
+            // console.log("check: ", this)            
+
+            if (e)  {
+
+                v3Flag = false;            
+           
+                //vFlag = true;
                 console.log("go server side a: ", a)
                 console.log("go server side e: ", e)
                 console.log("go server side f: ", f)
@@ -314,25 +297,46 @@
                     data: data,    //JSON.stringify(data),                
                     jsonp: 'callback',
                     url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
-                    success: function (data) {
+                    success: function (returnedData) {
                         console.log('--------------------BACK TO CLIENT----------------------------')
                         // console.log('Success: ', JSON.stringify(data))
-                        console.log('Success: ', data)
+                        console.log('Success: ', returnedData)
+                        myRecord = {
+                           "header": {"nx": returnedData.header.nx, "ny": returnedData.header.ny, 
+                                      "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, 
+                                      "dx": returnedData.header.dx, "dy": returnedData.header.dy},
+                           "data": returnedData.data
+                        }
                     },
                     error: function (xhr, status, error) {
                         // console.log('Error: ' + error.message);
                         // $('#lblResponse').html('Error connecting to the server.');
                     },
                 });
+                return data;
             }
 
             // if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
         }, 
 
-        a.exports.padding = c, a.exports.readName = function(e) {
-            var f = e.readUint32(),
-                g = e.readChars(f);
-            return c(e), g
+        a.exports.padding = c, 
+
+        a.exports.readName = function(e) {
+            
+            if (v3Flag) {
+                console.log("TRACE a.exports.readName: ", a);
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                var f = e.readUint32(),
+                    g = e.readChars(f);
+                console.log("e: ", e)
+                console.log("f: ", f)
+                if (g === 't2m') console.log("g: ", g)
+
+
+
+                console.log("c(e): ", c(e))
+                return c(e), g
+            }
         }
     }, 
     //FN 4 data.js (supports 2-D variables)
@@ -447,7 +451,7 @@
     }, 
     //FN 6 header.js
     function(a, b, c) {  //header.js
-        'use strict';
+        'use strict';    
 
         function d(k) {
             var l, m;

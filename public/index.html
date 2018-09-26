@@ -191,7 +191,9 @@
     <script type="text/javascript">
     
         var reader;        
-        var myRecord = {};
+        //var myRecord = {}; //Defined as global var in products.js
+
+        // var v3Flag = true;
         
         function abortRead() {  reader.abort(); }
 
@@ -209,22 +211,31 @@
             reader.onload = function(e) {                
                 // console.log("this: ", this)
                 console.log("evt.target.value: ", evt.target.value)
-                console.log("filename from evt: ", evt.target.files[0].name)
-                reader = new netcdfjs(this.result);
-                console.log("reader: ", reader); //shows correct size of lat and lon        
+                console.log("filename from evt: ", evt.target.files[0].name)                
+                console.log("this.result: ", this.result)
 
-                var ncvar = "t2m"; //"lat"; //"precip6HourQCD"; //"staticIds"; //"t2m"; //"wmoId"; //"t2m"; //
-                var dataArray = reader.getDataVariable(ncvar); //variable array returned by getDataVariable()
+                
 
-                //make header obj
-                var nx = reader.getDataVariable("lat").length;
-                var ny = reader.getDataVariable("lon").length;
-                var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-                var dx = 360/nx, dy = 180/ny;
+                reader = new netcdfjs(this.result); //HERE CODE GOES INTO netcdfjs.js
+                console.log("reader: ", reader); //shows correct size of lat and lon. Here code is back from netcdfjs.js
 
-                myRecord = {
-                   "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-                   "data": dataArray
+                console.log("v3Flag in index: ", v3Flag)
+
+                if (v3Flag) {
+
+                    var ncvar = "t2m"; //"lat"; //"precip6HourQCD"; //"staticIds"; //"t2m"; //"wmoId"; //"t2m"; //
+                    var dataArray = reader.getDataVariable(ncvar); //variable array returned by getDataVariable()
+
+                    //make header obj
+                    var nx = reader.getDataVariable("lat").length;
+                    var ny = reader.getDataVariable("lon").length;
+                    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+                    var dx = 360/nx, dy = 180/ny;
+
+                    myRecord = {
+                       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+                       "data": dataArray
+                    }
                 }
                 
                 // console.log("myRecord: ", myRecord)
@@ -234,6 +245,7 @@
 
             } //end reader.onload
             
+            console.log("What about here? ", evt.target.files[0])
             reader.readAsArrayBuffer(evt.target.files[0]); //need this otherwise reader fns not called
 
         } //end fn handleFileSelect
