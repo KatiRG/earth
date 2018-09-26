@@ -7,6 +7,8 @@
  * https://github.com/cambecc/earth
  */
 
+ var v3Flag = true; //CN
+
  // ce fichier recupere les données envoyées par index.html, les traite et affiche les informations demandées par l'utilisateur,
  // dans ce cas, il y a un fichier par type d'informations (vent, temperature, precipitation)
  // chaque fichier contient les informations des 12 mois de l'année dans cette forme la :
