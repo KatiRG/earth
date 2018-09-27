@@ -278,43 +278,49 @@
             console.log("e in convertNetcdf: ", e) 
             // console.log("check: ", this)            
 
-            if (e)  {
+            v3Flag = false;
 
-                v3Flag = false;            
+            // if (e)  {
+
+            //     v3Flag = false;            
            
-                //vFlag = true;
-                console.log("go server side a: ", a)
-                console.log("go server side e: ", e)
-                console.log("go server side f: ", f)
+            //     //vFlag = true;
+            //     console.log("go server side a: ", a)
+            //     console.log("go server side e: ", e)
+            //     console.log("go server side f: ", f)
                       
-                //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
-                var data = {};
-                data.title="file to convert";
-                data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
+            //     //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
+            //     var data = {};
+            //     data.title="file to convert";
+            //     data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
                
-                $.ajax({
-                    dataType: 'jsonp',
-                    data: data,    //JSON.stringify(data),                
-                    jsonp: 'callback',
-                    url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
-                    success: function (returnedData) {
-                        console.log('--------------------BACK TO CLIENT----------------------------')
-                        // console.log('Success: ', JSON.stringify(data))
-                        console.log('Success: ', returnedData)
-                        myRecord = {
-                           "header": {"nx": returnedData.header.nx, "ny": returnedData.header.ny, 
-                                      "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, 
-                                      "dx": returnedData.header.dx, "dy": returnedData.header.dy},
-                           "data": returnedData.data
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        // console.log('Error: ' + error.message);
-                        // $('#lblResponse').html('Error connecting to the server.');
-                    },
-                });
-                return data;
-            }
+            //     $.ajax({
+            //         dataType: 'jsonp',
+            //         data: data,    //JSON.stringify(data),                
+            //         jsonp: 'callback',
+            //         url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
+            //         success: function (returnedData) {
+            //             console.log('--------------------BACK TO CLIENT----------------------------')
+            //             // console.log('Success: ', JSON.stringify(data))
+            //             console.log('Success: ', returnedData)
+            //             myRecord = {
+            //                "header": {"nx": returnedData.header.nx, "ny": returnedData.header.ny, 
+            //                           "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, 
+            //                           "dx": returnedData.header.dx, "dy": returnedData.header.dy},
+            //                "data": returnedData.data
+            //             }
+            //         },
+            //         error: function (xhr, status, error) {
+            //             // console.log('Error: ' + error.message);
+            //             // $('#lblResponse').html('Error connecting to the server.');
+            //         },
+            //     });
+
+            //     //reset v3Flag
+            //     v3Flag = true;
+
+            //     return data;
+            // }
 
             // if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
         }, 

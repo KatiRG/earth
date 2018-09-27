@@ -115,28 +115,24 @@ const fs = require('fs');
 const NetCDFReader = require('netcdfjs');
 
 app.get('/endpointJSONP', function (req, res) {
+    var urlpath = "http://127.0.0.1:8080/endpointJSONP?callback=" + req.query.callback;
+
     var myServerRecord = {};
 
     const { spawn } = require('child_process');
-    // const ls = spawn('ls', ['-lh', '/usr']);
-    const ls = spawn('ls', ['-lh', req.query.message]);
+   
     //ncks -3 foo4c.nc foo3.nc
 
-    const nco_convert = spawn('ncks', ['-3', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc']);
+    // const nco_convert = spawn('ncks', ['-3', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc']);
+    //  nco_convert.stdout.on('data', (data) => {
+    //     console.log("$data in nco_convert: ", `${data}`)
+    //   // console.log(`stdout: ${data}`);   //`${data}` is the output of ls   
+    // });
+
 
     const datafile = fs.readFileSync('/homel/cnangini/Bureau/STAGE/PALEO/DATA/foo3_APT.Sewall.4x.EARTH.ATM.nc');
     var reader = new NetCDFReader(datafile); // read the header
-    var dataArray = reader.getDataVariable('t2m');    
-
-    ls.stdout.on('data', (data) => {
-        console.log("$data: ", `${data}`)
-      console.log(`stdout: ${data}`);   //`${data}` is the output of ls   
-    });
-
-    nco_convert.stdout.on('data', (data) => {
-        console.log("$data in nco_convert: ", `${data}`)
-      // console.log(`stdout: ${data}`);   //`${data}` is the output of ls   
-    });
+    var dataArray = reader.getDataVariable('t2m');
 
     //make header obj
     var nx = reader.getDataVariable("lat").length;
@@ -155,6 +151,8 @@ app.get('/endpointJSONP', function (req, res) {
     console.log(req.query.message);
     //JSONP Response (doc: http://expressjs.com/api.html#res.jsonp) 
     // res.jsonp(req.query) 
+    
+    // console.log("myServerRecord: ", myServerRecord);
     res.jsonp(myServerRecord);
 });
 
