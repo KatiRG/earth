@@ -211,73 +211,54 @@
             reader.onload = function(e) {                
                 // console.log("this: ", this)
                 console.log("evt.target.value: ", evt.target.value)
-                console.log("filename from evt: ", evt.target.files[0].name)                
+                console.log("filename from evt: ", evt.target.files[0].name)          
+                console.log("reader: ", reader)      
                 console.log("this.result: ", this.result)
 
+                //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                var file =  evt.target.files[0];
+                var formData = new FormData();
+                formData.append('file', file);
+
+                //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                var xhr = new XMLHttpRequest();
+                // Add any event handlers here...
+                xhr.open('POST', '/something', true);
+                xhr.send(formData);
+                                                
+                //https://stackoverflow.com/questions/47403876/send-uploaded-image-data-to-node-server
                 
+                //http://usefulangle.com/post/14/jquery-2-ways-of-ajax-file-upload-formdata-and-filereader
+                // var $data = { 'title': 'Sample Photo Title',  };
 
-                reader = new netcdfjs(this.result); //HERE CODE GOES INTO netcdfjs.js
-                console.log("reader: ", reader); //shows correct size of lat and lon. Here code is back from netcdfjs.js
+                // https://stackoverflow.com/questions/17316177/send-arraybuffer-with-other-string-in-one-ajax-call-through-jquery
 
-                console.log("v3Flag in index: ", v3Flag)
+                //DOES NOT WORK
+                // $.ajax({
+                //     type: 'POST',
+                //     url: '/something',
+                //     data: this.result, //https://stackoverflow.com/questions/28296252/ajax-not-post-base64-data-of-large-image
+                //     contentType:"application/x-netcdf",
+                //     processData: false,
+                //     success: function(response) {
+                //         console.log("response: ", response)
+                //         callback(null, this.result.index);
+                        
+                //     },
+                //     error: function(response) {
+                //         console.log("FAIL")
+                        
+                //     },
+                // });
 
-                if (v3Flag) {
-
-                    var ncvar = "t2m"; //"lat"; //"precip6HourQCD"; //"staticIds"; //"t2m"; //"wmoId"; //"t2m"; //
-                    var dataArray = reader.getDataVariable(ncvar); //variable array returned by getDataVariable()
-
-                    //make header obj
-                    var nx = reader.getDataVariable("lat").length;
-                    var ny = reader.getDataVariable("lon").length;
-                    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-                    var dx = 360/nx, dy = 180/ny;
-
-                    myRecord = {
-                       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-                       "data": dataArray
-                    }
-                } else {
-                     //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
-                    // var data = {};
-                    // data.title="file to convert";
-                    // data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
-
-                    var urlpath;
-                   
-                    $.ajax({
-                        dataType: 'jsonp',
-                        // data: data,    //JSON.stringify(data),                
-                        jsonp: 'callback',
-                        url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
-                        success: function (returnedData) {
-                            console.log('--------------------BACK TO CLIENT----------------------------')
-                            // console.log('Success: ', JSON.stringify(data))
-                            console.log('Success: ', returnedData)
-                            myRecord = {
-                               "header": {"nx": returnedData.header.nx, "ny": returnedData.header.ny, 
-                                          "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, 
-                                          "dx": returnedData.header.dx, "dy": returnedData.header.dy},
-                               "data": returnedData.data
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            // console.log('Error: ' + error.message);
-                            // $('#lblResponse').html('Error connecting to the server.');
-                        },
-                    });
-
-                   
-
-                    //reset v3Flag
-                    v3Flag = true;
-
-                }
-                
-               
+                // console.log("end ajax")
+                                    
             } //end reader.onload
             
             console.log("What about here? ", evt.target.files[0])
-            reader.readAsArrayBuffer(evt.target.files[0]); //need this otherwise reader fns not called
+            console.log("v3Flag here: ", v3Flag)
+            reader.readAsArrayBuffer(evt.target.files[0]);
+            // reader.readAsDataURL    ( evt.target.files[0] );
 
         } //end fn handleFileSelect
 

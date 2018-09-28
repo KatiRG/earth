@@ -114,27 +114,73 @@ app.use(express.static("public"));
 const fs = require('fs');
 const NetCDFReader = require('netcdfjs');
 
-app.get('/endpointJSONP', function (req, res) {
-    var urlpath = "http://127.0.0.1:8080/endpointJSONP?callback=" + req.query.callback;
+// app.get('/endpointJSONP', function (req, res) {
+//     var urlpath = "http://127.0.0.1:8080/endpointJSONP?callback=" + req.query.callback;
+
+//     var myServerRecord = {};
+
+//     const { spawn } = require('child_process');
+   
+//     //ncks -3 foo4c.nc foo3.nc
+
+//     // const nco_convert = spawn('ncks', ['-3', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc']);
+//     //  nco_convert.stdout.on('data', (data) => {
+//     //     console.log("$data in nco_convert: ", `${data}`)
+//     //   // console.log(`stdout: ${data}`);   //`${data}` is the output of ls   
+//     // });
+
+
+//     const datafile = fs.readFileSync('/homel/cnangini/Bureau/STAGE/PALEO/DATA/foo3_APT.Sewall.4x.EARTH.ATM.nc');
+//     var reader = new NetCDFReader(datafile); // read the header
+//     var dataArray = reader.getDataVariable('t2m');
+
+//     //make header obj
+//     var nx = reader.getDataVariable("lat").length;
+//     var ny = reader.getDataVariable("lon").length;
+//     var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+//     var dx = 360/nx, dy = 180/ny;
+
+//     myServerRecord = {
+//        "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+//        "data": dataArray
+//     }
+
+//     //LOG  
+//     console.log('JSONP response');
+//     console.log(req.query);
+//     console.log(req.query.message);
+//     //JSONP Response (doc: http://expressjs.com/api.html#res.jsonp) 
+//     // res.jsonp(req.query) 
+    
+//     // console.log("myServerRecord: ", myServerRecord);                                                                                                                                              
+//     res.jsonp(myServerRecord);
+// });
+
+
+//https://stackoverflow.com/questions/24543847/req-body-empty-on-posts
+var bodyParser = require('body-parser')
+//app.use(bodyParser.json({ type: 'application/x-netcdf' }));
+
+app.use(express.bodyParser(
+    { type: 'application/x-netcdf' },
+    { limit: '50mb'}
+));
+
+app.post('/something', function (req, res) {
+    console.log("req in node!!!!!!!!!!!!!! ", req);
+    console.log("req.url: ", req.url);
+    console.log("req.files: ", req.files)
+    console.log("req.files.file.path: ", req.files.file.path)
 
     var myServerRecord = {};
 
-    const { spawn } = require('child_process');
-   
-    //ncks -3 foo4c.nc foo3.nc
-
-    // const nco_convert = spawn('ncks', ['-3', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/APT.Sewall.4x.EARTH.ATM.nc', '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc']);
-    //  nco_convert.stdout.on('data', (data) => {
-    //     console.log("$data in nco_convert: ", `${data}`)
-    //   // console.log(`stdout: ${data}`);   //`${data}` is the output of ls   
-    // });
-
-
-    const datafile = fs.readFileSync('/homel/cnangini/Bureau/STAGE/PALEO/DATA/foo3_APT.Sewall.4x.EARTH.ATM.nc');
+    const tmpfile = req.files.file.path;
+    const datafile = fs.readFileSync(tmpfile);
     var reader = new NetCDFReader(datafile); // read the header
     var dataArray = reader.getDataVariable('t2m');
+    // console.log("dataArray: ", dataArray)
 
-    //make header obj
+     //make header obj
     var nx = reader.getDataVariable("lat").length;
     var ny = reader.getDataVariable("lon").length;
     var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
@@ -143,18 +189,25 @@ app.get('/endpointJSONP', function (req, res) {
     myServerRecord = {
        "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
        "data": dataArray
-    }
+   }
 
-    //LOG  
-    console.log('JSONP response');
-    console.log(req.query);
-    console.log(req.query.message);
-    //JSONP Response (doc: http://expressjs.com/api.html#res.jsonp) 
-    // res.jsonp(req.query) 
-    
-    // console.log("myServerRecord: ", myServerRecord);
-    res.jsonp(myServerRecord);
+   console.log("myServerRecord: ", myServerRecord)
+   res.json(myServerRecord);
+
+// files: 
+//    { file: 
+//       { fieldName: 'file',
+//         originalFilename: 'foo3_testCamille.nc',
+//         path: '/tmp/22818-13nmkoi.8jxg.nc',
+//         headers: [Object],
+//         ws: [Object],
+//         size: 454692,
+//         name: 'foo3_testCamille.nc',
+//         type: 'application/x-netcdf' } },
+
 });
+
+
 
 
 
