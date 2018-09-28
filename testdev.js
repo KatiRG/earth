@@ -192,7 +192,10 @@ app.post('/something', function (req, res) {
    }
 
    console.log("myServerRecord: ", myServerRecord)
-   res.json(myServerRecord);
+
+
+   // res.json(myServerRecord);
+   // res.end('OK');
 
 // files: 
 //    { file: 
