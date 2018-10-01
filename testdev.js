@@ -167,7 +167,9 @@ app.use(express.bodyParser(
 ));
 
 app.post('/something', function (req, res) {
-    console.log("req in node!!!!!!!!!!!!!! ", req);
+  const { spawn } = require('child_process');
+
+    console.log("req in node!!!!!!!!!!!!!! "); //, req);
     console.log("req.url: ", req.url);
     // console.log("req.files: ", req.files)
     console.log("req.files.file.name: ", req.files.file.name)
@@ -176,8 +178,19 @@ app.post('/something', function (req, res) {
     var myServerRecord = {};
 
     const tmpfile = req.files.file.path;
-    const datafile = fs.readFileSync(tmpfile);
-    var reader = new NetCDFReader(datafile); // read the header
+    console.log("tmpfile: ", tmpfile)
+    const convFile = tmpfile.split(".nc")[0] + "_conv.nc";
+    console.log("convFile: ", convFile)
+
+    const nco_convert = spawn('ncks', ['-3', '/tmp/3949-73z2z0.8ayg7.nc', '/tmp/3949-73z2z0.8ayg7_conv.nc']);
+    nco_convert.stdout.on('data', (data) => {
+        console.log("$data in nco_convert: ", `${data}`)
+    });
+
+
+    //const datafile = fs.readFileSync(tmpfile);
+    const datafile = fs.readFileSync(convFile);
+    var reader = new NetCDFReader(datafile);
     var dataArray = reader.getDataVariable('t2m');
     // console.log("dataArray: ", dataArray)
 
