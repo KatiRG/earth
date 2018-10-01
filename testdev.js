@@ -187,16 +187,16 @@ app.post('/something', function (req, res) {
     var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
     var dx = 360/nx, dy = 180/ny;
 
-   //  myServerRecord = {
-   //     "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-   //     "data": dataArray
-   // }
+    myServerRecord = {
+       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+       "data": dataArray
+   }
 
    
-   myServerRecord = {
-       "header": {"nx": 96, "ny": 96},
-       "data": [1,3,5,8,11]
-   }
+   // myServerRecord = {
+   //     "header": {"nx": 96, "ny": 96},
+   //     "data": [1,3,5,8,11]
+   // }
 
    console.log("myServerRecord: ", myServerRecord)
 
