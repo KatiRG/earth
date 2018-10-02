@@ -166,6 +166,8 @@ app.use(express.bodyParser(
     { limit: '50mb'}
 ));
 
+var path = require('path');
+
 app.post('/something', function (req, res) {
   const { spawn } = require('child_process');
 
@@ -179,17 +181,32 @@ app.post('/something', function (req, res) {
 
     const tmpfile = req.files.file.path;
     console.log("tmpfile: ", tmpfile)
-    const convFile = tmpfile.split(".nc")[0] + "_conv.nc";
-    console.log("convFile: ", convFile)
 
-    const nco_convert = spawn('ncks', ['-3', '/tmp/3949-73z2z0.8ayg7.nc', '/tmp/3949-73z2z0.8ayg7_conv.nc']);
+    var directory = path.dirname(tmpfile);
+    console.log("directory: ", directory)
+
+    const convFile = path.basename(tmpfile, '.nc') + "_conv.nc";
+    console.log("convFile: ", convFile)
+    console.log("join: ", path.join(directory, convFile))
+
+    //dynamic filenames not supported? https://github.com/browserify/brfs/issues/36
+    const nco_convert = spawn('ncks', ['-3', tmpfile, '/tmp/netcdfv3.nc']);
     nco_convert.stdout.on('data', (data) => {
         console.log("$data in nco_convert: ", `${data}`)
     });
 
 
     //const datafile = fs.readFileSync(tmpfile);
-    const datafile = fs.readFileSync(convFile);
+    //const datafile = fs.readFileSync(path.join(directory, convFile));
+    console.log("convFile HERE: ", convFile)
+    console.log("convFile HERE JOINED: ", path.join(directory, convFile))
+
+
+    console.log('Path of file in parent dir:', require('path').resolve(__dirname, 'testdev.js'));
+
+    const datafile = fs.readFileSync('/tmp/netcdfv3.nc');
+
+   
     var reader = new NetCDFReader(datafile);
     var dataArray = reader.getDataVariable('t2m');
     // console.log("dataArray: ", dataArray)
