@@ -198,6 +198,7 @@
         function abortRead() {  reader.abort(); }
 
         function handleFileSelect(evt) {
+            var fname;
             console.log("HELLO from fn handleFileSelect")
             console.log("evt: ", evt)
             reader = new FileReader();
@@ -208,68 +209,85 @@
                 alert('File read cancelled');
             };
 
-            reader.onload = function(e) {                
+            reader.onload = function(e) {
                 // console.log("this: ", this)
                 console.log("evt.target.value: ", evt.target.value)
-                console.log("filename from evt: ", evt.target.files[0].name)          
-                console.log("reader: ", reader)      
+                console.log("filename from evt: ", evt.target.files[0].name)
+                console.log("reader: ", reader)
                 console.log("this.result: ", this.result)
+                console.log("***************** myHack inside ONLOAD: ", myHack)            
 
                 //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
                 var file =  evt.target.files[0];
+                console.log("file0: ", file)
                 var formData = new FormData();
                 formData.append('file', file);
 
-                //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
-                var xhr = new XMLHttpRequest();
+
+                var xhr0 = new XMLHttpRequest();
                 // Add any event handlers here...
                 //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
-                xhr.onreadystatechange = function () {
-                    console.log("xhr.status initial: ", xhr.status)
+                xhr0.onreadystatechange = function () {
+                    console.log("xhr0.status initial: ", xhr0.status)
 
                     // Only run if the request is complete
-                    if (xhr.readyState !== 4) return;
+                    if (xhr0.readyState !== 4) return;
 
                     // Process our return data
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        console.log("xhr.status success: ", xhr.status)
+                    if (xhr0.status >= 200 && xhr0.status < 300) {
+                        console.log("xhr0.status success: ", xhr0.status)
                         // What do when the request is successful
-                        myServerRecord = JSON.parse(xhr.responseText);
+                        myServerRecord = JSON.parse(xhr0.responseText);
                         console.log("parse: ",myServerRecord);
                     }
 
                 };
+                //myHack.split("/tmp/")[1]
+                xhr0.open('POST', '/something0&name=randomName.nc' , true);
+                xhr0.send(formData);
+
+                //  var xhr1 = new XMLHttpRequest();
+                // // Add any event handlers here...
+                // //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
+                // xhr1.onreadystatechange = function () {
+                //     console.log("xhr1.status initial: ", xhr1.status)
+
+                //     // Only run if the request is complete
+                //     if (xhr1.readyState !== 4) return;
+
+                //     // Process our return data
+                //     if (xhr1.status >= 200 && xhr1.status < 300) {
+                //         console.log("xhr1.status success: ", xhr1.status)          
+                //     }
+
+                // };
+                // xhr1.open('POST', '/something1', true);
+                // xhr1.send("");
 
 
-                xhr.open('POST', '/something', true);
-                xhr.send(formData);
+                // //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                // var xhr = new XMLHttpRequest();
+                // // Add any event handlers here...
+                // //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
+                // xhr.onreadystatechange = function () {
+                //     console.log("xhr.status initial: ", xhr.status)
+
+                //     // Only run if the request is complete
+                //     if (xhr.readyState !== 4) return;
+
+                //     // Process our return data
+                //     if (xhr.status >= 200 && xhr.status < 300) {
+                //         console.log("xhr.status success: ", xhr.status)
+                //         // What do when the request is successful
+                //         myServerRecord = JSON.parse(xhr.responseText);
+                //         console.log("parse: ",myServerRecord);
+                //     }
+
+                // };
+                // xhr.open('POST', '/something', true);
+                // xhr.send(formData);
                                                 
-                //https://stackoverflow.com/questions/47403876/send-uploaded-image-data-to-node-server
-                
-                //http://usefulangle.com/post/14/jquery-2-ways-of-ajax-file-upload-formdata-and-filereader
-                // var $data = { 'title': 'Sample Photo Title',  };
 
-                // https://stackoverflow.com/questions/17316177/send-arraybuffer-with-other-string-in-one-ajax-call-through-jquery
-
-                //DOES NOT WORK
-                // $.ajax({
-                //     type: 'POST',
-                //     url: '/something',
-                //     data: this.result, //https://stackoverflow.com/questions/28296252/ajax-not-post-base64-data-of-large-image
-                //     contentType:"application/x-netcdf",
-                //     processData: false,
-                //     success: function(response) {
-                //         console.log("response: ", response)
-                //         callback(null, this.result.index);
-                        
-                //     },
-                //     error: function(response) {
-                //         console.log("FAIL")
-                        
-                //     },
-                // });
-
-                // console.log("end ajax")
                                     
             } //end reader.onload
             
@@ -282,6 +300,32 @@
 
         //Start event listener to check if a file has been selected
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+        findFile();
+
+        function findFile() {
+            console.log("CALLING FINDFILE")
+
+            var xhr = new XMLHttpRequest();
+            // Add any event handlers here...
+            //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
+            xhr.onreadystatechange = function () {
+                console.log("xhr.status initial: ", xhr.status)
+
+                // Only run if the request is complete
+                if (xhr.readyState !== 4) return;
+
+                // Process our return data
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    console.log("xhr.status success: ", xhr.status)
+                    myHack = JSON.parse(xhr.responseText);  
+                    console.log("return from makePlaceHolderName: ", myHack);
+                }
+
+            };
+            xhr.open('POST', '/makePlaceHolderName', true);
+            xhr.send("");
+        }
 
         //error fn
         function errorHandler(evt) {

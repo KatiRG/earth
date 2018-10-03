@@ -168,6 +168,108 @@ app.use(express.bodyParser(
 
 var path = require('path');
 
+app.post('/makePlaceHolderName', function (req, res) {
+  const { spawn } = require('child_process');
+
+  console.log("/makePlaceHolderName")
+  console.log("******************************************************************")
+
+  var randomName = "/tmp/randomName.nc";
+
+  //Execute shell command to create empty file
+  const touch_nc = spawn('touch', [randomName]);
+
+  const ls = spawn('ls', ['-lt', "/tmp"]);
+  ls.stdout.on('data', (data) => {
+    console.log("touch file cmd: ", `${data}`)
+  });
+
+  res.json( randomName );
+
+
+});
+
+//-------------------------------------------------
+
+app.post('/something0&name=randomName.nc', function (req, res) {
+  var myServerRecord = {};
+
+  const { spawn } = require('child_process');
+  var convFile = "/tmp/" + req.route.path.split("/something0&name=")[1];
+
+  // console.log("/something0 req: ", req)
+  console.log("/something0 req.route: ", req.route)
+  console.log("/something0 req.route.path: ", req.route.path)
+  console.log("convFile: ", convFile)
+  console.log("******************************************************************")
+
+  const tmpfile = req.files.file.path;
+  console.log("tmpfile: ", tmpfile)
+
+  // var directory = path.dirname(tmpfile);
+  // console.log("directory: ", directory)
+
+  // const convFile = path.basename(tmpfile, req.route.path.split("/something0&name=")[1]);
+  // const convFileJoin = path.join(directory, convFile);
+  // console.log("convFile: ", convFile)
+  // console.log("convFile HERE JOINED: ", convFileJoin)
+
+  //Execute shell command to convert nc file
+  const nco_convert = spawn('ncks', ['-3', tmpfile, convFile, '-O']);
+  nco_convert.stdout.on('data', (data) => {
+    console.log("$data in nco_convert: ", `${data}`)
+  });
+
+  const ls = spawn('ls', ['-lt', "/tmp"]);
+  console.log("LS in /something0")
+  ls.stdout.on('data', (data) => {
+    console.log("LS spawn in /something0", `${data}`)
+  });
+
+  const datafile = fs.readFileSync(convFile);
+
+  console.log("datafile: ", datafile)
+  var reader = new NetCDFReader(datafile);
+  var dataArray = reader.getDataVariable('t2m');
+  //console.log("dataArray: ", dataArray)
+
+  //make header obj
+  var nx = reader.getDataVariable("lat").length;
+  var ny = reader.getDataVariable("lon").length;
+  var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+  var dx = 360/nx, dy = 180/ny;
+
+  myServerRecord = {
+     "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+     "data": dataArray
+ }
+
+  console.log("myServerRecord: ", myServerRecord)
+
+  res.json( myServerRecord );
+
+
+});
+
+//-------------------------------------------------
+
+app.post('/something1', function (req, res) {
+  const { spawn } = require('child_process');
+  
+  console.log("/something1")
+  console.log("-----------------------------------------------------------------------")
+ 
+  const ls = spawn('ls', ['-lt', "/tmp"]);
+  console.log("LS after in SECOND POST")
+  ls.stdout.on('data', (data) => {
+    console.log("sucessful LS spawn something1", `${data}`)
+  });
+
+});
+
+//-------------------------------------------------
+
+
 app.post('/something', function (req, res) {
   const { spawn } = require('child_process');
 
@@ -186,66 +288,137 @@ app.post('/something', function (req, res) {
     console.log("directory: ", directory)
 
     const convFile = path.basename(tmpfile, '.nc') + "_conv.nc";
-    console.log("convFile: ", convFile)
-    console.log("join: ", path.join(directory, convFile))
-
-    //dynamic filenames not supported? https://github.com/browserify/brfs/issues/36
-    const nco_convert = spawn('ncks', ['-3', tmpfile, convFile]);
-    nco_convert.stdout.on('data', (data) => {
-        console.log("$data in nco_convert: ", `${data}`)
-    });
-
-
-    //const datafile = fs.readFileSync(tmpfile);
-    //const datafile = fs.readFileSync(path.join(directory, convFile));
-    console.log("convFile HERE: ", convFile)
     const convFileJoin = path.join(directory, convFile);
+    console.log("convFile: ", convFile)
     console.log("convFile HERE JOINED: ", convFileJoin)
-
 
     console.log('Path of file in parent dir:', require('path').resolve(__dirname, 'testdev.js'));
 
-    const datafile = fs.readFileSync(convFileJoin);
+    //Execute shell command to convert nc file
+    const nco_convert = spawn('ncks', ['-3', tmpfile, convFileJoin]);
+    nco_convert.stdout.on('data', (data) => {
+      console.log("$data in nco_convert: ", `${data}`)
+    });
 
-   
-    var reader = new NetCDFReader(datafile);
-    var dataArray = reader.getDataVariable('t2m');
-    // console.log("dataArray: ", dataArray)
+    //dynamic filenames not supported? https://github.com/browserify/brfs/issues/36
 
-     //make header obj
-    var nx = reader.getDataVariable("lat").length;
-    var ny = reader.getDataVariable("lon").length;
-    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-    var dx = 360/nx, dy = 180/ny;
+    //WAIT FOR CHILD PROCESS TO FINISH BEFORE CONTINUING
+    const ls = spawn('ls', ['-lt', "/tmp"]);
 
-    myServerRecord = {
-       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-       "data": dataArray
-   }
+    console.log("LS before readFileSync")
+    ls.stdout.on('data', (data) => {
+      console.log("sucessful LS spawn /something", `${data}`)
+    });
 
-   
-   // myServerRecord = {
-   //     "header": {"nx": 96, "ny": 96},
-   //     "data": [1,3,5,8,11]
+    //https://medium.com/dev-bits/writing-neat-asynchronous-node-js-code-with-promises-32ed3a4fd098
+    
+    //https://stackoverflow.com/questions/34628305/using-promises-with-fs-readfile-in-a-loop
+    // fs.readFileAsync = function (filename) {
+    //   console.log("Call promise filename: ", filename)
+      
+
+    //   return new Promise(function (resolve, reject) {
+    //       try {
+
+    //         //Execute shell command to convert nc file
+    //         const nco_convert = spawn('ncks', ['-3', tmpfile, convFileJoin]);
+    //         nco_convert.stdout.on('data', (data) => {
+    //           console.log("$data in nco_convert: ", `${data}`)
+    //         });
+    //         console.log("check if file is converted")
+
+    //         ls.stdout.on('data', (data) => {
+    //           console.log("sucessful LS spawn", `${data}`)
+    //         });
+
+    //         fs.readFile(convFileJoin, function(err, buffer){
+    //             if (err) {
+    //               console.log("ASYNC ERR!!! ", err)
+    //               reject(err); 
+    //             }
+    //             else {
+    //               console.log("RESOLVE!!! ", buffer)
+    //               resolve(buffer);
+
+    //               console.log("filename: ", filename)
+    //               var reader = new NetCDFReader(filename);
+    //               var dataArray = reader.getDataVariable('t2m');
+    //               // console.log("dataArray: ", dataArray)
+
+    //                //make header obj
+    //               var nx = reader.getDataVariable("lat").length;
+    //               var ny = reader.getDataVariable("lon").length;
+    //               var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+    //               var dx = 360/nx, dy = 180/ny;
+
+    //               myServerRecord = {
+    //                  "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+    //                  "data": dataArray
+    //              }
+
+    //               console.log("myServerRecord: ", myServerRecord)
+
+
+    //               res.json( myServerRecord );
+
+    //             }
+    //         });
+    //         } catch (err) {
+    //           reject(err);
+    //         }
+    //   });
+    // };
+
+    // // utility function
+    // function getFileAsync(i) {
+    //   console.log("getFileAsync")
+    //   return fs.readFileAsync(convFileJoin);
+    // }
+
+    // getFileAsync(0).then(function (imgBuffer){
+    //     console.log("imgBuffer: ", imgBuffer);
+    // }).catch(function (err) {
+    //     console.error("getFileAsync ERR: ", err);
+    // });
+
+    var datafile;
+
+    //https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/
+    // datafile = fs.readFileSync(convFileJoin); // blocks here until file is read
+
+    console.log("LS after readFileSync")
+    ls.stdout.on('data', (data) => {
+      console.log("sucessful LS spawn end of /something", `${data}`)
+    });
+
+    console.log("datafile: ", datafile) 
+
+
+    //const datafile = fs.readFileSync(convFileJoin);
+
+   //  console.log("datafile: ", datafile)
+   //  var reader = new NetCDFReader(datafile);
+   //  var dataArray = reader.getDataVariable('t2m');
+   //  // console.log("dataArray: ", dataArray)
+
+   //   //make header obj
+   //  var nx = reader.getDataVariable("lat").length;
+   //  var ny = reader.getDataVariable("lon").length;
+   //  var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+   //  var dx = 360/nx, dy = 180/ny;
+
+   //  myServerRecord = {
+   //     "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+   //     "data": dataArray
    // }
 
-   console.log("myServerRecord: ", myServerRecord)
+   
+   // console.log("myServerRecord: ", myServerRecord)
 
 
-   res.json( myServerRecord );
-   // res.json( JSON.stringify(myServerRecord) );
-   // res.end('OK');
+   // res.json( myServerRecord );
+   console.log("FIN")
 
-// files: 
-//    { file: 
-//       { fieldName: 'file',
-//         originalFilename: 'foo3_testCamille.nc',
-//         path: '/tmp/22818-13nmkoi.8jxg.nc',
-//         headers: [Object],
-//         ws: [Object],
-//         size: 454692,
-//         name: 'foo3_testCamille.nc',
-//         type: 'application/x-netcdf' } },
 
 });
 

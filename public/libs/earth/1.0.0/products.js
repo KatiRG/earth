@@ -9,6 +9,7 @@
 
  var v3Flag = true; //CN
  var myServerRecord = {}; //CN
+ var myHack; //CN
 
  // ce fichier recupere les données envoyées par index.html, les traite et affiche les informations demandées par l'utilisateur,
  // dans ce cas, il y a un fichier par type d'informations (vent, temperature, precipitation)
