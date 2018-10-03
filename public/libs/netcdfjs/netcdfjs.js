@@ -273,12 +273,12 @@
             //if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
         }, 
         a.exports.convertNetcdf = function(e, f) {
-            console.log("TRACE a.exports.convertNetcdf");
+            console.log("TRACE a.exports.convertNetcdf, f=", f);
             console.log("################################################")
             console.log("e in convertNetcdf: ", e) 
             // console.log("check: ", this)            
 
-            v3Flag = false;
+            if (e) v3Flag = false;
 
             // if (e)  {
 
