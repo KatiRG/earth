@@ -238,35 +238,36 @@
                     }
                 } else {
                     console.log("v3Flag here: ", v3Flag)
-                    //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
-                    // var data = {};
-                    // data.title="file to convert";
-                    // data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
 
-                    var urlpath;
+                    //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                    var file =  evt.target.files[0];
+                    console.log("file0: ", file)
+                    var formData = new FormData();
+                    formData.append('file', file);
+
+
+                    //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                    var xhr = new XMLHttpRequest();
+                    // Add any event handlers here...
+                    //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
+                    xhr.onreadystatechange = function () {
+                        console.log("xhr.status initial: ", xhr.status)
+
+                        // Only run if the request is complete
+                        if (xhr.readyState !== 4) return;
+
+                        // Process our return data
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            console.log("xhr.status success: ", xhr.status)
+                            // What do when the request is successful
+                            myServerRecord = JSON.parse(xhr.responseText);
+                            console.log("parse in client: ", myServerRecord);
+                        }
+
+                    };
+                    xhr.open('POST', '/something', true);
+                    xhr.send(formData);
                    
-                    $.ajax({
-                        dataType: 'jsonp',
-                        // data: data,    //JSON.stringify(data),                
-                        jsonp: 'callback',
-                        url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
-                        success: function (returnedData) {
-                            console.log('--------------------BACK TO CLIENT----------------------------')
-                            // console.log('Success: ', JSON.stringify(data))
-                            console.log('Success: ', returnedData)
-                            myRecord = {
-                               "header": {"nx": returnedData.header.nx, "ny": returnedData.header.ny, 
-                                          "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, 
-                                          "dx": returnedData.header.dx, "dy": returnedData.header.dy},
-                               "data": returnedData.data
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            // console.log('Error: ' + error.message);
-                            // $('#lblResponse').html('Error connecting to the server.');
-                        },
-                    });
-
                    
 
                     //reset v3Flag

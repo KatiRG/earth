@@ -114,6 +114,75 @@ app.use(express.static("public"));
 const fs = require('fs');
 const NetCDFReader = require('netcdfjs');
 
+//https://stackoverflow.com/questions/24543847/req-body-empty-on-posts
+var bodyParser = require('body-parser')
+
+app.use(express.bodyParser(
+    { type: 'application/x-netcdf' },
+    { limit: '50mb'}
+));
+
+var path = require('path');
+
+
+app.post('/something', function (req, res) {
+  const { spawn } = require('child_process');
+
+    console.log("req in node!!!!!!!!!!!!!! "); //, req);
+    console.log("req.url: ", req.url);
+    console.log("req.files.file.name: ", req.files.file.name)
+    console.log("req.files.file.path: ", req.files.file.path)
+
+    var myServerRecord = {};
+
+    const tmpfile = req.files.file.path;
+    console.log("tmpfile: ", tmpfile)
+
+    var directory = path.dirname(tmpfile);
+    
+
+    const convFile = path.basename(tmpfile, '.nc') + "_conv.nc";
+    const convFileJoin = path.join(directory, convFile);
+    console.log("convFile: ", convFile)
+    console.log("convFile HERE JOINED: ", convFileJoin)
+
+
+    //Execute shell command to convert nc file
+    const nco_convert = spawn('ncks', ['-3', tmpfile, '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc', '-O']); //-O to overwrite any existing filename
+    nco_convert.stdout.on('data', (data) => {
+      console.log("$data in nco_convert: ", `${data}`)
+    });
+
+
+    const datafile = fs.readFileSync('/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc');
+
+    console.log("datafile: ", datafile)
+    var reader = new NetCDFReader(datafile);
+    var dataArray = reader.getDataVariable('t2m');
+    // console.log("dataArray: ", dataArray)
+
+     //make header obj
+    var nx = reader.getDataVariable("lat").length;
+    var ny = reader.getDataVariable("lon").length;
+    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+    var dx = 360/nx, dy = 180/ny;
+
+    myServerRecord = {
+       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+       "data": dataArray
+   }
+
+   
+   console.log("myServerRecord in node: ", myServerRecord)
+
+
+   res.json( myServerRecord );
+   
+
+
+});
+
+
 app.get('/endpointJSONP', function (req, res) {
     var urlpath = "http://127.0.0.1:8080/endpointJSONP?callback=" + req.query.callback;
 
