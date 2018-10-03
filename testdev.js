@@ -199,12 +199,13 @@ app.post('/something', function (req, res) {
     //const datafile = fs.readFileSync(tmpfile);
     //const datafile = fs.readFileSync(path.join(directory, convFile));
     console.log("convFile HERE: ", convFile)
-    console.log("convFile HERE JOINED: ", path.join(directory, convFile))
+    const convFileJoin = path.join(directory, convFile);
+    console.log("convFile HERE JOINED: ", convFileJoin)
 
 
     console.log('Path of file in parent dir:', require('path').resolve(__dirname, 'testdev.js'));
 
-    const datafile = fs.readFileSync('/tmp/netcdfv3.nc');
+    const datafile = fs.readFileSync(convFileJoin);
 
    
     var reader = new NetCDFReader(datafile);
