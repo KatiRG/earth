@@ -190,7 +190,7 @@ app.post('/something', function (req, res) {
     console.log("join: ", path.join(directory, convFile))
 
     //dynamic filenames not supported? https://github.com/browserify/brfs/issues/36
-    const nco_convert = spawn('ncks', ['-3', tmpfile, '/tmp/netcdfv3.nc']);
+    const nco_convert = spawn('ncks', ['-3', tmpfile, convFile]);
     nco_convert.stdout.on('data', (data) => {
         console.log("$data in nco_convert: ", `${data}`)
     });
