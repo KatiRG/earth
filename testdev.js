@@ -145,38 +145,67 @@ app.post('/something', function (req, res) {
     const convFileJoin = path.join(directory, convFile);
     console.log("convFile: ", convFile)
     console.log("convFile HERE JOINED: ", convFileJoin)
-
+    //$ ncks -3 fileIN.nc fileOUT.nc
 
     //Execute shell command to convert nc file
-    const nco_convert = spawn('ncks', ['-3', tmpfile, '/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc', '-O']); //-O to overwrite any existing filename
+    const nco_convert = spawn('ncks', ['-3', tmpfile, convFileJoin, '-O']); //-O to overwrite any existing filename
     nco_convert.stdout.on('data', (data) => {
       console.log("$data in nco_convert: ", `${data}`)
     });
 
+    nco_convert.on('close', (code) => {
+      // If you want to handle errors, could check code === 0 here for success
+      console.log("code: ", code)
+      const datafile = fs.readFileSync(convFileJoin);
 
-    const datafile = fs.readFileSync('/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk.nc');
+      console.log("datafile: ", datafile)
+      var reader = new NetCDFReader(datafile);
+      var dataArray = reader.getDataVariable('t2m');
+      // console.log("dataArray: ", dataArray)
 
-    console.log("datafile: ", datafile)
-    var reader = new NetCDFReader(datafile);
-    var dataArray = reader.getDataVariable('t2m');
-    // console.log("dataArray: ", dataArray)
+       //make header obj
+      var nx = reader.getDataVariable("lat").length;
+      var ny = reader.getDataVariable("lon").length;
+      var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+      var dx = 360/nx, dy = 180/ny;
 
-     //make header obj
-    var nx = reader.getDataVariable("lat").length;
-    var ny = reader.getDataVariable("lon").length;
-    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-    var dx = 360/nx, dy = 180/ny;
+      myServerRecord = {
+         "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+         "data": dataArray
+     }
 
-    myServerRecord = {
-       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-       "data": dataArray
-   }
+     
+     console.log("myServerRecord in node: ", myServerRecord)
+
+
+     res.json( myServerRecord );
+
+    });
+
+
+    //const datafile = fs.readFileSync('/homel/cnangini/Bureau/STAGE/PALEO/DATA/junk2.nc');
+
+   //  console.log("datafile: ", datafile)
+   //  var reader = new NetCDFReader(datafile);
+   //  var dataArray = reader.getDataVariable('t2m');
+   //  // console.log("dataArray: ", dataArray)
+
+   //   //make header obj
+   //  var nx = reader.getDataVariable("lat").length;
+   //  var ny = reader.getDataVariable("lon").length;
+   //  var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+   //  var dx = 360/nx, dy = 180/ny;
+
+   //  myServerRecord = {
+   //     "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+   //     "data": dataArray
+   // }
 
    
-   console.log("myServerRecord in node: ", myServerRecord)
+   // console.log("myServerRecord in node: ", myServerRecord)
 
 
-   res.json( myServerRecord );
+   // res.json( myServerRecord );
    
 
 
