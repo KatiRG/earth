@@ -208,10 +208,10 @@
                 alert('File read cancelled');
             };
 
-            reader.onload = function(e) {                
+            reader.onload = function(e) {
                 // console.log("this: ", this)
                 console.log("evt.target.value: ", evt.target.value)
-                console.log("filename from evt: ", evt.target.files[0].name)                
+                console.log("filename from evt: ", evt.target.files[0].name)
                 console.log("this.result: ", this.result)
 
                 
@@ -236,7 +236,7 @@
                        "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
                        "data": dataArray
                     }
-                } else {
+                } else {//send nc file to backend for conversion via POST request
                     console.log("v3Flag here: ", v3Flag)
 
                     //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
@@ -260,15 +260,13 @@
                         if (xhr.status >= 200 && xhr.status < 300) {
                             console.log("xhr.status success: ", xhr.status)
                             // What do when the request is successful
-                            myServerRecord = JSON.parse(xhr.responseText);
-                            console.log("parse in client: ", myServerRecord);
+                            myRecord = JSON.parse(xhr.responseText);
+                            console.log("parse in client: ", myRecord);
                         }
 
                     };
                     xhr.open('POST', '/something', true);
                     xhr.send(formData);
-                   
-                   
 
                     //reset v3Flag
                     v3Flag = true;
