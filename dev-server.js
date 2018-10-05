@@ -104,6 +104,13 @@ app.post('/something', function (req, res) {
       var dataArray = reader.getDataVariable('OX');
       console.log("dataArray.length: ", dataArray.length)
 
+      //temporary hack to deal with file that is not a monthly avg
+      if (dataArray.length > 12) {
+        var n = dataArray.length - 12;
+        dataArray = dataArray.slice(n);
+        console.log('sliced dataArray length: ', dataArray.length)
+      }
+
       //make header obj
       var nx = reader.getDataVariable("lat").length;
       var ny = reader.getDataVariable("lon").length;
@@ -115,6 +122,8 @@ app.post('/something', function (req, res) {
          "data": dataArray
      }
      
+
+
      console.log("myServerRecord in node FAIT! ", myServerRecord)
 
      res.json( myServerRecord );
