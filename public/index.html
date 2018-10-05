@@ -219,11 +219,16 @@
                 reader = new netcdfjs(this.result); //HERE CODE GOES INTO netcdfjs.js
                 console.log("reader: ", reader); //shows correct size of lat and lon. Here code is back from netcdfjs.js
 
+                console.log("reader.version: ", reader.version)
+
+                if (reader.version.indexOf("classic") >= 0) v3Flag = true;
+                else v3Flag = false;
+
                 console.log("v3Flag in index: ", v3Flag)
 
                 if (v3Flag) {
 
-                    var ncvar = "t2m"; //"lat"; //"precip6HourQCD"; //"staticIds"; //"t2m"; //"wmoId"; //"t2m"; //
+                    var ncvar = "OX"; //"t2m";
                     var dataArray = reader.getDataVariable(ncvar); //variable array returned by getDataVariable()
 
                     //make header obj
@@ -231,6 +236,7 @@
                     var ny = reader.getDataVariable("lon").length;
                     var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
                     var dx = 360/nx, dy = 180/ny;
+                    console.log("dataArray length in v3Flag true: ", dataArray.length)
 
                     myRecord = {
                        "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},

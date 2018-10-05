@@ -101,7 +101,8 @@ app.post('/something', function (req, res) {
 
       console.log("datafile: ", datafile)
       var reader = new NetCDFReader(datafile);
-      var dataArray = reader.getDataVariable('t2m');
+      var dataArray = reader.getDataVariable('OX');
+      console.log("dataArray.length: ", dataArray.length)
 
       //make header obj
       var nx = reader.getDataVariable("lat").length;
@@ -114,7 +115,7 @@ app.post('/something', function (req, res) {
          "data": dataArray
      }
      
-     console.log("myServerRecord in node FAIT! ")
+     console.log("myServerRecord in node FAIT! ", myServerRecord)
 
      res.json( myServerRecord );
 

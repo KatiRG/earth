@@ -26,12 +26,11 @@
             constructor(k) {
                 const l = new d(k);
                 l.setBigEndian(),
-                // e.notNetcdf('CDF' !== l.readChars(3), 'should start with CDF');               
-                e.convertNetcdf('CDF' !== l.readChars(3), 'converting netCDF 4x to 3x');                
+                e.notNetcdf('CDF' !== l.readChars(3), 'should start with CDF');
 
                 const m = l.readByte();
-                // e.notNetcdf(2 === m, '64-bit offset format not supported yet'), 
-                // e.notNetcdf(1 !== m, 'unknown version'), 
+                e.notNetcdf(2 === m, '64-bit offset format not supported yet'),
+                e.notNetcdf(1 !== m, 'unknown version'), 
 
                 this.header = g(l), this.header.version = m, this.buffer = l
             }
@@ -268,64 +267,14 @@
             console.log("TRACE a.exports.notNetcdf");
             console.log("*****************************************")
             console.log("e in notNetcdf: ", e)
-            console.log("f in notNetcdf: ", f)        
-
-            //if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
-        }, 
-        a.exports.convertNetcdf = function(e, f) {
-            console.log("TRACE a.exports.convertNetcdf, f=", f);
-            console.log("################################################")
-            console.log("e in convertNetcdf: ", e) 
-            // console.log("check: ", this)            
+            console.log("f in notNetcdf: ", f)            
 
             if (e) v3Flag = false;
-
-            // if (e)  {
-
-            //     v3Flag = false;            
-           
-            //     //vFlag = true;
-            //     console.log("go server side a: ", a)
-            //     console.log("go server side e: ", e)
-            //     console.log("go server side f: ", f)
-                      
-            //     //https://samueleresca.net/2015/07/json-and-jsonp-requests-using-expressjs/
-            //     var data = {};
-            //     data.title="file to convert";
-            //     data.message = "/homel/cnangini/Bureau/STAGE/PALEO/DATA/"; //APT.Sewall.4x.EARTH.ATM.nc
-               
-            //     $.ajax({
-            //         dataType: 'jsonp',
-            //         data: data,    //JSON.stringify(data),                
-            //         jsonp: 'callback',
-            //         url: 'http://127.0.0.1:8080/endpointJSONP?callback=?',
-            //         success: function (returnedData) {
-            //             console.log('--------------------BACK TO CLIENT----------------------------')
-            //             // console.log('Success: ', JSON.stringify(data))
-            //             console.log('Success: ', returnedData)
-            //             myRecord = {
-            //                "header": {"nx": returnedData.header.nx, "ny": returnedData.header.ny, 
-            //                           "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, 
-            //                           "dx": returnedData.header.dx, "dy": returnedData.header.dy},
-            //                "data": returnedData.data
-            //             }
-            //         },
-            //         error: function (xhr, status, error) {
-            //             // console.log('Error: ' + error.message);
-            //             // $('#lblResponse').html('Error connecting to the server.');
-            //         },
-            //     });
-
-            //     //reset v3Flag
-            //     v3Flag = true;
-
-            //     return data;
-            // }
-
-            // if (e) throw new TypeError('Not a valid NetCDF v3.x file: ' + f)
-        }, 
-
+            else if (e === "64-bit offset format not supported yet") v3Flag = false;
+            console.log("v3Flag in .notNetcdf: ", v3Flag)
+        },
         a.exports.padding = c, 
+
 
         a.exports.readName = function(e) {
             
