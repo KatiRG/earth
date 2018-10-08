@@ -222,7 +222,10 @@ var products = function() {
                     }),
                     paths: [gfs1p0degPath("temp")],                    
                     date: gfsDate(attr),
-                    builder: function(file) {                                                        
+                    builder: function(file) {
+                        console.log("attr.overlayType in temp: ", attr.overlayType)
+                        console.log("dict in temp: ", dict)
+                        console.log("file in temp: ", file)
                         if (dict.indexOf(attr.overlayType)!==-1){
                             k=dict.indexOf(attr.overlayType)
                         }else{
@@ -273,6 +276,75 @@ var products = function() {
                 });
             }
         },
+
+        "OX": {
+            matches: _.matches({param: "wind", mode :"OX"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction             
+            create: function(attr) {
+                return buildProduct({
+                    field: "scalar",
+                    type: "ozone",
+                    description: localize({
+                        name: {en: "Ozone", ja: "気温"},
+                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                    }),
+                    paths: [gfs1p0degPath("OX")],                    
+                    date: gfsDate(attr),
+                    builder: function(file) {
+                        console.log("attr.overlayType: ", attr.overlayType)
+                        console.log("dict: ", dict)
+                        console.log("file: ", file)
+                        console.log("file.data: ", file.data)
+                        console.log("file.data[0]: ", file.data[0])
+                        var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
+                        console.log("record in OX: ", record)
+                        return {
+                            header: file.header, //record.header,
+                            interpolate: bilinearInterpolateScalar,
+                            data: function(i) {
+                                return data[i];
+                            }
+                        }
+                    },
+                    // builder: function(file) {                                                        
+                    //     if (dict.indexOf(attr.overlayType)!==-1){
+                    //         k=dict.indexOf(attr.overlayType)
+                    //     }else{
+                    //         k=0
+                    //     }                                      
+                    //     var myData = myRecord.data[k],
+                    //         myHeader = myRecord.header;                        
+                    //     console.log("myHeader: ", myHeader)
+
+                    //     var record = file[k], data = record.data;
+                    //     console.log("record: ", record)
+
+                    //     console.log('----')
+                    //     console.log("myData: ", myData)
+                    //     console.log("data: ", data)
+                    //     console.log('----')
+                        
+                    //     return {
+                    //         header: myHeader, //record.header,
+                    //         interpolate: bilinearInterpolateScalar,
+                    //         data: function(i) {
+                    //             // return data[i];
+                    //             return myData[i];
+                    //         }
+                    //     }
+                    // },
+                     units: [
+                        {label: "%", conversion: function(x) { return x; }, precision: 0}
+                    ],
+                    scale: {
+                        bounds: [0, 0.00001],
+                        gradient: function(v, a) {
+                            return µ.sinebowColor(Math.min(v, 100) / 100, a);
+                        }
+                    }
+                });
+            }
+        }, //end OX
+
 
 
 

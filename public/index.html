@@ -105,7 +105,8 @@
              <p class="wind-mode">Données |<span
                 class="mode text-button" id="temp" title="Surface">Temperature</span> – <span
                 class="mode text-button" id="precip">Precipitation</span> – <span
-                class="mode text-button" id="cloud">Nuages</span>
+                class="mode text-button" id="cloud">Nuages</span> – <span
+                class="mode text-button" id="OX">Ozone</span>
             </p>
 
             <p class="wind-mode">...TimeLine | <span
@@ -228,7 +229,7 @@
 
                 if (v3Flag) {
 
-                    var ncvar = "OX"; //"t2m";
+                    var ncvar = "t2m";
                     var dataArray = reader.getDataVariable(ncvar); //variable array returned by getDataVariable()
 
                     //make header obj

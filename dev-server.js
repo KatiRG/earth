@@ -68,67 +68,78 @@ var path = require('path');
 
 app.post('/something', function (req, res) {
   const { spawn } = require('child_process');
+  const climVar = "OX";
 
-    console.log("req in node!!!!!!!!!!!!!! "); //, req);
-    console.log("req.url: ", req.url);
-    console.log("req.files.file.name: ", req.files.file.name)
-    console.log("req.files.file.path: ", req.files.file.path)
+  console.log("req in node!!!!!!!!!!!!!! "); //, req);
+  console.log("req.url: ", req.url);
+  console.log("req.files.file.name: ", req.files.file.name)
+  console.log("req.files.file.path: ", req.files.file.path)
 
-    var myServerRecord = {};
+  var myServerRecord = {};
 
-    const tmpfile = req.files.file.path;
-    console.log("tmpfile: ", tmpfile)
+  const tmpfile = req.files.file.path;
+  console.log("tmpfile: ", tmpfile)
 
-    var directory = path.dirname(tmpfile);
-    
+  var directory = path.dirname(tmpfile);
+  
 
-    const convFile = path.basename(tmpfile, '.nc') + "_conv.nc";
-    const convFileJoin = path.join(directory, convFile);
-    console.log("convFile: ", convFile)
-    console.log("convFile HERE JOINED: ", convFileJoin)
+  const convFile = path.basename(tmpfile, '.nc') + "_conv.nc";
+  const convFileJoin = path.join(directory, convFile);
+  console.log("convFile: ", convFile)
+  console.log("convFile HERE JOINED: ", convFileJoin)
 
-    //Execute shell command to convert nc file
-    //$ ncks -3 fileIN.nc fileOUT.nc
-    const nco_convert = spawn('ncks', ['-3', tmpfile, convFileJoin, '-O']); //-O to overwrite any existing filename
-    nco_convert.stdout.on('data', (data) => {
-      console.log("$data in nco_convert: ", `${data}`)
-    });
+  //Execute shell command to convert nc file
+  //$ ncks -3 fileIN.nc fileOUT.nc
+  const nco_convert = spawn('ncks', ['-3', tmpfile, convFileJoin, '-O']); //-O to overwrite any existing filename
+  nco_convert.stdout.on('data', (data) => {
+    console.log("$data in nco_convert: ", `${data}`)
+  });
 
-    nco_convert.on('close', (code) => {
-      // If you want to handle errors, could check code === 0 here for success
-      console.log("code: ", code)
-      const datafile = fs.readFileSync(convFileJoin);
+  nco_convert.on('close', (code) => {
+    // If you want to handle errors, could check code === 0 here for success
+    console.log("code: ", code)
+    const datafile = fs.readFileSync(convFileJoin);
 
-      console.log("datafile: ", datafile)
-      var reader = new NetCDFReader(datafile);
-      var dataArray = reader.getDataVariable('OX');
-      console.log("dataArray.length: ", dataArray.length)
+    console.log("datafile: ", datafile)
+    var reader = new NetCDFReader(datafile);
+    var dataArray = reader.getDataVariable(climVar);
+    console.log("dataArray.length: ", dataArray.length)
 
-      //temporary hack to deal with file that is not a monthly avg
-      if (dataArray.length > 12) {
-        var n = dataArray.length - 12;
-        dataArray = dataArray.slice(n);
-        console.log('sliced dataArray length: ', dataArray.length)
-      }
+    //temporary hack to deal with file that is not a monthly avg
+    if (dataArray.length > 12) {
+      var n = dataArray.length - 12;
+      dataArray = dataArray.slice(n);
+      console.log('sliced dataArray length: ', dataArray.length)
+    }
 
-      //make header obj
-      var nx = reader.getDataVariable("lat").length;
-      var ny = reader.getDataVariable("lon").length;
-      var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-      var dx = 360/nx, dy = 180/ny;
+    //make header obj
+    var nx = reader.getDataVariable("lat").length;
+    var ny = reader.getDataVariable("lon").length;
+    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+    var dx = 360/nx, dy = 180/ny;
 
-      myServerRecord = {
-         "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-         "data": dataArray
-     }
+    myServerRecord = {
+       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+       "data": dataArray
+    }
      
-
-
-     console.log("myServerRecord in node FAIT! ", myServerRecord)
-
-     res.json( myServerRecord );
-
+    //stringify and write to disk
+    var myJSON = JSON.stringify(myServerRecord);
+    // fs.writeFile("/tmp/" + climVar + ".json", JSON.stringify(myServerRecord), (err) => {
+    fs.writeFile("/homel/cnangini/PROJECTS/earth/public/data/weather/current/" + climVar + ".json", JSON.stringify(myServerRecord), (err) => {  
+      
+      if (err) {
+          console.error(err);
+          return;
+      };
+      console.log("File has been created");
     });
+
+    console.log("myServerRecord in node FAIT! ", myServerRecord)
+
+    res.json( myServerRecord );
+
+  });
    
 });
 //-------------------------------------------------------------------------------------------
