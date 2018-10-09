@@ -63,6 +63,23 @@
 
         <div id="menu" class="invisible">
             <!--<p>Source | <span id="data-center"></span></p>-->
+
+             <form id="varForm" class="myForm">Enter nc variable names. If none, leave blank.<br>
+                Temp:
+                <input class="thisform" type="text" name="varTemp">
+                Precip:
+                <input class="thisform" type="text" name="varPrecip"><br>
+                Cloud:
+                <input class="thisform" type="text" name="varCloud">
+                Ozone:
+                <input class="thisform" type="text" name="varOzone"><br>
+                <!--<input type="submit" value="Submit"> <!-- onclick="updateData()" -->
+                <!--<label class="custom-file-upload"> <input type="submit" id="varSubmit"/> Submit</label> -->
+            </form>
+
+            <p><br></p>
+            <p><br></p>
+
             <label class="custom-file-upload">
                 <input type="file" id="files"/>
                 Select file
@@ -197,6 +214,7 @@
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <script type="text/javascript">
+        var varArray = [];
     
         var reader;        
         //var myRecord = {}; //Defined as global var in products.js
@@ -217,6 +235,7 @@
             };
 
             reader.onload = function(e) {
+                console.log("varArray in reader.onload: ", varArray)
                 // console.log("this: ", this)
                 console.log("evt.target.value: ", evt.target.value)
                 console.log("filename from evt: ", evt.target.files[0].name)
@@ -258,7 +277,7 @@
                     console.log("file0: ", file)
                     var formData = new FormData();
                     formData.append('file', file);
-                    formData.append('vars', 'OX');
+                    formData.append('vars', varArray);
 
                     //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
                     var xhr = new XMLHttpRequest();
@@ -297,6 +316,18 @@
 
         //Start event listener to check if a file has been selected
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+        //Start event listener to check if variable form has been submitted
+        var inputForm = d3.selectAll("input.thisform");
+        inputForm.on("change", function(d, i) {   // ** Highlight Change **
+             // do something here
+             console.log("d: ", d)
+             console.log("i: ", i)
+             console.log("this.value: ", this.value)
+             varArray.push(this.value)
+             console.log("varArray: ", varArray)
+        });
+
 
         //error fn
         function errorHandler(evt) {

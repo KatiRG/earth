@@ -41,8 +41,24 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     cursor: pointer;
     font: 0.8em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
 }
+.myForm .varSubmit {
+    font-size: 1.5rem;
+}
 input[type="file"] {
     display: none;
+}
+input[type="submit"] {
+    display: none;
+}
+
+input[type=text], select {
+    width: 15%;
+    padding: 4px 0px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 a, .text-button {

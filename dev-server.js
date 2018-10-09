@@ -75,14 +75,19 @@ app.post('/something', function (req, res) {
   const { spawn } = require('child_process');
   const climVar = "OX";
 
+  const varStrings = req.body.vars;
+  const varArray = varStrings.split(",");
+
   console.log("req in node!!!!!!!!!!!!!! "); //, req);
   console.log("req.body: ", req.body);
   console.log("req.body.vars: ", req.body.vars);
+  console.log("varStrings: ", varStrings)
+  console.log("varArray: ", varArray)
   console.log("req.url: ", req.url);
   console.log("req.files.file.name: ", req.files.file.name)
   console.log("req.files.file.path: ", req.files.file.path)
 
-  console.log("req.vars: ", req.vars)
+  
 
   var myServerRecord = {};
 
@@ -112,11 +117,11 @@ app.post('/something', function (req, res) {
     console.log("datafile: ", datafile)
     var reader = new NetCDFReader(datafile);
     // console.log("reader: ", reader)
-    var readerVars = reader.header.variables.map(a => a.name);
-    console.log("reader.header: ", reader.header)
-    console.log("reader.header.variables: ", readerVars)
-    console.log("reader.header.variables.map dimensions: ", reader.header.variables.map(a => a.dimensions))
-    console.log("reader.header.variables.map attributes: ", reader.header.variables.map(a => a.attributes))
+    // var readerVars = reader.header.variables.map(a => a.name);
+    // console.log("reader.header: ", reader.header)
+    // console.log("reader.header.variables: ", readerVars)
+    // console.log("reader.header.variables.map dimensions: ", reader.header.variables.map(a => a.dimensions))
+    // console.log("reader.header.variables.map attributes: ", reader.header.variables.map(a => a.attributes))
 
     var dataArray = reader.getDataVariable(climVar);
     console.log("dataArray.length: ", dataArray.length)
