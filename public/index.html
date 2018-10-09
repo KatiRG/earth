@@ -320,13 +320,20 @@
         //Start event listener to check if variable form has been submitted
         var inputForm = d3.selectAll("input.thisform");
         inputForm.on("change", function(d, i) {   // ** Highlight Change **
-             // do something here
-             console.log("d: ", d)
-             console.log("i: ", i)
-             console.log("this.value: ", this.value)
-             varArray.push(this.value)
-             console.log("varArray: ", varArray)
+            // do something here
+            console.log("d: ", d)
+            console.log("i: ", i)
+
+            if (this.value) {
+                console.log("this.value: ", this.value)
+                varArray.push(this.value);
+
+                if (this.name === "varTemp") fileDict = { "temp": this.value};
+                else if (this.name === "varOzone") fileDict = { "OX": this.value};
+            }
+            console.log("fileDict: ", fileDict)
         });
+       
 
 
         //error fn

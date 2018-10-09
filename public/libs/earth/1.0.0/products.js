@@ -9,6 +9,7 @@
 
  var v3Flag = true; //CN
  var myRecord = {}; //CN
+ var fileDict = {"wind": "wind"};
 
  // ce fichier recupere les données envoyées par index.html, les traite et affiche les informations demandées par l'utilisateur,
  // dans ce cas, il y a un fichier par type d'informations (vent, temperature, precipitation)
@@ -55,7 +56,14 @@ var products = function() {
                 return gfsStep(this.date, step);
             },
             load: function(cancel) {
+                console.log("load THIS: ", this)
+                console.log("load THIS.type: ", this.type)
+                console.log("fileDict: ", fileDict)
+                console.log("fileDict[this.type]: ", fileDict[this.type])
+                this.type = fileDict[this.type];
                 var me = this;
+                console.log("me: ", me)       
+
                 return when.map(this.paths, µ.loadJson).then(function(files) {
                     return cancel.requested ? null : _.extend(me, buildGrid(me.builder.apply(me, files)));
                 });
@@ -79,7 +87,10 @@ var products = function() {
     //construction du nom de fichier utilisé 
     function gfs1p0degPath(type) {//called from FACTORIES for the given match
         var file = type +".json"; //type is passed from FACTORIES line 'paths: [gfs1p0degPath(file)]'
+        // var file = fileDict[type] + ".json";
+
         console.log("type in gfs1p0degPath: ", type)
+        console.log("file in gfs1p0degPath: ", file)
         console.log("file: ", [WEATHER_PATH,file].join("/"))
         return [WEATHER_PATH,file].join("/");
     }
@@ -220,35 +231,34 @@ var products = function() {
                         name: {en: "Temp", ja: "気温"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath("temp")],                    
+                    // paths: [gfs1p0degPath("temp")],
+                    paths: [gfs1p0degPath(fileDict["temp"])],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        console.log("attr.overlayType in temp: ", attr.overlayType)
-                        console.log("dict in temp: ", dict)
-                        console.log("file in temp: ", file)
-                        if (dict.indexOf(attr.overlayType)!==-1){
-                            k=dict.indexOf(attr.overlayType)
-                        }else{
-                            k=0
-                        }                                      
-                        var myData = myRecord.data[k],
-                            myHeader = myRecord.header;                        
-                        console.log("myHeader: ", myHeader)
+                        // if (dict.indexOf(attr.overlayType)!==-1){
+                        //     console.log("attr: ", attr)
+                        //     console.log("attr.overlayType: ", attr.overlayType)
+                        //     k=dict.indexOf(attr.overlayType)
+                        // } else {
+                        //     k=0
+                        // }
 
-                        var record = file[k], data = record.data;
-                        console.log("record: ", record)
+                        // var record = file[k], data = record.data;
+                        // console.log("record: ", record)
 
-                        console.log('----')
-                        console.log("myData: ", myData)
-                        console.log("data: ", data)
-                        console.log('----')
+                        console.log("attr: ", attr)
+                        console.log("attr.overlayType: ", attr.overlayType)
+
+                        var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
+                        console.log("record in temp: ", record)
+                  
                         
                         return {
-                            header: myHeader, //record.header,
+                            header: file.header, //record.header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
-                                // return data[i];
-                                return myData[i];
+                                return data[i];
+                                // return myData[i];
                             }
                         }
                     },
@@ -287,14 +297,18 @@ var products = function() {
                         name: {en: "Ozone", ja: "気温"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath("OX")],                    
+                    paths: [gfs1p0degPath(fileDict["OX"])],                    
                     date: gfsDate(attr),
                     builder: function(file) {
+                        console.log("attr: ", attr)
                         console.log("attr.overlayType: ", attr.overlayType)
                         console.log("dict: ", dict)
                         console.log("file: ", file)
                         console.log("file.data: ", file.data)
                         console.log("file.data[0]: ", file.data[0])
+                        
+                       
+
                         var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
                         console.log("record in OX: ", record)
                         return {
