@@ -39,10 +39,13 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
     display: inline-block;
     padding: 6px 12px;
     cursor: pointer;
-    font: 0.8em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
+    font: 0.7em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
 }
-.myForm .varSubmit {
-    font-size: 1.5rem;
+.myForm {
+    font-size: 1.3rem;
+}
+.varSubmit {
+    font-size: 1.3rem;
 }
 input[type="file"] {
     display: none;
