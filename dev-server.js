@@ -72,11 +72,15 @@ var path = require('path');
 
 
 app.post('/something', function (req, res) {
-  const { spawn } = require('child_process');
+  const { spawn } = require('child_process');  
   const climVar = "OX";
 
   const varStrings = req.body.vars;
   const varArray = varStrings.split(",");
+
+  const la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+
+  
 
   console.log("req in node!!!!!!!!!!!!!! "); //, req);
   console.log("req.body: ", req.body);
@@ -89,7 +93,7 @@ app.post('/something', function (req, res) {
 
   
 
-  var myServerRecord = {};
+  
 
   const tmpfile = req.files.file.path;
   console.log("tmpfile: ", tmpfile)
@@ -116,49 +120,50 @@ app.post('/something', function (req, res) {
 
     console.log("datafile: ", datafile)
     var reader = new NetCDFReader(datafile);
-    // console.log("reader: ", reader)
-    // var readerVars = reader.header.variables.map(a => a.name);
-    // console.log("reader.header: ", reader.header)
-    // console.log("reader.header.variables: ", readerVars)
-    // console.log("reader.header.variables.map dimensions: ", reader.header.variables.map(a => a.dimensions))
-    // console.log("reader.header.variables.map attributes: ", reader.header.variables.map(a => a.attributes))
 
-    var dataArray = reader.getDataVariable(climVar);
-    console.log("dataArray.length: ", dataArray.length)
+    //loop through each variable and save to json
+    var idx;
+    for (idx = 0; idx < varArray.length; idx++) {
+      var myServerRecord = {};
 
-    //temporary hack to deal with file that is not a monthly avg
-    if (dataArray.length > 12) {
-      var n = dataArray.length - 12;
-      dataArray = dataArray.slice(n);
-      console.log('sliced dataArray length: ', dataArray.length)
-    }
+      console.log("varArray[idx]: ", varArray[idx])
 
-    //make header obj
-    var nx = reader.getDataVariable("lat").length;
-    var ny = reader.getDataVariable("lon").length;
-    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-    var dx = 360/nx, dy = 180/ny;
+      var dataArray = reader.getDataVariable(varArray[idx]);
+      console.log("dataArray.length: ", dataArray.length)
 
-    myServerRecord = {
-       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-       "data": dataArray
-    }
+      //temporary hack to deal with file that is not a monthly avg
+      if (dataArray.length > 12) {
+        var n = dataArray.length - 12;
+        dataArray = dataArray.slice(n);
+        console.log('sliced dataArray length: ', dataArray.length)
+      }
+
+      //make header obj (same for all variables)
+      var nx = reader.getDataVariable("lat").length;
+      var ny = reader.getDataVariable("lon").length;
+      var dx = 360/nx, dy = 180/ny;
+
+      myServerRecord = {
+         "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+         "data": dataArray
+      }
+       
+      //stringify and write to disk
+      var myJSON = JSON.stringify(myServerRecord);
+      fs.writeFile("/homel/cnangini/PROJECTS/earth/public/data/weather/current/" + varArray[idx] + ".json", JSON.stringify(myServerRecord), (err) => {  
+        
+        if (err) {
+            console.error(err);
+            return;
+        };
+        console.log("JSON file has been written to disk.");
+      });
      
-    //stringify and write to disk
-    var myJSON = JSON.stringify(myServerRecord);
-    // fs.writeFile("/tmp/" + climVar + ".json", JSON.stringify(myServerRecord), (err) => {
-    fs.writeFile("/homel/cnangini/PROJECTS/earth/public/data/weather/current/" + climVar + ".json", JSON.stringify(myServerRecord), (err) => {  
-      
-      if (err) {
-          console.error(err);
-          return;
-      };
-      console.log("File has been created");
-    });
+    } //.end for loop over varArray
 
     console.log("myServerRecord in node FAIT! "); //, myServerRecord)
 
-    res.json( myServerRecord );
+    //res.json( myServerRecord );
 
   });
    
