@@ -34,6 +34,17 @@ html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, svg, canvas {
  * Page Styling
  **************************************************************************************************/
 
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    font: 0.8em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
+}
+input[type="file"] {
+    display: none;
+}
+
 a, .text-button {
     color: #888888;
 }

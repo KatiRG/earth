@@ -62,17 +62,24 @@
         </p>
 
         <div id="menu" class="invisible">
+            <!--<p>Source | <span id="data-center"></span></p>-->
+            <label class="custom-file-upload">
+                <input type="file" id="files"/>
+                Select file
+            </label>
+         
+            <p><br></p>
+            <p><br></p>
+
             <p>Date | <span
                 id="data-date" class="local"></span> <span
                 id="toggle-zone" class="text-button"></span>
             </p>
+
             <p>Data | <span id="data-layer"></span></p>
             <p><span id="scale-label">Scale | </span><canvas id="scale"></canvas></p>
 
-            <!--<p>Source | <span id="data-center"></span></p>-->
-            <p>
-                <!--<input id="files" class="file" type="file"> Upload netCDF: -->
-                <input type="file" id="files" class="file" data-classButton="btn btn-primary" data-buttonText="Your label here.">
+            
 
             <p>Control | <span
                 class="text-button" id="nav-now" title="Current Conditions">Now</span><span
