@@ -284,80 +284,58 @@ var products = function() {
         },
 
         "OX": {
-            matches: _.matches({param: "wind", mode :"OX"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction             
+            matches: _.matches({param: "wind",mode: "OX"}),
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
-                    type: "ozone",
+                    type: "OX",
                     description: localize({
-                        name: {en: "Ozone", ja: "気温"},
-                        qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
+                        name: {en: "OX", ja: "可降水量"},
+                        qualifier: ""
                     }),
-                    //paths: [gfs1p0degPath(fileDict["OX"])],
-                    paths: [gfs1p0degPath(fileDict.find(x => x.OX).OX)],
+                    // paths: [gfs1p0degPath("precip")],
+                    paths: [gfs1p0degPath( fileDict.find(x => x["OX"])["OX"] )],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        console.log("attr: ", attr)
-                        console.log("attr.overlayType: ", attr.overlayType)
-                        console.log("dict: ", dict)
-                        console.log("file: ", file)
-                        console.log("file.data: ", file.data)
-                        console.log("file.data[0]: ", file.data[0])
-                        
-                       
+                        var this_var = fileDict.find(x => x["OX"])["OX"];
+                        //find index of metaData obj array
+                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
 
-                        var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
-                        console.log("record in OX: ", record)
+                        if (dict.indexOf(attr.overlayType)!==-1){
+                            k=dict.indexOf(attr.overlayType)
+                        } else {
+                            k=0
+                        }           
+                        var record = metaRecord[this_idx].data[k], data = record;
+                        
                         return {
-                            header: file.header, //record.header,
+                            header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
-                                return data[i];
+                                return data[i] * 1e8;
                             }
                         }
                     },
-                    // builder: function(file) {                                                        
-                    //     if (dict.indexOf(attr.overlayType)!==-1){
-                    //         k=dict.indexOf(attr.overlayType)
-                    //     }else{
-                    //         k=0
-                    //     }                                      
-                    //     var myData = myRecord.data[k],
-                    //         myHeader = myRecord.header;                        
-                    //     console.log("myHeader: ", myHeader)
-
-                    //     var record = file[k], data = record.data;
-                    //     console.log("record: ", record)
-
-                    //     console.log('----')
-                    //     console.log("myData: ", myData)
-                    //     console.log("data: ", data)
-                    //     console.log('----')
-                        
-                    //     return {
-                    //         header: myHeader, //record.header,
-                    //         interpolate: bilinearInterpolateScalar,
-                    //         data: function(i) {
-                    //             // return data[i];
-                    //             return myData[i];
-                    //         }
-                    //     }
-                    // },
-                     units: [
-                        {label: "%", conversion: function(x) { return x; }, precision: 0}
+                    units: [
+                        {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
                     ],
                     scale: {
-                        bounds: [0, 0.00001],
-                        gradient: function(v, a) {
-                            return µ.sinebowColor(Math.min(v, 100) / 100, a);
-                        }
+                        bounds: [0, 5],
+                        gradient:
+                            µ.segmentedColorScale([
+                                [0, [230, 165, 30]],
+                                [0.00005, [120, 100, 95]],
+                                [0.0001, [40, 44, 92]],
+                                [0.00015, [21, 13, 193]],
+                                [0.0002, [75, 63, 235]],
+                                [0.00025, [25, 255, 255]],
+                                [0.0003, [150, 255, 255]],
+                                [0.00035, [200, 255, 255]]
+                            ])
                     }
                 });
             }
         }, //end OX
-
-
-
 
         "relative_humidity": {
             matches: _.matches({param: "wind",  overlayType: "relative_humidity"}),
