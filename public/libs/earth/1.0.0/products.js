@@ -8,8 +8,9 @@
  */
 
  var v3Flag = true; //CN
- var myRecord = {}; //CN
- var fileDict = {"wind": "wind"};
+ var metaRecord = {}; //CN
+ var fileDict = [];
+ fileDict.push( {"wind": "wind"} );
 
  // ce fichier recupere les données envoyées par index.html, les traite et affiche les informations demandées par l'utilisateur,
  // dans ce cas, il y a un fichier par type d'informations (vent, temperature, precipitation)
@@ -56,11 +57,15 @@ var products = function() {
                 return gfsStep(this.date, step);
             },
             load: function(cancel) {
+                var thisType = this.type;
                 console.log("load THIS: ", this)
+                console.log("load thisType: ", thisType)
                 console.log("load THIS.type: ", this.type)
                 console.log("fileDict: ", fileDict)
-                console.log("fileDict[this.type]: ", fileDict[this.type])
-                this.type = fileDict[this.type];
+                //console.log("fileDict[this.type]: ", fileDict[this.type])
+                // this.type = fileDict[this.type];
+                console.log("fileDict find: ", fileDict.find(x => x[thisType])[thisType])
+                this.type = fileDict.find(x => x[thisType])[thisType];
                 var me = this;
                 console.log("me: ", me)       
 
@@ -86,8 +91,7 @@ var products = function() {
 
     //construction du nom de fichier utilisé 
     function gfs1p0degPath(type) {//called from FACTORIES for the given match
-        var file = type +".json"; //type is passed from FACTORIES line 'paths: [gfs1p0degPath(file)]'
-        // var file = fileDict[type] + ".json";
+        var file = type +".json"; //type is passed from FACTORIES line 'paths: [gfs1p0degPath(file)]'     
 
         console.log("type in gfs1p0degPath: ", type)
         console.log("file in gfs1p0degPath: ", file)
@@ -179,7 +183,8 @@ var products = function() {
                         name: {en: "Wind", ja: "風速"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath("wind")],//construction du fichier avec "wind" comme nom
+                    // paths: [gfs1p0degPath("wind")],//construction du fichier avec "wind" comme nom
+                    paths: [gfs1p0degPath(fileDict.find(x => x.wind).wind)],//construction du fichier avec "wind" comme nom
                     date: gfsDate(attr),
                     builder: function(file) {
                         if (dict.indexOf(attr.overlayType)!==-1){//recherche du bon mois grâce au dictionnaire des mois 
@@ -232,7 +237,8 @@ var products = function() {
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
                     // paths: [gfs1p0degPath("temp")],
-                    paths: [gfs1p0degPath(fileDict["temp"])],
+                    // paths: [gfs1p0degPath(fileDict["temp"])], //
+                    paths: [gfs1p0degPath(fileDict.find(x => x.temp).temp)],
                     date: gfsDate(attr),
                     builder: function(file) {
                         // if (dict.indexOf(attr.overlayType)!==-1){
