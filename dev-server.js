@@ -142,10 +142,6 @@ app.post('/something', function (req, res) {
       var ny = reader.getDataVariable("lon").length;
       var dx = 360/nx, dy = 180/ny;
 
-      // myServerRecord = {
-      //    "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-      //    "data": dataArray
-      // }
       myServerRecord.push(
         {
           "ncvar": varArray[idx],
@@ -172,16 +168,16 @@ app.post('/something', function (req, res) {
     //Return to client-side JS
     res.json( myServerRecord );
 
-    // //rm temp files using this format otherwise get deprecation error
-    // //https://github.com/desmondmorris/node-tesseract/issues/57
-    // fs.unlink(req.files.file.path, err => { 
-    //   if (err) console.log(err)
-    //   else console.log("tmp nc file deleted");
-    // });
-    // fs.unlink(convFileJoin, err => { 
-    //   if (err) console.log(err)
-    //   else console.log("tmp converted nc file deleted");
-    // });
+    //rm temp files using this format otherwise get deprecation error
+    //https://github.com/desmondmorris/node-tesseract/issues/57
+    fs.unlink(req.files.file.path, err => { 
+      if (err) console.log(err)
+      else console.log("tmp nc file deleted");
+    });
+    fs.unlink(convFileJoin, err => { 
+      if (err) console.log(err)
+      else console.log("tmp converted nc file deleted");
+    });
     
 
   }); //end .on close
