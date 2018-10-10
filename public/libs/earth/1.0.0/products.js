@@ -312,7 +312,7 @@ var products = function() {
                             header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
-                                return data[i] * 1e8;
+                                return data[i] * 1e8; //NOTE!!! FAKE SCALE FACTOR FOR NOW!!!
                             }
                         }
                     },
