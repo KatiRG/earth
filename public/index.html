@@ -247,11 +247,12 @@
                 console.log("v3Flag in index: ", v3Flag)
 
                 if (v3Flag) {
-                    
+                    var thisRecord = {};
+
                     //loop through each variable and save to json
                     var idx;
                     for (idx = 0; idx < varArray.length; idx++) {
-                      var thisRecord = {};
+                      
 
                       console.log("varArray[idx]: ", varArray[idx])
 
@@ -280,7 +281,7 @@
 
                         metaRecord.push( thisRecord );
                     } //.end for loop over varArray
-                    console.log("metaRecord: ", metaRecord)
+                    console.log("metaRecord for v3: ", metaRecord)
                 } else {//send nc file to backend for conversion via POST request
                     console.log("v3Flag here: ", v3Flag)
 
@@ -305,8 +306,8 @@
                         if (xhr.status >= 200 && xhr.status < 300) {
                             console.log("xhr.status success: ", xhr.status)
                             // What do when the request is successful
-                            // myRecord = JSON.parse(xhr.responseText);
-                            // console.log("parse in client: ", myRecord);
+                            metaRecord = JSON.parse(xhr.responseText);
+                            console.log("parse in client: ", metaRecord);
                         }
 
                     };

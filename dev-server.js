@@ -121,11 +121,10 @@ app.post('/something', function (req, res) {
     console.log("datafile: ", datafile)
     var reader = new NetCDFReader(datafile);
 
-    //loop through each variable and save to json
+    //loop through each variable and save to myServerRecord
+    var myServerRecord = [];
     var idx;
     for (idx = 0; idx < varArray.length; idx++) {
-      var myServerRecord = {};
-
       console.log("varArray[idx]: ", varArray[idx])
 
       var dataArray = reader.getDataVariable(varArray[idx]);
@@ -143,38 +142,46 @@ app.post('/something', function (req, res) {
       var ny = reader.getDataVariable("lon").length;
       var dx = 360/nx, dy = 180/ny;
 
-      myServerRecord = {
-         "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-         "data": dataArray
-      }
+      // myServerRecord = {
+      //    "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+      //    "data": dataArray
+      // }
+      myServerRecord.push(
+        {
+          "ncvar": varArray[idx],
+          "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+          "data": dataArray
+        }
+      );
        
-      //stringify and write to disk
-      var myJSON = JSON.stringify(myServerRecord);
-      fs.writeFile("/homel/cnangini/PROJECTS/earth/public/data/weather/current/" + varArray[idx] + ".json", JSON.stringify(myServerRecord), (err) => {  
+      // //stringify and write to disk
+      // var myJSON = JSON.stringify(myServerRecord);
+      // fs.writeFile("/homel/cnangini/PROJECTS/earth/public/data/weather/current/" + varArray[idx] + ".json", JSON.stringify(myServerRecord), (err) => {  
         
-        if (err) {
-            console.error(err);
-            return;
-        };
-        console.log("JSON file has been written to disk.");
-      });
+      //   if (err) {
+      //       console.error(err);
+      //       return;
+      //   };
+      //   console.log("JSON file has been written to disk.");
+      // });
      
     } //.end for loop over varArray
 
     console.log("myServerRecord in node FAIT! "); //, myServerRecord)
 
-    //res.json( myServerRecord );
+    //Return to client-side JS
+    res.json( myServerRecord );
 
-    //rm temp files using this format otherwise get deprecation error
-    //https://github.com/desmondmorris/node-tesseract/issues/57
-    fs.unlink(req.files.file.path, err => { 
-      if (err) console.log(err)
-      else console.log("tmp nc file deleted");
-    });
-    fs.unlink(convFileJoin, err => { 
-      if (err) console.log(err)
-      else console.log("tmp converted nc file deleted");
-    });
+    // //rm temp files using this format otherwise get deprecation error
+    // //https://github.com/desmondmorris/node-tesseract/issues/57
+    // fs.unlink(req.files.file.path, err => { 
+    //   if (err) console.log(err)
+    //   else console.log("tmp nc file deleted");
+    // });
+    // fs.unlink(convFileJoin, err => { 
+    //   if (err) console.log(err)
+    //   else console.log("tmp converted nc file deleted");
+    // });
     
 
   }); //end .on close
