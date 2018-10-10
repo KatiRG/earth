@@ -229,25 +229,19 @@ var products = function() {
             "temp": {
             matches: _.matches({param: "wind", mode :"temp"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction             
             create: function(attr) {
-                console.log("ARE YOU HERE")
                 return buildProduct({
                     field: "scalar",
                     type: "temp",
                     description: localize({
                         name: {en: "Temp", ja: "気温"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
-                    }),                 
+                    }),
                     paths: [gfs1p0degPath(fileDict.find(x => x.temp).temp)],
-                    
-
                     date: gfsDate(attr),
-                    builder: function(file) { //NOTE!!!! file comes from dummy.json!!!! DO NOT USE!!!
-                        console.log("v3Flag true in temp")
+                    builder: function(file) { //NOTE!!!! file comes from dummy.json!!!! DO NOT USE!!!                       
                         var this_var = fileDict.find(x => x.temp).temp;
                         //find index of metaData obj array
-                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
-                        console.log(this_var,' ', this_idx)
-
+                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);                        
                         if (dict.indexOf(attr.overlayType)!==-1){
                             k=dict.indexOf(attr.overlayType)
                         } else {
@@ -256,9 +250,6 @@ var products = function() {
                         //var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
                         var record = metaRecord[this_idx].data[k], data = record;
 
-                        console.log("record in temp: ", record)
-                  
-                        
                         return {
                             header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
@@ -553,26 +544,19 @@ var products = function() {
                     paths: [gfs1p0degPath( fileDict.find(x => x["total_precipitable_water"])["total_precipitable_water"] )],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        // if (dict.indexOf(attr.overlayType)!==-1){
-                        //     console.log("attr: ", attr)
-                        //     console.log("attr.overlayType: ", attr.overlayType)
-                        //     k=dict.indexOf(attr.overlayType)
-                        // } else {
-                        //     k=0
-                        // }
+                        var this_var = fileDict.find(x => x["total_precipitable_water"])["total_precipitable_water"];
+                        //find index of metaData obj array
+                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
 
-                        // var record = file[k], data = record.data;
-                        // console.log("record: ", record)
-
-                        console.log("attr: ", attr)
-                        console.log("attr.overlayType: ", attr.overlayType)
-
-                        var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
-                        console.log("record in temp: ", record)
-                  
+                        if (dict.indexOf(attr.overlayType)!==-1){
+                            k=dict.indexOf(attr.overlayType)
+                        } else {
+                            k=0
+                        }           
+                        var record = metaRecord[this_idx].data[k], data = record;
                         
                         return {
-                            header: file.header, //record.header,
+                            header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
                                 return data[i];

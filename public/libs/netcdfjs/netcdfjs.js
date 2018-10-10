@@ -68,14 +68,14 @@
                 //LONG FORM (copied from src/index.js)
                 var data=f; //CN
                 var variable;
-                    if (typeof k === 'string') {
-                        // search for the variable
-                        variable = this.header.variables.find(function (val) {
-                            return val.name === k;
-                        });
-                    } else {
-                        variable = k;
-                    }
+                if (typeof k === 'string') {
+                    // search for the variable
+                    variable = this.header.variables.find(function (val) {
+                        return val.name === k;
+                    });
+                } else {
+                    variable = k;
+                }
                 // search for lat and lon size
                 var numpts; //total number of points = lat*long-1
                 
