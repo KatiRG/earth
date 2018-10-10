@@ -87,13 +87,13 @@ app.post('/something', function (req, res) {
   console.log("req.body.vars: ", req.body.vars);
   console.log("varStrings: ", varStrings)
   console.log("varArray: ", varArray)
-  console.log("req.url: ", req.url);
+  console.log("req.url: ", req.url);  
   console.log("req.files.file.name: ", req.files.file.name)
   console.log("req.files.file.path: ", req.files.file.path)
 
-  
+  var dirName = path.dirname(req.files.file.path);
+  console.log("dirName: ", dirName)
 
-  
 
   const tmpfile = req.files.file.path;
   console.log("tmpfile: ", tmpfile)
@@ -165,7 +165,19 @@ app.post('/something', function (req, res) {
 
     //res.json( myServerRecord );
 
-  });
+    //rm temp files using this format otherwise get deprecation error
+    //https://github.com/desmondmorris/node-tesseract/issues/57
+    fs.unlink(req.files.file.path, err => { 
+      if (err) console.log(err)
+      else console.log("tmp nc file deleted");
+    });
+    fs.unlink(convFileJoin, err => { 
+      if (err) console.log(err)
+      else console.log("tmp converted nc file deleted");
+    });
+    
+
+  }); //end .on close
    
 });
 //-------------------------------------------------------------------------------------------
