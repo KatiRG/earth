@@ -128,7 +128,7 @@
 
              <p class="wind-mode">Données |<span
                 class="mode text-button" id="temp" title="Surface">Temperature</span> – <span
-                class="mode text-button" id="precip">Precipitation</span> – <span
+                class="mode text-button" id="total_precipitable_water">Precipitation</span> – <span
                 class="mode text-button" id="cloud">Nuages</span> – <span
                 class="mode text-button" id="OX">Ozone</span>
             </p>
@@ -340,7 +340,7 @@
                 varArray.push(this.value);
 
                 if (this.name === "varTemp") fileDict.push( {"temp": this.value} );
-                else if (this.name === "varPrecip") fileDict.push( {"precip": this.value} );
+                else if (this.name === "varPrecip") fileDict.push( {"total_precipitable_water": this.value} );
                 else if (this.name === "varOzone") fileDict.push( {"OX": this.value} );
             }
             console.log("fileDict: ", fileDict)

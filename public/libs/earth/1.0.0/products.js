@@ -63,8 +63,7 @@ var products = function() {
                 console.log("load THIS.type: ", this.type)
                 console.log("fileDict: ", fileDict)
                 //console.log("fileDict[this.type]: ", fileDict[this.type])
-                // this.type = fileDict[this.type];
-                console.log("fileDict find: ", fileDict.find(x => x[thisType])[thisType])
+                // this.type = fileDict[this.type];                
                 this.type = fileDict.find(x => x[thisType])[thisType];
                 var me = this;
                 console.log("me: ", me)       
@@ -91,7 +90,7 @@ var products = function() {
 
     //construction du nom de fichier utilisé 
     function gfs1p0degPath(type) {//called from FACTORIES for the given match
-        var file = type +".json"; //type is passed from FACTORIES line 'paths: [gfs1p0degPath(file)]'     
+        var file = type +".json"; //type is passed from FACTORIES line 'paths: [gfs1p0degPath(file)]'
 
         console.log("type in gfs1p0degPath: ", type)
         console.log("file in gfs1p0degPath: ", file)
@@ -303,7 +302,8 @@ var products = function() {
                         name: {en: "Ozone", ja: "気温"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
                     }),
-                    paths: [gfs1p0degPath(fileDict["OX"])],                    
+                    //paths: [gfs1p0degPath(fileDict["OX"])],
+                    paths: [gfs1p0degPath(fileDict.find(x => x.OX).OX)],
                     date: gfsDate(attr),
                     builder: function(file) {
                         console.log("attr: ", attr)
@@ -540,7 +540,7 @@ var products = function() {
         },
 
         "total_precipitable_water": {
-            matches: _.matches({param: "wind",mode: "precip"}),
+            matches: _.matches({param: "wind",mode: "total_precipitable_water"}),
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
@@ -549,12 +549,30 @@ var products = function() {
                         name: {en: "Total Precipitable Water", ja: "可降水量"},
                         qualifier: ""
                     }),
-                    paths: [gfs1p0degPath("precip")],
+                    // paths: [gfs1p0degPath("precip")],
+                    paths: [gfs1p0degPath( fileDict.find(x => x["total_precipitable_water"])["total_precipitable_water"] )],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[dict.indexOf(attr.overlayType)], data = record.data;
+                        // if (dict.indexOf(attr.overlayType)!==-1){
+                        //     console.log("attr: ", attr)
+                        //     console.log("attr.overlayType: ", attr.overlayType)
+                        //     k=dict.indexOf(attr.overlayType)
+                        // } else {
+                        //     k=0
+                        // }
+
+                        // var record = file[k], data = record.data;
+                        // console.log("record: ", record)
+
+                        console.log("attr: ", attr)
+                        console.log("attr.overlayType: ", attr.overlayType)
+
+                        var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
+                        console.log("record in temp: ", record)
+                  
+                        
                         return {
-                            header: record.header,
+                            header: file.header, //record.header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
                                 return data[i];
