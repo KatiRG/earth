@@ -273,11 +273,12 @@
                         console.log("dataArray length in v3Flag true: ", dataArray.length)
 
                         thisRecord = {
-                           "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-                           "data": dataArray
+                            "ncvar": varArray[idx],
+                            "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+                            "data": dataArray
                         }
 
-                        metaRecord[idx] = thisRecord
+                        metaRecord.push( thisRecord );
                     } //.end for loop over varArray
                     console.log("metaRecord: ", metaRecord)
                 } else {//send nc file to backend for conversion via POST request

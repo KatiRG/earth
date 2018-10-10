@@ -8,7 +8,7 @@
  */
 
  var v3Flag = true; //CN
- var metaRecord = {}; //CN
+ var metaRecord = []; //CN
  var fileDict = [];
  fileDict.push( {"wind": "wind"} );
 
@@ -62,13 +62,13 @@ var products = function() {
                 console.log("load thisType: ", thisType)
                 console.log("load THIS.type: ", this.type)
                 console.log("fileDict: ", fileDict)
-                //console.log("fileDict[this.type]: ", fileDict[this.type])
-                // this.type = fileDict[this.type];                
                 this.type = fileDict.find(x => x[thisType])[thisType];
                 var me = this;
-                console.log("me: ", me)       
+                console.log("me: ", me)
 
                 return when.map(this.paths, µ.loadJson).then(function(files) {
+                    console.log("cancel.requested? ", cancel.requested)
+                    console.log("then: ", _.extend(me, buildGrid(me.builder.apply(me, files))))
                     return cancel.requested ? null : _.extend(me, buildGrid(me.builder.apply(me, files)));
                 });
             }
@@ -95,7 +95,8 @@ var products = function() {
         console.log("type in gfs1p0degPath: ", type)
         console.log("file in gfs1p0degPath: ", file)
         console.log("file: ", [WEATHER_PATH,file].join("/"))
-        return [WEATHER_PATH,file].join("/");
+        //return [WEATHER_PATH,file].join("/");
+        return type === "wind" ? [WEATHER_PATH,file].join("/") : [WEATHER_PATH,"dummy.json"].join("/");
     }
  
 
@@ -228,42 +229,41 @@ var products = function() {
             "temp": {
             matches: _.matches({param: "wind", mode :"temp"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction             
             create: function(attr) {
+                console.log("ARE YOU HERE")
                 return buildProduct({
                     field: "scalar",
                     type: "temp",
                     description: localize({
                         name: {en: "Temp", ja: "気温"},
                         qualifier: {en: " @ " + describeSurface(attr), ja: " @ " + describeSurfaceJa(attr)}
-                    }),
-                    // paths: [gfs1p0degPath("temp")],
-                    // paths: [gfs1p0degPath(fileDict["temp"])], //
+                    }),                 
                     paths: [gfs1p0degPath(fileDict.find(x => x.temp).temp)],
+                    
+
                     date: gfsDate(attr),
-                    builder: function(file) {
-                        // if (dict.indexOf(attr.overlayType)!==-1){
-                        //     console.log("attr: ", attr)
-                        //     console.log("attr.overlayType: ", attr.overlayType)
-                        //     k=dict.indexOf(attr.overlayType)
-                        // } else {
-                        //     k=0
-                        // }
+                    builder: function(file) { //NOTE!!!! file comes from dummy.json!!!! DO NOT USE!!!
+                        console.log("v3Flag true in temp")
+                        var this_var = fileDict.find(x => x.temp).temp;
+                        //find index of metaData obj array
+                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
+                        console.log(this_var,' ', this_idx)
 
-                        // var record = file[k], data = record.data;
-                        // console.log("record: ", record)
+                        if (dict.indexOf(attr.overlayType)!==-1){
+                            k=dict.indexOf(attr.overlayType)
+                        } else {
+                            k=0
+                        }
+                        //var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
+                        var record = metaRecord[this_idx].data[k], data = record;
 
-                        console.log("attr: ", attr)
-                        console.log("attr.overlayType: ", attr.overlayType)
-
-                        var record = file.data[dict.indexOf(attr.overlayType)], data = record; //record.data;
                         console.log("record in temp: ", record)
                   
                         
                         return {
-                            header: file.header, //record.header,
+                            header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
                                 return data[i];
-                                // return myData[i];
                             }
                         }
                     },
