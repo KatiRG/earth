@@ -239,12 +239,12 @@
             };
 
             reader.onload = function(e) {
-                varArray = ['t2m'] //FOR NOW!!!!!
+                //varArray = ['t2m'] //FOR NOW!!!!!
 
-
+                //display selected file name on page
                 d3.select("#fname").text(evt.target.files[0].name);
 
-                console.log("varArray in reader.onload: ", varArray)
+               
                 console.log("evt.target.value: ", evt.target.value)
                 console.log("filename from evt: ", evt.target.files[0].name)
                 console.log("this.result: ", this.result)
@@ -277,10 +277,12 @@
                 console.log("idx_ozone: ", idx_ozone)
 
                 
-                if (idx_tmp.length > 0) fillDropdown("t_dropdown", idx_tmp, myObj);
+                if (idx_tmp.length > 0) fillDropdown("t_dropdown", idx_tmp, myObj);                   
+                
                 if (idx_precip.length > 0) fillDropdown("p_dropdown", idx_precip, myObj);
-                if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);            
 
+                if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);
+               
                 //-------------------------------------
 
                 console.log("reader.version: ", reader.version)
@@ -392,8 +394,27 @@
                     .text(function (d) { return d; });
 
             function onchange() {
+                var this_dictName;
                 var selectValue = d3.select("#" + this_id).select("select").property("value");
                 console.log("Vad har vi det bra! ", selectValue)
+                
+                //fill in fileDict
+                if (this_id === "t_dropdown") {
+                    if (!fileDict.find(x => x.temp)) fileDict.push( {"temp": selectValue} );
+                    else fileDict.find(x => x.temp).temp = selectValue;
+                }
+                else if (this_id === "p_dropdown") {
+                    if (!fileDict.find(x => x.precip)) fileDict.push( {"precip": selectValue} );
+                    else fileDict.find(x => x.precip).precip = selectValue;
+                }
+                else if (this_id === "oz_dropdown") {
+                    if (!fileDict.find(x => x.OX)) fileDict.push( {"OX": selectValue} );
+                    else fileDict.find(x => x.OX).OX = selectValue;
+                }                
+                           
+                //add to variable array (but only if it is not already in the array)
+                // if (varArray.indexOf(selectValue) === -1) varArray.push(selectValue)
+                //console.log("varArray in onchange: ", varArray)
             };
         }
 
