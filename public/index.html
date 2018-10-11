@@ -68,23 +68,20 @@
                 Temp:
                 <input class="thisform" type="text" name="varTemp">
                 Precip:
-                <input class="thisform" type="text" name="varPrecip"><br>
-                Cloud:
-                <input class="thisform" type="text" name="varCloud">
-                Ozone:
-                <input class="thisform" type="text" name="varOzone"><br>
-                <!--<input type="submit" value="Submit"> <!-- onclick="updateData()" -->
-                <!--<label class="custom-file-upload"> <input type="submit" id="varSubmit"/> Submit</label> -->
+                <input class="thisform" type="text" name="varPrecip"><br>                
             </form>
 
             <p>
+                <label class="custom-file-upload">
+                    <input type="file" id="files"/>
+                    Select file
+                </label>
 
-            <label class="custom-file-upload">
-                <input type="file" id="files"/>
-                Select file
-            </label>
+                <label id="fname" class="myText"></label>
+            </p>
 
-            <label id="fname"></label>
+            <p>
+                <span id="t_dropdown" class="myText">Temperature</span>
 
             </p>
          
@@ -216,6 +213,12 @@
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <script type="text/javascript">
+        //drop-down menus. Invisible initially.
+        var t_options = [];
+        d3.select("#t_dropdown").style("display", "none");
+
+       
+
         var varArray = []; //to hold var names in nc file
         var reader;
         
@@ -233,6 +236,9 @@
             };
 
             reader.onload = function(e) {
+                varArray = ['t2m'] //FOR NOW!!!!!
+
+
                 d3.select("#fname").text(evt.target.files[0].name);
 
                 console.log("varArray in reader.onload: ", varArray)
@@ -242,6 +248,50 @@
 
                 reader = new netcdfjs(this.result); //HERE CODE GOES INTO netcdfjs.js
                 console.log("reader: ", reader); //shows correct size of lat and lon. Here code is back from netcdfjs.js
+
+                //Get variables according to units
+                var myObj = reader.header.variables;                
+                var idx_tmp = [], idx_precip = [], idx_cloud = [], idx_wind = [], idx_ozone = [];
+                for (idx=0; idx<myObj.length; idx++) {
+                    var this_unit = Object.values(myObj)[idx].attributes.find(x => x.name === "units");
+                    var this_lname = Object.values(myObj)[idx].attributes.find(x => x.name === "long_name");
+
+                    if (this_unit) {
+                        if (this_unit.value === "K") idx_tmp.push(idx);
+                        if (this_unit.value === "kg/(s*m2)") idx_precip.push(idx);
+                        if (this_unit.value === "m/s") idx_wind.push(idx);                        
+                    }
+
+                    if(this_lname) {
+                        if (this_lname.value.toLowerCase().indexOf("cloud") >= 0) idx_cloud.push(idx);
+                        if (this_lname.value.indexOf("OX") >= 0) idx_ozone.push(idx);
+                    }
+                }
+                console.log("idx_tmp: ", idx_tmp)
+                console.log("idx_precip: ", idx_precip)
+                console.log("idx_wind: ", idx_wind)
+                console.log("idx_cloud: ", idx_cloud)
+                console.log("idx_ozone: ", idx_ozone)
+
+                if (idx_tmp.length > 0) {
+                    //Make drop-down menu label visible
+                    d3.select("#t_dropdown").style("display", "inline")
+                    t_options = idx_tmp.map(element => { return myObj[element].name });
+                }
+
+                //drop-down menu
+                var select = d3.select('#t_dropdown')
+                  .append('select')
+                    .attr('class','select')
+                    .on('change',onchange)
+
+                var options = select.selectAll('option')
+                    .data(t_options).enter()
+                    .append('option')
+                        .text(function (d) { return d; });
+
+
+                //-------------------------------------
 
                 console.log("reader.version: ", reader.version)
 
@@ -335,22 +385,22 @@
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
         //Start event listener to check if variable form has been submitted
-        var inputForm = d3.selectAll("input.thisform");
-        inputForm.on("change", function(d, i) {   // ** Highlight Change **
-            // do something here
-            console.log("d: ", d)
-            console.log("i: ", i)
+        // var inputForm = d3.selectAll("input.thisform");
+        // inputForm.on("change", function(d, i) {   // ** Highlight Change **
+        //     // do something here
+        //     console.log("d: ", d)
+        //     console.log("i: ", i)
 
-            if (this.value) {
-                console.log("this.value: ", this.value)
-                varArray.push(this.value);
+        //     if (this.value) {
+        //         console.log("this.value: ", this.value)
+        //         varArray.push(this.value);
 
-                if (this.name === "varTemp") fileDict.push( {"temp": this.value} );
-                else if (this.name === "varPrecip") fileDict.push( {"total_precipitable_water": this.value} );
-                else if (this.name === "varOzone") fileDict.push( {"OX": this.value} );
-            }
-            console.log("fileDict: ", fileDict)
-        });
+        //         if (this.name === "varTemp") fileDict.push( {"temp": this.value} );
+        //         else if (this.name === "varPrecip") fileDict.push( {"total_precipitable_water": this.value} );
+        //         else if (this.name === "varOzone") fileDict.push( {"OX": this.value} );
+        //     }
+        //     console.log("fileDict: ", fileDict)
+        // });
        
 
 

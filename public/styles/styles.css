@@ -63,8 +63,8 @@ input[type=text], select {
     border-radius: 4px;
     box-sizing: border-box;
 }
-#fname {
-    font: 0.7em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
+.myText {
+    font: 0.8em mplus-2p-light-sub,Helvetica,arial,freesans,clean,sans-serif;
 }
 
 a, .text-button {
