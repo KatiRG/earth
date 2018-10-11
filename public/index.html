@@ -81,8 +81,11 @@
             </p>
 
             <p>
-                <span id="t_dropdown" class="myText">Temperature</span>
-
+                <span id="t_dropdown" class="myText">Temperature</span> 
+                <span id="p_dropdown" class="myText">  Precipitation</span>
+            </p>
+            <p>
+                <span id="oz_dropdown" class="myText">Ozone</span>                 
             </p>
          
             <p><br></p>
@@ -216,8 +219,8 @@
         //drop-down menus. Invisible initially.
         var t_options = [];
         d3.select("#t_dropdown").style("display", "none");
-
-       
+        d3.select("#p_dropdown").style("display", "none");
+        d3.select("#oz_dropdown").style("display", "none");
 
         var varArray = []; //to hold var names in nc file
         var reader;
@@ -273,22 +276,21 @@
                 console.log("idx_cloud: ", idx_cloud)
                 console.log("idx_ozone: ", idx_ozone)
 
-                if (idx_tmp.length > 0) {
-                    //Make drop-down menu label visible
-                    d3.select("#t_dropdown").style("display", "inline")
-                    t_options = idx_tmp.map(element => { return myObj[element].name });
-                }
+                
+                if (idx_tmp.length > 0) fillDropdown("t_dropdown", idx_tmp, myObj);
+                if (idx_precip.length > 0) fillDropdown("p_dropdown", idx_precip, myObj);
+                if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);
 
                 //drop-down menu
-                var select = d3.select('#t_dropdown')
-                  .append('select')
-                    .attr('class','select')
-                    .on('change',onchange)
+                // var select = d3.select('#t_dropdown')
+                //   .append('select')
+                //     .attr('class','select')
+                //     .on('change',onchange)
 
-                var options = select.selectAll('option')
-                    .data(t_options).enter()
-                    .append('option')
-                        .text(function (d) { return d; });
+                // var options = select.selectAll('option')
+                //     .data(t_options).enter()
+                //     .append('option')
+                //         .text(function (d) { return d; });
 
 
                 //-------------------------------------
@@ -383,6 +385,22 @@
 
         //Start event listener to check if a file has been selected
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
+
+        function fillDropdown (this_id, this_idxArray, myObj) {
+            //Make drop-down menu label visible
+            d3.select("#" + this_id).style("display", "inline")
+            var menu_options = this_idxArray.map(element => { return myObj[element].name });
+
+            var select = d3.select("#" + this_id)
+              .append('select')
+                .attr('class','select')
+                .on('change',onchange)
+
+            var options = select.selectAll('option')
+                .data(menu_options).enter()
+                .append('option')
+                    .text(function (d) { return d; });
+        }
 
         //Start event listener to check if variable form has been submitted
         // var inputForm = d3.selectAll("input.thisform");
