@@ -77,15 +77,17 @@
                 <!--<label class="custom-file-upload"> <input type="submit" id="varSubmit"/> Submit</label> -->
             </form>
 
-            <p><br></p>
-            <p><br></p>
+            <p>
 
             <label class="custom-file-upload">
                 <input type="file" id="files"/>
                 Select file
             </label>
+
+            <label id="fname"></label>
+
+            </p>
          
-            <p><br></p>
             <p><br></p>
 
             <p>Date | <span
@@ -231,6 +233,8 @@
             };
 
             reader.onload = function(e) {
+                d3.select("#fname").text(evt.target.files[0].name);
+
                 console.log("varArray in reader.onload: ", varArray)
                 console.log("evt.target.value: ", evt.target.value)
                 console.log("filename from evt: ", evt.target.files[0].name)
