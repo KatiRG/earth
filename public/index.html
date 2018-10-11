@@ -279,19 +279,7 @@
                 
                 if (idx_tmp.length > 0) fillDropdown("t_dropdown", idx_tmp, myObj);
                 if (idx_precip.length > 0) fillDropdown("p_dropdown", idx_precip, myObj);
-                if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);
-
-                //drop-down menu
-                // var select = d3.select('#t_dropdown')
-                //   .append('select')
-                //     .attr('class','select')
-                //     .on('change',onchange)
-
-                // var options = select.selectAll('option')
-                //     .data(t_options).enter()
-                //     .append('option')
-                //         .text(function (d) { return d; });
-
+                if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);            
 
                 //-------------------------------------
 
@@ -387,6 +375,8 @@
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
         function fillDropdown (this_id, this_idxArray, myObj) {
+            console.log("this_id: ", this_id)
+
             //Make drop-down menu label visible
             d3.select("#" + this_id).style("display", "inline")
             var menu_options = this_idxArray.map(element => { return myObj[element].name });
@@ -400,6 +390,11 @@
                 .data(menu_options).enter()
                 .append('option')
                     .text(function (d) { return d; });
+
+            function onchange() {
+                var selectValue = d3.select("#" + this_id).select("select").property("value");
+                console.log("Vad har vi det bra! ", selectValue)
+            };
         }
 
         //Start event listener to check if variable form has been submitted
