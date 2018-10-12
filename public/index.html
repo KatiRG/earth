@@ -212,8 +212,17 @@
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <script type="text/javascript">
-        //drop-down menus. Invisible initially.
+        //Create drop-down menu select class
+        var select = d3.select("#t_dropdown")
+              .append('select')
+                .attr('class','select');
+
+        var select = d3.select("#p_dropdown")
+              .append('select')
+                .attr('class','select');
+
         var t_options = [];
+        //Hide drop-down menus initially
         d3.select("#t_dropdown").style("display", "none");
         d3.select("#p_dropdown").style("display", "none");
         d3.select("#oz_dropdown").style("display", "none");
@@ -225,6 +234,9 @@
         function abortRead() {  reader.abort(); }
 
         function handleFileSelect(evt) {
+            //Clear metaRecord from any previous file upload
+            metaRecord = [];
+            
             console.log("HELLO from fn handleFileSelect")
             console.log("evt: ", evt)
             reader = new FileReader();
@@ -317,7 +329,7 @@
         //Start event listener to check if a file has been selected
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
-        function getVarTypes (myObj) {
+        function getVarTypes (myObj) {//called after nc file is read by netcdfjs
             //Get variables according to units
             var idx_tmp = [], idx_precip = [], idx_cloud = [], idx_wind = [], idx_ozone = [];
             for (idx=0; idx<myObj.length; idx++) {
@@ -348,17 +360,17 @@
             if (idx_ozone.length > 0) fillDropdown("cloud_dropdown", idx_cloud, myObj);
         }
 
-        function fillDropdown (this_id, this_idxArray, myObj) {
+        function fillDropdown (this_id, this_idxArray, myObj) { //called by getVarTypes()
             //Make drop-down menu label visible
             d3.select("#" + this_id).style("display", "inline")
             // var menu_options = this_idxArray.map(element => { return myObj[element].name });
             var var_options = this_idxArray.map(element => { return myObj[element].name });
             var menu_options = ["Select:"].concat(var_options); //First element in list is not caught by onchange            
 
-            var select = d3.select("#" + this_id)
-              .append('select')
-                .attr('class','select')
-                .on('change',onchange)
+            var select = d3.select("#" + this_id + " .select")
+              // .append('select')
+                // .attr('class','select')
+                .on('change',onchange);
 
             var options = select.selectAll('option')
                 .data(menu_options).enter()
@@ -460,26 +472,6 @@
 
             
         });
-
-        //Start event listener to check if variable form has been submitted
-        // var inputForm = d3.selectAll("input.thisform");
-        // inputForm.on("change", function(d, i) {   // ** Highlight Change **
-        //     // do something here
-        //     console.log("d: ", d)
-        //     console.log("i: ", i)
-
-        //     if (this.value) {
-        //         console.log("this.value: ", this.value)
-        //         varArray.push(this.value);
-
-        //         if (this.name === "varTemp") fileDict.push( {"temp": this.value} );
-        //         else if (this.name === "varPrecip") fileDict.push( {"total_precipitable_water": this.value} );
-        //         else if (this.name === "varOzone") fileDict.push( {"OX": this.value} );
-        //     }
-        //     console.log("fileDict: ", fileDict)
-        // });
-       
-
 
         //error fn
         function errorHandler(evt) {
