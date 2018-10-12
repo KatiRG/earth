@@ -72,22 +72,11 @@ var path = require('path');
 
 
 app.post('/something', function (req, res) {
-  // res.setEncoding('binary');
-  // var chunks = [];
 
-  const { spawn } = require('child_process');  
-  const climVar = "OX";
+  const { spawn } = require('child_process');
 
-  // const varStrings = req.body.vars;
-  // const varArray = varStrings.split(",");
-
-  const la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-
-  console.log("req in node!!!!!!!!!!!!!! "); //, req);
-  console.log("req.body: ", req.body);
+  console.log("req in node!!!!!!!!!!!!!! ");  
   console.log("req.body.vars: ", req.body.vars);
-  // console.log("varStrings: ", varStrings)
-  // console.log("varArray: ", varArray)
   console.log("req.url: ", req.url);  
   console.log("req.files.file.name: ", req.files.file.name)
   console.log("req.files.file.path: ", req.files.file.path)
@@ -118,71 +107,24 @@ app.post('/something', function (req, res) {
     // If you want to handle errors, could check code === 0 here for success
     console.log("code: ", code)
     
-
     const datafile = fs.readFileSync(convFileJoin);
     console.log("datafile: ", datafile)
 
-   
-    // var reader = new NetCDFReader(datafile);
-    // console.log("reader in backend: ", reader)
-
-    // //loop through each variable and save to myServerRecord
-    // var myServerRecord = [];
-    // var idx;
-    // for (idx = 0; idx < varArray.length; idx++) {
-    //   console.log("varArray[idx]: ", varArray[idx])
-
-    //   var dataArray = reader.getDataVariable(varArray[idx]);
-    //   console.log("dataArray.length: ", dataArray.length)
-
-    //   //temporary hack to deal with file that is not a monthly avg
-    //   if (dataArray.length > 12) {
-    //     var n = dataArray.length - 12;
-    //     dataArray = dataArray.slice(n);
-    //     console.log('sliced dataArray length: ', dataArray.length)
-    //   }
-
-    //   //make header obj (same for all variables)
-    //   var nx = reader.getDataVariable("lat").length;
-    //   var ny = reader.getDataVariable("lon").length;
-    //   var dx = 360/nx, dy = 180/ny;
-
-    //   myServerRecord.push(
-    //     {
-    //       "ncvar": varArray[idx],
-    //       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-    //       "data": dataArray
-    //     }
-    //   );
-    // } //.end for loop over varArray
-
-    console.log("myServerRecord in node FAIT! "); //, myServerRecord)
 
     //Return to client-side JS
     // res.json( myServerRecord );
-
-    // var buffer = [], bufsize = 0;
-    // res.on('data', function(data) {
-    //   buffer.push(data);
-    //   bufsize += data.length;
-    // }).on('end', function() {
-    //   var body = Buffer.concat(buffer, bufsize);
-    //   // body now contains the raw binary data
-    // });
     res.send(datafile);
-
-
 
     //rm temp files using this format otherwise get deprecation error
     //https://github.com/desmondmorris/node-tesseract/issues/57
-    // fs.unlink(req.files.file.path, err => { 
-    //   if (err) console.log(err)
-    //   else console.log("tmp nc file deleted");
-    // });
-    // fs.unlink(convFileJoin, err => { 
-    //   if (err) console.log(err)
-    //   else console.log("tmp converted nc file deleted");
-    // });
+    fs.unlink(req.files.file.path, err => { 
+      if (err) console.log(err)
+      else console.log("tmp nc file deleted");
+    });
+    fs.unlink(convFileJoin, err => { 
+      if (err) console.log(err)
+      else console.log("tmp converted nc file deleted");
+    });
     
 
   }); //end .on close
