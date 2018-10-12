@@ -250,7 +250,7 @@
                 console.log("reader: ", reader); //shows correct size of lat and lon. Here code is back from netcdfjs.js
 
                 //Get variables according to units
-                var myObj = reader.header.variables;                
+                var myObj = reader.header.variables;
                 var idx_tmp = [], idx_precip = [], idx_cloud = [], idx_wind = [], idx_ozone = [];
                 for (idx=0; idx<myObj.length; idx++) {
                     var this_unit = Object.values(myObj)[idx].attributes.find(x => x.name === "units");
@@ -288,41 +288,8 @@
 
                 console.log("v3Flag in index: ", v3Flag)
 
-                // if (v3Flag) {
-                //     var thisRecord = {};
-
-                //     //loop through each variable and save to json
-                //     var idx;
-                //     for (idx = 0; idx < varArray.length; idx++) {
-                      
-
-                //       console.log("varArray[idx]: ", varArray[idx])
-
-                //       var dataArray = reader.getDataVariable(varArray[idx]);
-                //       console.log("dataArray.length: ", dataArray.length)
-
-                //         //temporary hack to deal with file that is not a monthly avg
-                //         if (dataArray.length > 12) {
-                //             var n = dataArray.length - 12;
-                //             dataArray = dataArray.slice(n);
-                //             console.log('sliced dataArray length: ', dataArray.length)
-                //         }
-
-                //         //make header obj
-                //         var nx = reader.getDataVariable("lat").length;
-                //         var ny = reader.getDataVariable("lon").length;
-                //         var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-                //         var dx = 360/nx, dy = 180/ny;
-                //         console.log("dataArray length in v3Flag true: ", dataArray.length)
-
-                //         thisRecord = {
-                //             "ncvar": varArray[idx],
-                //             "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-                //             "data": dataArray
-                //         }
-
-                //         metaRecord.push( thisRecord );
-                //     } //.end for loop over varArray
+                // if (v3Flag) {               
+                // } //.end for loop over varArray
                 //     console.log("metaRecord for v3: ", metaRecord)
                 // } else {//send nc file to backend for conversion via POST request
                 //     console.log("v3Flag here: ", v3Flag)
@@ -438,43 +405,78 @@
             if (fileDict.find(x => x.OX)) varArray.push(fileDict.find(x => x.OX).OX)
             console.log("varArray now: ", varArray)
 
-            if (v3Flag) {  
-                //     var thisRecord = {};
+            if (v3Flag) {
+                var thisRecord = {};
 
-                //     //loop through each variable and save to json
-                //     var idx;
-                //     for (idx = 0; idx < varArray.length; idx++) {
-                      
+                //loop through each variable and save to json
+                var idx;
+                for (idx = 0; idx < varArray.length; idx++) {
+                  
 
-                //       console.log("varArray[idx]: ", varArray[idx])
+                  console.log("varArray[idx]: ", varArray[idx])
 
-                //       var dataArray = reader.getDataVariable(varArray[idx]);
-                //       console.log("dataArray.length: ", dataArray.length)
+                  var dataArray = reader.getDataVariable(varArray[idx]);
+                  console.log("dataArray.length: ", dataArray.length)
 
-                //         //temporary hack to deal with file that is not a monthly avg
-                //         if (dataArray.length > 12) {
-                //             var n = dataArray.length - 12;
-                //             dataArray = dataArray.slice(n);
-                //             console.log('sliced dataArray length: ', dataArray.length)
-                //         }
+                    //temporary hack to deal with file that is not a monthly avg
+                    if (dataArray.length > 12) {
+                        var n = dataArray.length - 12;
+                        dataArray = dataArray.slice(n);
+                        console.log('sliced dataArray length: ', dataArray.length)
+                    }
 
-                //         //make header obj
-                //         var nx = reader.getDataVariable("lat").length;
-                //         var ny = reader.getDataVariable("lon").length;
-                //         var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-                //         var dx = 360/nx, dy = 180/ny;
-                //         console.log("dataArray length in v3Flag true: ", dataArray.length)
+                    //make header obj
+                    var nx = reader.getDataVariable("lat").length;
+                    var ny = reader.getDataVariable("lon").length;
+                    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+                    var dx = 360/nx, dy = 180/ny;
+                    console.log("dataArray length in v3Flag true: ", dataArray.length)
 
-                //         thisRecord = {
-                //             "ncvar": varArray[idx],
-                //             "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-                //             "data": dataArray
-                //         }
+                    thisRecord = {
+                        "ncvar": varArray[idx],
+                        "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+                        "data": dataArray
+                    }
 
-                //         metaRecord.push( thisRecord );
-                //     } //.end for loop over varArray
-                //     console.log("metaRecord for v3: ", metaRecord)
-            }
+                    metaRecord.push( thisRecord );
+                } //.end for loop over varArray
+                console.log("metaRecord for v3: ", metaRecord)
+            } else {//send nc file to backend for conversion via POST request
+                console.log("v3Flag here: ", v3Flag)
+
+                //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                var file =  evt.target.files[0];
+                console.log("file0: ", file)
+                var formData = new FormData();
+                formData.append('file', file);
+                formData.append('vars', varArray);
+
+                //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                var xhr = new XMLHttpRequest();
+                // Add any event handlers here...
+                //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
+                xhr.onreadystatechange = function () {
+                    console.log("xhr.status initial: ", xhr.status)
+
+                    // Only run if the request is complete
+                    if (xhr.readyState !== 4) return;
+
+                    // Process our return data
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        console.log("xhr.status success: ", xhr.status)
+                        // What do when the request is successful
+                        metaRecord = JSON.parse(xhr.responseText);
+                        console.log("parse in client: ", metaRecord);
+                    }
+
+                };
+                xhr.open('POST', '/something', true);
+                xhr.send(formData);
+
+                //reset v3Flag
+                v3Flag = true;
+
+            } //.end v3Flag check
 
 
             
