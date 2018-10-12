@@ -64,13 +64,6 @@
         <div id="menu" class="invisible">
             <!--<p>Source | <span id="data-center"></span></p>-->
 
-             <form id="varForm" class="myForm">Enter nc variable names. If none, leave blank.<br>
-                Temp:
-                <input class="thisform" type="text" name="varTemp">
-                Precip:
-                <input class="thisform" type="text" name="varPrecip"><br>                
-            </form>
-
             <p>
                 <label class="custom-file-upload">
                     <input type="file" id="files"/>
@@ -81,8 +74,11 @@
             </p>
 
             <p>
-                <span id="t_dropdown" class="myText">Temperature</span> 
-                <span id="p_dropdown" class="myText">  Precipitation</span>
+                <span id="t_dropdown" class="myText">Temperature  </span> 
+                <span id="p_dropdown" class="myText">  Precipitation  </span><br>
+                 <label id="doneButton" class="custom-file-upload"> Done
+                   <!--  <li id="doneButton"/> Done</li> -->
+                </label> 
             </p>
             <p>
                 <span id="oz_dropdown" class="myText">Ozone</span>                 
@@ -221,6 +217,7 @@
         d3.select("#t_dropdown").style("display", "none");
         d3.select("#p_dropdown").style("display", "none");
         d3.select("#oz_dropdown").style("display", "none");
+        d3.select("#doneButton").style("display", "none");
 
         var varArray = []; //to hold var names in nc file
         var reader;
@@ -381,6 +378,7 @@
 
             //Make drop-down menu label visible
             d3.select("#" + this_id).style("display", "inline")
+            d3.select("#doneButton").style("display", "inline")
             var menu_options = this_idxArray.map(element => { return myObj[element].name });
 
             var select = d3.select("#" + this_id)
