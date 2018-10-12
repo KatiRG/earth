@@ -112,6 +112,7 @@ app.post('/something', function (req, res) {
 
 
     //Return to client-side JS
+    //https://fullstack-developer.academy/res-json-vs-res-send-vs-res-end-in-express/
     // res.json( myServerRecord );
     res.send(datafile);
 
