@@ -75,8 +75,8 @@ app.post('/something', function (req, res) {
   const { spawn } = require('child_process');  
   const climVar = "OX";
 
-  const varStrings = req.body.vars;
-  const varArray = varStrings.split(",");
+  // const varStrings = req.body.vars;
+  // const varArray = varStrings.split(",");
 
   const la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
 
@@ -85,8 +85,8 @@ app.post('/something', function (req, res) {
   console.log("req in node!!!!!!!!!!!!!! "); //, req);
   console.log("req.body: ", req.body);
   console.log("req.body.vars: ", req.body.vars);
-  console.log("varStrings: ", varStrings)
-  console.log("varArray: ", varArray)
+  // console.log("varStrings: ", varStrings)
+  // console.log("varArray: ", varArray)
   console.log("req.url: ", req.url);  
   console.log("req.files.file.name: ", req.files.file.name)
   console.log("req.files.file.path: ", req.files.file.path)
@@ -120,53 +120,43 @@ app.post('/something', function (req, res) {
 
     console.log("datafile: ", datafile)
     var reader = new NetCDFReader(datafile);
+    console.log("reader in backend: ", reader)
 
-    //loop through each variable and save to myServerRecord
-    var myServerRecord = [];
-    var idx;
-    for (idx = 0; idx < varArray.length; idx++) {
-      console.log("varArray[idx]: ", varArray[idx])
+    // //loop through each variable and save to myServerRecord
+    // var myServerRecord = [];
+    // var idx;
+    // for (idx = 0; idx < varArray.length; idx++) {
+    //   console.log("varArray[idx]: ", varArray[idx])
 
-      var dataArray = reader.getDataVariable(varArray[idx]);
-      console.log("dataArray.length: ", dataArray.length)
+    //   var dataArray = reader.getDataVariable(varArray[idx]);
+    //   console.log("dataArray.length: ", dataArray.length)
 
-      //temporary hack to deal with file that is not a monthly avg
-      if (dataArray.length > 12) {
-        var n = dataArray.length - 12;
-        dataArray = dataArray.slice(n);
-        console.log('sliced dataArray length: ', dataArray.length)
-      }
+    //   //temporary hack to deal with file that is not a monthly avg
+    //   if (dataArray.length > 12) {
+    //     var n = dataArray.length - 12;
+    //     dataArray = dataArray.slice(n);
+    //     console.log('sliced dataArray length: ', dataArray.length)
+    //   }
 
-      //make header obj (same for all variables)
-      var nx = reader.getDataVariable("lat").length;
-      var ny = reader.getDataVariable("lon").length;
-      var dx = 360/nx, dy = 180/ny;
+    //   //make header obj (same for all variables)
+    //   var nx = reader.getDataVariable("lat").length;
+    //   var ny = reader.getDataVariable("lon").length;
+    //   var dx = 360/nx, dy = 180/ny;
 
-      myServerRecord.push(
-        {
-          "ncvar": varArray[idx],
-          "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-          "data": dataArray
-        }
-      );
-       
-      // //stringify and write to disk
-      // var myJSON = JSON.stringify(myServerRecord);
-      // fs.writeFile("/homel/cnangini/PROJECTS/earth/public/data/weather/current/" + varArray[idx] + ".json", JSON.stringify(myServerRecord), (err) => {  
-        
-      //   if (err) {
-      //       console.error(err);
-      //       return;
-      //   };
-      //   console.log("JSON file has been written to disk.");
-      // });
-     
-    } //.end for loop over varArray
+    //   myServerRecord.push(
+    //     {
+    //       "ncvar": varArray[idx],
+    //       "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+    //       "data": dataArray
+    //     }
+    //   );
+    // } //.end for loop over varArray
 
     console.log("myServerRecord in node FAIT! "); //, myServerRecord)
 
     //Return to client-side JS
-    res.json( myServerRecord );
+    // res.json( myServerRecord );
+    res.json( reader );
 
     //rm temp files using this format otherwise get deprecation error
     //https://github.com/desmondmorris/node-tesseract/issues/57

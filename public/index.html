@@ -249,38 +249,6 @@
                 reader = new netcdfjs(this.result); //HERE CODE GOES INTO netcdfjs.js
                 console.log("reader: ", reader); //shows correct size of lat and lon. Here code is back from netcdfjs.js
 
-                //Get variables according to units
-                var myObj = reader.header.variables;
-                var idx_tmp = [], idx_precip = [], idx_cloud = [], idx_wind = [], idx_ozone = [];
-                for (idx=0; idx<myObj.length; idx++) {
-                    var this_unit = Object.values(myObj)[idx].attributes.find(x => x.name === "units");
-                    var this_lname = Object.values(myObj)[idx].attributes.find(x => x.name === "long_name");
-
-                    if (this_unit) {
-                        if (this_unit.value === "K") idx_tmp.push(idx);
-                        if (this_unit.value === "kg/(s*m2)") idx_precip.push(idx);
-                        if (this_unit.value === "m/s") idx_wind.push(idx);                        
-                    }
-
-                    if(this_lname) {
-                        if (this_lname.value.toLowerCase().indexOf("cloud") >= 0) idx_cloud.push(idx);
-                        if (this_lname.value.indexOf("OX") >= 0) idx_ozone.push(idx);
-                    }
-                }
-                console.log("idx_tmp: ", idx_tmp)
-                console.log("idx_precip: ", idx_precip)
-                console.log("idx_wind: ", idx_wind)
-                console.log("idx_cloud: ", idx_cloud)
-                console.log("idx_ozone: ", idx_ozone)
-
-                
-                if (idx_tmp.length > 0) fillDropdown("t_dropdown", idx_tmp, myObj);                                   
-                if (idx_precip.length > 0) fillDropdown("p_dropdown", idx_precip, myObj);
-                if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);
-                if (idx_ozone.length > 0) fillDropdown("cloud_dropdown", idx_cloud, myObj);
-               
-                //-------------------------------------
-
                 console.log("reader.version: ", reader.version)
 
                 if (reader.version.indexOf("classic") >= 0) v3Flag = true;
@@ -288,7 +256,82 @@
 
                 console.log("v3Flag in index: ", v3Flag)
 
-                // if (v3Flag) {               
+                if (v3Flag) {
+                    //Get variables according to units
+                    var myObj = reader.header.variables;
+                    var idx_tmp = [], idx_precip = [], idx_cloud = [], idx_wind = [], idx_ozone = [];
+                    for (idx=0; idx<myObj.length; idx++) {
+                        var this_unit = Object.values(myObj)[idx].attributes.find(x => x.name === "units");
+                        var this_lname = Object.values(myObj)[idx].attributes.find(x => x.name === "long_name");
+
+                        if (this_unit) {
+                            if (this_unit.value === "K") idx_tmp.push(idx);
+                            if (this_unit.value === "kg/(s*m2)") idx_precip.push(idx);
+                            if (this_unit.value === "m/s") idx_wind.push(idx);                        
+                        }
+
+                        if(this_lname) {
+                            if (this_lname.value.toLowerCase().indexOf("cloud") >= 0) idx_cloud.push(idx);
+                            if (this_lname.value.indexOf("OX") >= 0) idx_ozone.push(idx);
+                        }
+                    }
+                    console.log("idx_tmp: ", idx_tmp)
+                    console.log("idx_precip: ", idx_precip)
+                    console.log("idx_wind: ", idx_wind)
+                    console.log("idx_cloud: ", idx_cloud)
+                    console.log("idx_ozone: ", idx_ozone)
+
+                    
+                    if (idx_tmp.length > 0) fillDropdown("t_dropdown", idx_tmp, myObj);                                   
+                    if (idx_precip.length > 0) fillDropdown("p_dropdown", idx_precip, myObj);
+                    if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);
+                    if (idx_ozone.length > 0) fillDropdown("cloud_dropdown", idx_cloud, myObj);
+
+                } else {//send nc file to backend for conversion via POST request
+                    console.log("v3Flag here: ", v3Flag)
+                    var returned_reader;
+
+                    //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                    var file =  evt.target.files[0];
+                    console.log("file0: ", file)
+                    var formData = new FormData();
+                    formData.append('file', file);
+                    
+                    //https://robots.thoughtbot.com/ridiculously-simple-ajax-uploads-with-formdata
+                    var xhr = new XMLHttpRequest();
+                    // Add any event handlers here...
+                    //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
+                    xhr.onreadystatechange = function () {
+                        console.log("xhr.status initial: ", xhr.status)
+
+                        // Only run if the request is complete
+                        if (xhr.readyState !== 4) return;
+
+                        // Process our return data
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            console.log("xhr.status success: ", xhr.status)
+                            // What do when the request is successful
+                            returned_reader = JSON.parse(xhr.responseText);
+                            console.log("parse in client: ", returned_reader);
+                            console.log("returned reader vars: ", returned_reader.header.variables)
+                        }
+
+                    };
+                    xhr.open('POST', '/something', true);
+                    xhr.send(formData);
+
+                    //reset v3Flag
+                    v3Flag = true;
+
+
+
+                }
+               
+                //-------------------------------------
+
+                
+
+                // if (v3Flag) {
                 // } //.end for loop over varArray
                 //     console.log("metaRecord for v3: ", metaRecord)
                 // } else {//send nc file to backend for conversion via POST request
