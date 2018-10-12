@@ -72,6 +72,9 @@ var path = require('path');
 
 
 app.post('/something', function (req, res) {
+  // res.setEncoding('binary');
+  // var chunks = [];
+
   const { spawn } = require('child_process');  
   const climVar = "OX";
 
@@ -79,8 +82,6 @@ app.post('/something', function (req, res) {
   // const varArray = varStrings.split(",");
 
   const la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-
-  
 
   console.log("req in node!!!!!!!!!!!!!! "); //, req);
   console.log("req.body: ", req.body);
@@ -116,11 +117,14 @@ app.post('/something', function (req, res) {
   nco_convert.on('close', (code) => {
     // If you want to handle errors, could check code === 0 here for success
     console.log("code: ", code)
-    const datafile = fs.readFileSync(convFileJoin);
+    
 
+    const datafile = fs.readFileSync(convFileJoin);
     console.log("datafile: ", datafile)
-    var reader = new NetCDFReader(datafile);
-    console.log("reader in backend: ", reader)
+
+   
+    // var reader = new NetCDFReader(datafile);
+    // console.log("reader in backend: ", reader)
 
     // //loop through each variable and save to myServerRecord
     // var myServerRecord = [];
@@ -156,18 +160,29 @@ app.post('/something', function (req, res) {
 
     //Return to client-side JS
     // res.json( myServerRecord );
-    res.json( reader );
+
+    // var buffer = [], bufsize = 0;
+    // res.on('data', function(data) {
+    //   buffer.push(data);
+    //   bufsize += data.length;
+    // }).on('end', function() {
+    //   var body = Buffer.concat(buffer, bufsize);
+    //   // body now contains the raw binary data
+    // });
+    res.send(datafile);
+
+
 
     //rm temp files using this format otherwise get deprecation error
     //https://github.com/desmondmorris/node-tesseract/issues/57
-    fs.unlink(req.files.file.path, err => { 
-      if (err) console.log(err)
-      else console.log("tmp nc file deleted");
-    });
-    fs.unlink(convFileJoin, err => { 
-      if (err) console.log(err)
-      else console.log("tmp converted nc file deleted");
-    });
+    // fs.unlink(req.files.file.path, err => { 
+    //   if (err) console.log(err)
+    //   else console.log("tmp nc file deleted");
+    // });
+    // fs.unlink(convFileJoin, err => { 
+    //   if (err) console.log(err)
+    //   else console.log("tmp converted nc file deleted");
+    // });
     
 
   }); //end .on close
