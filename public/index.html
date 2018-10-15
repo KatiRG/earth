@@ -212,6 +212,10 @@
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
     <script type="text/javascript">
+        //----------------------------------------------------------------
+        //Initialize landing page display elements
+        //----------------------------------------------------------------
+
         //Create drop-down menu select class
         var select = d3.select("#t_dropdown")
               .append('select')
@@ -228,6 +232,17 @@
         d3.select("#oz_dropdown").style("display", "none");
         d3.select("#doneButton").style("display", "none");
 
+        //Disable Mode and Données text-buttons until variables have been selected
+        d3.select("#temp").style("pointer-events", "none");
+        d3.select("#precip").style("pointer-events", "none");
+        d3.select("#cloud").style("pointer-events", "none");
+        d3.select("#OX").style("pointer-events", "none");
+        //d3.select("#precip").style("pointer-events", "all") //to re-activate hover
+
+        //----------------------------------------------------------------
+        //Code to handle dynamic input
+        //----------------------------------------------------------------
+
         var varArray = []; //to hold var names in nc file
         var reader;
         
@@ -236,7 +251,7 @@
         function handleFileSelect(evt) {
             //Clear metaRecord from any previous file upload
             metaRecord = [];
-            
+
             console.log("HELLO from fn handleFileSelect")
             console.log("evt: ", evt)
             reader = new FileReader();
@@ -389,18 +404,26 @@
                 if (this_id === "t_dropdown") {
                     if (!fileDict.find(x => x.temp)) fileDict.push( {"temp": selectValue} );
                     else fileDict.find(x => x.temp).temp = selectValue;
+                    //activate Temperature menu item
+                    d3.select("#temp").style("pointer-events", "all");
                 }
                 else if (this_id === "p_dropdown") {
                     if (!fileDict.find(x => x.total_precipitable_water)) fileDict.push( {"total_precipitable_water": selectValue} );
                     else fileDict.find(x => x.total_precipitable_water).total_precipitable_water = selectValue;
+                    //activate Precipitation menu item
+                    d3.select("#precip").style("pointer-events", "all");
                 }
                 else if (this_id === "oz_dropdown") {
                     if (!fileDict.find(x => x.OX)) fileDict.push( {"OX": selectValue} );
                     else fileDict.find(x => x.OX).OX = selectValue;
+                    //activate Cloud menu item
+                    d3.select("#cloud").style("pointer-events", "all");
                 }
                 else if (this_id === "cloud_dropdown") {
                     if (!fileDict.find(x => x.total_cloud_water)) fileDict.push( {"total_cloud_water": selectValue} );
                     else fileDict.find(x => x.total_cloud_water).total_cloud_water = selectValue;
+                    //activate OX menu item
+                    d3.select("#OX").style("pointer-events", "all");
                 }
                            
                 //add to variable array (but only if it is not already in the array)
@@ -412,12 +435,11 @@
    
 
         //Start event listener to check when user is done selecting nc variables
-        d3.select("#doneButton").on("click", function() {
-            console.log("C'est parti! ")
+        d3.select("#doneButton").on("click", function() {            
             //clear varArray
             varArray = [];
             
-            //Fill varArray according to fileDict which contains latest user selections
+            //Fill varArray according to fileDict which contains latest user selections            
             if (fileDict.find(x => x.temp)) varArray.push(fileDict.find(x => x.temp).temp)
             if (fileDict.find(x => x.total_precipitable_water)) 
                 varArray.push(fileDict.find(x => x.total_precipitable_water).total_precipitable_water)
