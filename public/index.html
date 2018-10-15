@@ -232,11 +232,12 @@
         d3.select("#oz_dropdown").style("display", "none");
         d3.select("#doneButton").style("display", "none");
 
-        //Disable Mode and Données text-buttons until variables have been selected
+        //Disable Données and TimeLine text-buttons until variables have been selected
         d3.select("#temp").style("pointer-events", "none");
         d3.select("#precip").style("pointer-events", "none");
         d3.select("#cloud").style("pointer-events", "none");
         d3.select("#OX").style("pointer-events", "none");
+        d3.selectAll(".mois").style("pointer-events", "none");
         //d3.select("#precip").style("pointer-events", "all") //to re-activate hover
 
         //----------------------------------------------------------------
@@ -404,42 +405,39 @@
                 if (this_id === "t_dropdown") {
                     if (!fileDict.find(x => x.temp)) fileDict.push( {"temp": selectValue} );
                     else fileDict.find(x => x.temp).temp = selectValue;
-                    //activate Temperature menu item
-                    d3.select("#temp").style("pointer-events", "all");
                 }
                 else if (this_id === "p_dropdown") {
                     if (!fileDict.find(x => x.total_precipitable_water)) fileDict.push( {"total_precipitable_water": selectValue} );
                     else fileDict.find(x => x.total_precipitable_water).total_precipitable_water = selectValue;
-                    //activate Precipitation menu item
-                    d3.select("#precip").style("pointer-events", "all");
                 }
                 else if (this_id === "oz_dropdown") {
                     if (!fileDict.find(x => x.OX)) fileDict.push( {"OX": selectValue} );
                     else fileDict.find(x => x.OX).OX = selectValue;
-                    //activate Cloud menu item
-                    d3.select("#cloud").style("pointer-events", "all");
                 }
                 else if (this_id === "cloud_dropdown") {
                     if (!fileDict.find(x => x.total_cloud_water)) fileDict.push( {"total_cloud_water": selectValue} );
-                    else fileDict.find(x => x.total_cloud_water).total_cloud_water = selectValue;
-                    //activate OX menu item
-                    d3.select("#OX").style("pointer-events", "all");
+                    else fileDict.find(x => x.total_cloud_water).total_cloud_water = selectValue;   
                 }
-                           
-                //add to variable array (but only if it is not already in the array)
-                // if (varArray.indexOf(selectValue) === -1) varArray.push(selectValue)
-                //console.log("varArray in onchange: ", varArray)
+
+                
             };
         }
 
    
 
         //Start event listener to check when user is done selecting nc variables
-        d3.select("#doneButton").on("click", function() {            
-            //clear varArray
-            varArray = [];
+        d3.select("#doneButton").on("click", function() {
+            //Activate Données text-buttons corresponding to variable selection
+            if (fileDict.find(x => x.temp)) d3.select("#temp").style("pointer-events", "all");
+            if (fileDict.find(x => x.total_precipitable_water)) d3.select("#precip").style("pointer-events", "all");
+            if (fileDict.find(x => x.total_cloud_water)) d3.select("#cloud").style("pointer-events", "all");
+            if (fileDict.find(x => x.OX)) d3.select("#OX").style("pointer-events", "all");
+
+            //Activate TimeLine months
+            d3.selectAll(".mois").style("pointer-events", "all");
             
-            //Fill varArray according to fileDict which contains latest user selections            
+            //Fill varArray according to fileDict which contains latest user selections
+            varArray = [];  //clear varArray
             if (fileDict.find(x => x.temp)) varArray.push(fileDict.find(x => x.temp).temp)
             if (fileDict.find(x => x.total_precipitable_water)) 
                 varArray.push(fileDict.find(x => x.total_precipitable_water).total_precipitable_water)
@@ -455,12 +453,8 @@
                 //loop through each variable and save to json
                 var idx;
                 for (idx = 0; idx < varArray.length; idx++) {
-                  
-
-                  console.log("varArray[idx]: ", varArray[idx])
-
-                  var dataArray = reader.getDataVariable(varArray[idx]);
-                  console.log("dataArray.length: ", dataArray.length)
+                    var dataArray = reader.getDataVariable(varArray[idx]);
+                    console.log("dataArray.length: ", dataArray.length)
 
                     //temporary hack to deal with file that is not a monthly avg
                     if (dataArray.length > 12) {
