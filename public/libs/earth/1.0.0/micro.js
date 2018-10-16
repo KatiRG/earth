@@ -7,13 +7,19 @@
  *
  * https://github.com/cambecc/earth
  */
+
+var isCretaceous = true; //flag to select cretaceous topojson map
+var cretaceousTopo = "/data/earth-topo-cretaceous.json";
+var modernTopo = "/data/earth-topo.json";
 var µ = function() {
     "use strict";
 
     var τ = 2 * Math.PI;
     var H = 0.0000360;  // 0.0000360°φ ~= 4m
     var DEFAULT_CONFIG = "current/wind/surface/level/orthographic";
-    var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
+    //var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : "/data/earth-topo.json?v2";
+    var TOPOLOGY = isMobile() ? "/data/earth-topo-mobile.json?v2" : 
+                   isCretaceous ? cretaceousTopo : modernTopo;
 
     /**
      * @returns {Boolean} true if the specified value is truthy.

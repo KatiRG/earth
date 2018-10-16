@@ -254,13 +254,20 @@
         log.time("build grids");
         // UNDONE: upon failure to load a product, the unloaded product should still be stored in the agent.
         //         this allows us to use the product for navigation and other state.
+        console.log("configuration: ", configuration)
+        console.log("isCretaceous: ", isCretaceous)
+
+        isCretaceous ? configuration.save({topology: cretaceousTopo}) : configuration.save({topology: modernTopo});
+        console.log("configuration after: ", configuration)
+        
         var cancel = this.cancel;
         downloadsInProgress++;
         var loaded = when.map(products.productsFor(configuration.attributes), function(product) {
+            console.log("product: ", product)            
             return product.load(cancel);
         });
         return when.all(loaded).then(function(products) {
-            log.time("build grids");
+            log.time("build grids");            
             return {primaryGrid: products[0], overlayGrid: products[1] || products[0]};
         }).ensure(function() {
             downloadsInProgress--;
@@ -930,6 +937,7 @@
         configuration.on("change", report.reset);
 
         meshAgent.listenTo(configuration, "change:topology", function(context, attr) {
+            console.log("@@@@@@@@@@@@@@2 change:topology: ", attr)
             meshAgent.submit(buildMesh, attr);
         });
 
@@ -1055,7 +1063,7 @@
             if (configuration.get("param") !== "ocean") {
                 // When switching between modes, there may be no associated data for the current date. So we need
                 // find the closest available according to the catalog. This is not necessary if date is "current".
-                // UNDONE: this code is annoying. should be easier to get date for closest ocean product.
+                // UNDONE: this code is annoying. should be easier to get date for closest ocean product.                
                 var ocean = {param: "ocean", surface: "surface", level: "currents", overlayType: "default"};
                 var attr = _.clone(configuration.attributes);
                 if (attr.date === "current") {

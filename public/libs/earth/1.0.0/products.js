@@ -9,8 +9,9 @@
 
  var v3Flag = true; //CN
  var metaRecord = []; //CN
- var fileDict = [];
+ var fileDict = []; //CN
  fileDict.push( {"wind": "wind"} );
+ 
 
  // ce fichier recupere les données envoyées par index.html, les traite et affiche les informations demandées par l'utilisateur,
  // dans ce cas, il y a un fichier par type d'informations (vent, temperature, precipitation)

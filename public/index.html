@@ -427,6 +427,9 @@
 
         //Start event listener to check when user is done selecting nc variables
         d3.select("#doneButton").on("click", function() {
+            //Determine continent topojson 
+            //isCretaceous = false;
+
             //Activate Données text-buttons corresponding to variable selection
             if (fileDict.find(x => x.temp)) d3.select("#temp").style("pointer-events", "all");
             if (fileDict.find(x => x.total_precipitable_water)) d3.select("#precip").style("pointer-events", "all");
