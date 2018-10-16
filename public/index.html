@@ -76,7 +76,10 @@
             <p>
                 <span id="t_dropdown" class="myText">Temperature  </span> 
                 <span id="p_dropdown" class="myText">  Precipitation  </span><br>
-                 <label id="doneButton" class="custom-file-upload"> Done
+
+                <span id="topoId" class="myText">  Cretaceous  </span><br>
+
+                <label id="doneButton" class="custom-file-upload"> Done
                    <!--  <li id="doneButton"/> Done</li> -->
                 </label> 
             </p>
@@ -231,6 +234,8 @@
         d3.select("#p_dropdown").style("display", "none");
         d3.select("#oz_dropdown").style("display", "none");
         d3.select("#doneButton").style("display", "none");
+        //Hide Cretaceous selection
+        d3.select("#topoId").style("display", "none");
 
         //Disable Données and TimeLine text-buttons until variables have been selected
         d3.select("#temp").style("pointer-events", "none");
@@ -239,6 +244,7 @@
         d3.select("#OX").style("pointer-events", "none");
         d3.selectAll(".mois").style("pointer-events", "none");
         //d3.select("#precip").style("pointer-events", "all") //to re-activate hover
+
 
         //----------------------------------------------------------------
         //Code to handle dynamic input
@@ -374,6 +380,16 @@
             if (idx_precip.length > 0) fillDropdown("p_dropdown", idx_precip, myObj);
             if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);
             if (idx_ozone.length > 0) fillDropdown("cloud_dropdown", idx_cloud, myObj);
+
+            //User indicates whether period is Cretaceous or not (=modern)
+            var selectPeriod = d3.select("#topoId")
+                .append('select')
+                .attr('class','select');
+
+            var periodFlag = selectPeriod.selectAll('option')
+                .data(["Select","Yes", "No"]).enter()
+                .append('option')
+                .text(function (d) { return d; });
         }
 
         function fillDropdown (this_id, this_idxArray, myObj) { //called by getVarTypes()
@@ -418,9 +434,17 @@
                     if (!fileDict.find(x => x.total_cloud_water)) fileDict.push( {"total_cloud_water": selectValue} );
                     else fileDict.find(x => x.total_cloud_water).total_cloud_water = selectValue;   
                 }
-
-                
             };
+
+            //Geological period (choices: creteceous or modern)
+            d3.select("#topoId").style("display", "inline"); //make visible
+            var select = d3.select("#topoId")
+                .on('change',changePeriod);
+
+            function changePeriod() {
+                var thisPeriod = d3.select("#topoId").select("select").property("value");
+                thisPeriod === "No" ? isCretaceous = false : isCretaceous = true;
+            }
         }
 
    
@@ -429,6 +453,8 @@
         d3.select("#doneButton").on("click", function() {
             //Determine continent topojson 
             //isCretaceous = false;
+           
+
 
             //Activate Données text-buttons corresponding to variable selection
             if (fileDict.find(x => x.temp)) d3.select("#temp").style("pointer-events", "all");
