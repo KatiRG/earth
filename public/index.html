@@ -76,6 +76,7 @@
             <p>
                 <span id="t_dropdown" class="myText">Temperature  </span> 
                 <span id="p_dropdown" class="myText">  Precipitation  </span><br>
+                <span id="oz_dropdown" class="myText">  Ozone  </span><br>
 
                 <span id="topoId" class="myText">  Cretaceous  </span><br>
 
@@ -83,9 +84,7 @@
                    <!--  <li id="doneButton"/> Done</li> -->
                 </label> 
             </p>
-            <p>
-                <span id="oz_dropdown" class="myText">Ozone</span>                 
-            </p>
+       
          
             <p><br></p>
 
@@ -228,6 +227,10 @@
               .append('select')
                 .attr('class','select');
 
+        var select = d3.select("#oz_dropdown")
+              .append('select')
+                .attr('class','select');
+
         var t_options = [];
         //Hide drop-down menus initially
         d3.select("#t_dropdown").style("display", "none");
@@ -361,12 +364,13 @@
                 if (this_unit) {
                     if (this_unit.value === "K") idx_tmp.push(idx);
                     if (this_unit.value === "kg/(s*m2)") idx_precip.push(idx);
-                    if (this_unit.value === "m/s") idx_wind.push(idx);                        
+                    if (this_unit.value === "m/s") idx_wind.push(idx);
                 }
 
                 if(this_lname) {
                     if (this_lname.value.toLowerCase().indexOf("cloud") >= 0) idx_cloud.push(idx);
-                    if (this_lname.value.indexOf("OX") >= 0) idx_ozone.push(idx);
+                    if ( (this_lname.value.indexOf("OX") >= 0) || 
+                        (this_lname.value.toLowerCase().indexOf("ozone") >= 0) ) idx_ozone.push(idx);
                 }
             }
             console.log("idx_tmp: ", idx_tmp)
@@ -393,69 +397,76 @@
         }
 
         function fillDropdown (this_id, this_idxArray, myObj) { //called by getVarTypes()
-            //Make drop-down menu label visible
-            d3.select("#" + this_id).style("display", "inline")
-            // var menu_options = this_idxArray.map(element => { return myObj[element].name });
-            var var_options = this_idxArray.map(element => { return myObj[element].name });
-            var menu_options = ["Select:"].concat(var_options); //First element in list is not caught by onchange            
+            if (this_idxArray.length > 0) {
+                //Make drop-down menu label visible
+                d3.select("#" + this_id).style("display", "inline")
+                // var menu_options = this_idxArray.map(element => { return myObj[element].name });
+                var var_options = this_idxArray.map(element => { return myObj[element].name });
+                console.log("myObj here: ", myObj)
+                console.log("this_idxArray: ", this_idxArray)
+                console.log("var_options: ", var_options)
+                var menu_options = ["Select:"].concat(var_options); //First element in list is not caught by onchange
+                console.log("menu_options: ", menu_options)
 
-            var select = d3.select("#" + this_id + " .select")
-              // .append('select')
-                // .attr('class','select')
-                .on('change',onchange);
+                var select = d3.select("#" + this_id + " .select")
+                  // .append('select')
+                    // .attr('class','select')
+                    .on('change',onchange);
 
-            var options = select.selectAll('option')
-                .data(menu_options).enter()
-                .append('option')
-                    .text(function (d) { return d; });
+                var options = select.selectAll('option')
+                    .data(menu_options).enter()
+                    .append('option')
+                        .text(function (d) {
+                            console.log("d in menu options: ", d)
+                            return d; });
 
-            function onchange() {
-                var this_dictName;
-                var selectValue = d3.select("#" + this_id).select("select").property("value");
-                console.log("Vad har vi det bra! ", selectValue)
+                function onchange() {
+                    var this_dictName;
+                    var selectValue = d3.select("#" + this_id).select("select").property("value");
+                    console.log("Vad har vi det bra! ", selectValue)
 
-                //Done button becomes visible
-                d3.select("#doneButton").style("display", "inline")
-                
-                //fill in fileDict
-                if (this_id === "t_dropdown") {
-                    if (!fileDict.find(x => x.temp)) fileDict.push( {"temp": selectValue} );
-                    else fileDict.find(x => x.temp).temp = selectValue;
+                    //Done button becomes visible
+                    d3.select("#doneButton").style("display", "inline")
+                    
+                    //fill in fileDict
+                    if (this_id === "t_dropdown") {
+                        if (!fileDict.find(x => x.temp)) fileDict.push( {"temp": selectValue} );
+                        else fileDict.find(x => x.temp).temp = selectValue;
+                    }
+                    else if (this_id === "p_dropdown") {
+                        if (!fileDict.find(x => x.total_precipitable_water)) fileDict.push( {"total_precipitable_water": selectValue} );
+                        else fileDict.find(x => x.total_precipitable_water).total_precipitable_water = selectValue;
+                    }
+                    else if (this_id === "oz_dropdown") {
+                        console.log("selectValue: ", selectValue)
+                        if (!fileDict.find(x => x.OX)) fileDict.push( {"OX": selectValue} );
+                        else fileDict.find(x => x.OX).OX = selectValue;
+
+                        if (!fileDict.find(x => x.ozone)) fileDict.push( {"OX": selectValue} );
+                        else fileDict.find(x => x.ozone).ozone = selectValue;
+                    }
+                    else if (this_id === "cloud_dropdown") {
+                        if (!fileDict.find(x => x.total_cloud_water)) fileDict.push( {"total_cloud_water": selectValue} );
+                        else fileDict.find(x => x.total_cloud_water).total_cloud_water = selectValue;   
+                    }
+                };
+
+                //Geological period (choices: creteceous or modern)
+                d3.select("#topoId").style("display", "inline"); //make visible
+                var select = d3.select("#topoId")
+                    .on('change',changePeriod);
+
+                //Determine geological period to select continent topojson file
+                function changePeriod() {
+                    var thisPeriod = d3.select("#topoId").select("select").property("value");
+                    thisPeriod === "No" ? isCretaceous = false : isCretaceous = true;
                 }
-                else if (this_id === "p_dropdown") {
-                    if (!fileDict.find(x => x.total_precipitable_water)) fileDict.push( {"total_precipitable_water": selectValue} );
-                    else fileDict.find(x => x.total_precipitable_water).total_precipitable_water = selectValue;
-                }
-                else if (this_id === "oz_dropdown") {
-                    if (!fileDict.find(x => x.OX)) fileDict.push( {"OX": selectValue} );
-                    else fileDict.find(x => x.OX).OX = selectValue;
-                }
-                else if (this_id === "cloud_dropdown") {
-                    if (!fileDict.find(x => x.total_cloud_water)) fileDict.push( {"total_cloud_water": selectValue} );
-                    else fileDict.find(x => x.total_cloud_water).total_cloud_water = selectValue;   
-                }
-            };
-
-            //Geological period (choices: creteceous or modern)
-            d3.select("#topoId").style("display", "inline"); //make visible
-            var select = d3.select("#topoId")
-                .on('change',changePeriod);
-
-            function changePeriod() {
-                var thisPeriod = d3.select("#topoId").select("select").property("value");
-                thisPeriod === "No" ? isCretaceous = false : isCretaceous = true;
-            }
+            } //.end if check
         }
-
    
 
         //Start event listener to check when user is done selecting nc variables
         d3.select("#doneButton").on("click", function() {
-            //Determine continent topojson 
-            //isCretaceous = false;
-           
-
-
             //Activate Données text-buttons corresponding to variable selection
             if (fileDict.find(x => x.temp)) d3.select("#temp").style("pointer-events", "all");
             if (fileDict.find(x => x.total_precipitable_water)) d3.select("#precip").style("pointer-events", "all");
