@@ -465,7 +465,7 @@ var products = function() {
         },
 
         "total_cloud_water": {
-            matches: _.matches({param: "wind",mode:"cloud"}),
+            matches: _.matches({param: "wind",mode:"total_cloud_water"}),
             create: function(attr) {
                 return buildProduct({
                     field: "scalar",
@@ -474,12 +474,22 @@ var products = function() {
                         name: {en: "Total Cloud Water", ja: "雲水量"},
                         qualifier: ""
                     }),
-                    paths: [gfs1p0degPath("cloud")],
+                    paths: [gfs1p0degPath( fileDict.find(x => x["total_cloud_water"])["total_cloud_water"] )],
                     date: gfsDate(attr),
                     builder: function(file) {
-                        var record = file[dict.indexOf(attr.overlayType)], data = record.data;
+                        var this_var = fileDict.find(x => x["total_cloud_water"])["total_cloud_water"];
+                        //find index of metaData obj array
+                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
+
+                        if (dict.indexOf(attr.overlayType)!==-1){
+                            k=dict.indexOf(attr.overlayType)
+                        } else {
+                            k=0
+                        }           
+                        var record = metaRecord[this_idx].data[k], data = record;
+                        
                         return {
-                            header: record.header,
+                            header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
                                 return data[i];

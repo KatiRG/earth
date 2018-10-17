@@ -77,6 +77,7 @@
                 <span id="t_dropdown" class="myText">Temperature  </span> 
                 <span id="p_dropdown" class="myText">  Precipitation  </span><br>
                 <span id="oz_dropdown" class="myText">  Ozone  </span><br>
+                <span id="cld_dropdown" class="myText">  Clouds  </span><br>
 
                 <span id="topoId" class="myText">  Cretaceous  </span><br>
 
@@ -231,11 +232,16 @@
               .append('select')
                 .attr('class','select');
 
+        var select = d3.select("#cld_dropdown")
+              .append('select')
+                .attr('class','select');
+
         var t_options = [];
         //Hide drop-down menus initially
         d3.select("#t_dropdown").style("display", "none");
         d3.select("#p_dropdown").style("display", "none");
         d3.select("#oz_dropdown").style("display", "none");
+        d3.select("#cld_dropdown").style("display", "none");
         d3.select("#doneButton").style("display", "none");
         //Hide Cretaceous selection
         d3.select("#topoId").style("display", "none");
@@ -383,7 +389,7 @@
             if (idx_tmp.length > 0) fillDropdown("t_dropdown", idx_tmp, myObj);
             if (idx_precip.length > 0) fillDropdown("p_dropdown", idx_precip, myObj);
             if (idx_ozone.length > 0) fillDropdown("oz_dropdown", idx_ozone, myObj);
-            if (idx_ozone.length > 0) fillDropdown("cloud_dropdown", idx_cloud, myObj);
+            if (idx_cloud.length > 0) fillDropdown("cld_dropdown", idx_cloud, myObj);
 
             //User indicates whether period is Cretaceous or not (=modern)
             var selectPeriod = d3.select("#topoId")
@@ -438,14 +444,14 @@
                         else fileDict.find(x => x.total_precipitable_water).total_precipitable_water = selectValue;
                     }
                     else if (this_id === "oz_dropdown") {
-                        console.log("selectValue: ", selectValue)
                         if (!fileDict.find(x => x.OX)) fileDict.push( {"OX": selectValue} );
                         else fileDict.find(x => x.OX).OX = selectValue;
 
                         if (!fileDict.find(x => x.ozone)) fileDict.push( {"OX": selectValue} );
                         else fileDict.find(x => x.ozone).ozone = selectValue;
                     }
-                    else if (this_id === "cloud_dropdown") {
+                    else if (this_id === "cld_dropdown") {
+                        console.log("selectValue: ", selectValue)
                         if (!fileDict.find(x => x.total_cloud_water)) fileDict.push( {"total_cloud_water": selectValue} );
                         else fileDict.find(x => x.total_cloud_water).total_cloud_water = selectValue;   
                     }
