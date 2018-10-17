@@ -308,31 +308,25 @@ var products = function() {
                             k=0
                         }           
                         var record = metaRecord[this_idx].data[k], data = record;
+                        console.log("k: ", k)
+                        console.log("ozone record: ", record)
                         
                         return {
                             header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
-                                return data[i] * 1e8; //NOTE!!! FAKE SCALE FACTOR FOR NOW!!!
+                                return data[i]; //NOTE!!! FAKE SCALE FACTOR FOR NOW!!!
                             }
                         }
                     },
                     units: [
-                        {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
+                        {label: "-", conversion: function(x) { return x; }, precision: 12}
                     ],
                     scale: {
-                        bounds: [0, 5],
-                        gradient:
-                            µ.segmentedColorScale([
-                                [0, [230, 165, 30]],
-                                [0.00005, [120, 100, 95]],
-                                [0.0001, [40, 44, 92]],
-                                [0.00015, [21, 13, 193]],
-                                [0.0002, [75, 63, 235]],
-                                [0.00025, [25, 255, 255]],
-                                [0.0003, [150, 255, 255]],
-                                [0.00035, [200, 255, 255]]
-                            ])
+                        bounds: [0, 5* 1e-8],
+                        gradient: function(v, a) {
+                            return µ.sinebowColor(Math.min(v, 5e-8) / 5e-8, a);
+                        }
                     }
                 });
             }
