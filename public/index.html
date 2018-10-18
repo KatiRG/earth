@@ -267,7 +267,7 @@
         //Code to handle dynamic input
         //----------------------------------------------------------------
 
-        var varArray = []; //to hold var names in nc file
+        var varName; //to hold var names in nc file
         var reader;
         
         function abortRead() {  reader.abort(); }
@@ -286,8 +286,7 @@
                 alert('File read cancelled');
             };
 
-            reader.onload = function(e) {
-                //varArray = ['t2m'] //FOR NOW!!!!!
+            reader.onload = function(e) {                
 
                 //display selected file name on page
                 d3.select("#fname").text(evt.target.files[0].name);
@@ -429,61 +428,43 @@
 
         //Start event listener to check when user is done selecting nc variables
         d3.select("#doneButton").on("click", function() {
+            varName = "";  //clear varName        
+            varName = fileDict.find(x => x.thisVar).thisVar;
+            console.log("varName ", varName)
+
             //Activate Données text-buttons corresponding to variable selection
-            if (fileDict.find(x => x.temp)) d3.select("#thisVar").style("pointer-events", "all");
-            if (fileDict.find(x => x.temp)) d3.select("#temp").style("pointer-events", "all");
-            if (fileDict.find(x => x.total_precipitable_water)) d3.select("#total_precipitable_water")
-                                                                  .style("pointer-events", "all");
-            if (fileDict.find(x => x.total_cloud_water)) d3.select("#total_cloud_water")
-                                                           .style("pointer-events", "all");
-            if (fileDict.find(x => x.OX)) d3.select("#OX").style("pointer-events", "all");
+            d3.select("#thisVar").style("pointer-events", "all");
+            //Label with selected variable name
+            d3.select("#thisVar").text(varName);
 
             //Activate TimeLine months
             d3.selectAll(".mois").style("pointer-events", "all");
             
-            //Fill varArray according to fileDict which contains latest user selections
-            varArray = [];  //clear varArray
-            if (fileDict.find(x => x.thisVar)) varArray.push(fileDict.find(x => x.thisVar).thisVar)
-            if (fileDict.find(x => x.temp)) varArray.push(fileDict.find(x => x.temp).temp)
-            if (fileDict.find(x => x.total_precipitable_water)) 
-                varArray.push(fileDict.find(x => x.total_precipitable_water).total_precipitable_water)
-            if (fileDict.find(x => x.total_cloud_water)) 
-                varArray.push(fileDict.find(x => x.total_cloud_water).total_cloud_water)
-            if (fileDict.find(x => x.OX)) varArray.push(fileDict.find(x => x.OX).OX)
-            console.log("varArray now: ", varArray)
+            //Fill varNamerding to fileDict which contains latest user selections
+            
 
             if (reader.version.indexOf("classic") >= 0) {
                 console.log("version: ", reader.version)
-                var thisRecord = {};
+                var thisRecord = {};            
+                
+                var dataArray = reader.getDataVariable(varName);
+                console.log("dataArray.length: ", dataArray.length)
 
-                //loop through each variable and save to json
-                var idx;
-                for (idx = 0; idx < varArray.length; idx++) {
-                    var dataArray = reader.getDataVariable(varArray[idx]);
-                    console.log("dataArray.length: ", dataArray.length)
+                //make header obj
+                var nx = reader.getDataVariable("lat").length;
+                var ny = reader.getDataVariable("lon").length;
+                var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
+                var dx = 360/nx, dy = 180/ny;
+                console.log("dataArray length in v3Flag true: ", dataArray.length)
 
-                    //temporary hack to deal with file that is not a monthly avg
-                    if (dataArray.length > 12) {
-                        var n = dataArray.length - 12;
-                        dataArray = dataArray.slice(n);
-                        console.log('sliced dataArray length: ', dataArray.length)
-                    }
+                thisRecord = {
+                    "ncvar": varName,
+                    "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
+                    "data": dataArray
+                }
 
-                    //make header obj
-                    var nx = reader.getDataVariable("lat").length;
-                    var ny = reader.getDataVariable("lon").length;
-                    var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
-                    var dx = 360/nx, dy = 180/ny;
-                    console.log("dataArray length in v3Flag true: ", dataArray.length)
-
-                    thisRecord = {
-                        "ncvar": varArray[idx],
-                        "header": {"nx": nx, "ny": ny, "la1": 90, "la2": -90, "lo1": -180, "lo2": 180, "dx": dx, "dy": dy},
-                        "data": dataArray
-                    }
-
-                    metaRecord.push( thisRecord );
-                } //.end for loop over varArray
+                metaRecord.push( thisRecord );
+                
                 console.log("metaRecord for v3: ", metaRecord)
             } else {//send nc file to backend for conversion via POST request
                 console.log("v3Flag here: ", v3Flag)

@@ -320,13 +320,25 @@ var products = function() {
                         }
                     },
                     units: [
-                        {label: " [dimensionless]", conversion: function(x) { return x; }, precision: 12}
+                        {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
+                        {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
+                        {label: "K",  conversion: function(x) { return x; },                precision: 1}
                     ],
                     scale: {
-                        bounds: [0, 5* 1e-8],
-                        gradient: function(v, a) {
-                            return µ.sinebowColor(Math.min(v, 5e-8) / 5e-8, a);
-                        }
+                        bounds: [193, 328],
+                        gradient: µ.segmentedColorScale([
+                            [193,     [37, 4, 42]],
+                            [206,     [41, 10, 130]],
+                            [219,     [81, 40, 40]],
+                            [233.15,  [192, 37, 149]],  // -40 C/F
+                            [255.372, [70, 215, 215]],  // 0 F
+                            [273.15,  [21, 84, 187]],   // 0 C
+                            [275.15,  [24, 132, 14]],   // just above 0 C
+                            [291,     [247, 251, 59]],
+                            [298,     [235, 167, 21]],
+                            [311,     [230, 71, 39]],
+                            [328,     [88, 27, 67]]
+                        ])
                     }
                 });
             }
