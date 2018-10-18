@@ -284,6 +284,54 @@ var products = function() {
             }
         },
 
+        "thisVar": {
+            matches: _.matches({param: "wind",mode: "thisVar"}),
+            create: function(attr) {
+                return buildProduct({
+                    field: "scalar",
+                    type: "thisVar",
+                    description: localize({
+                        name: {en: "thisVar", ja: "可降水量"},
+                        qualifier: ""
+                    }),
+                    // paths: [gfs1p0degPath("precip")],
+                    paths: [gfs1p0degPath( fileDict.find(x => x["thisVar"])["thisVar"] )],
+                    date: gfsDate(attr),
+                    builder: function(file) {
+                        var this_var = fileDict.find(x => x["thisVar"])["thisVar"];
+                        //find index of metaData obj array
+                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
+
+                        if (dict.indexOf(attr.overlayType)!==-1){
+                            k=dict.indexOf(attr.overlayType)
+                        } else {
+                            k=0
+                        }           
+                        var record = metaRecord[this_idx].data[k], data = record;
+                        console.log("k: ", k)
+                        console.log("ozone record: ", record)
+                        
+                        return {
+                            header: metaRecord[this_idx].header,
+                            interpolate: bilinearInterpolateScalar,
+                            data: function(i) {
+                                return data[i]; //NOTE!!! FAKE SCALE FACTOR FOR NOW!!!
+                            }
+                        }
+                    },
+                    units: [
+                        {label: " [dimensionless]", conversion: function(x) { return x; }, precision: 12}
+                    ],
+                    scale: {
+                        bounds: [0, 5* 1e-8],
+                        gradient: function(v, a) {
+                            return µ.sinebowColor(Math.min(v, 5e-8) / 5e-8, a);
+                        }
+                    }
+                });
+            }
+        }, //end general var
+
         "OX": {
             matches: _.matches({param: "wind",mode: "OX"}),
             create: function(attr) {
