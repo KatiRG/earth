@@ -227,7 +227,7 @@ var products = function() {
             }
         },
 
-            "temp": {
+        "temp": {
             matches: _.matches({param: "wind", mode :"temp"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction             
             create: function(attr) {
                 return buildProduct({
@@ -523,10 +523,11 @@ var products = function() {
                         name: {en: "Total Precipitable Water", ja: "可降水量"},
                         qualifier: ""
                     }),
-                    // paths: [gfs1p0degPath("precip")],
-                    paths: [gfs1p0degPath( fileDict.find(x => x["total_precipitable_water"])["total_precipitable_water"] )],
+                    paths: [gfs1p0degPath("precip")],
+                    //paths: [gfs1p0degPath( fileDict.find(x => x["total_precipitable_water"])["total_precipitable_water"] )],
                     date: gfsDate(attr),
                     builder: function(file) {
+                        console.log("this_var: ", this_var)
                         var this_var = fileDict.find(x => x["total_precipitable_water"])["total_precipitable_water"];
                         //find index of metaData obj array
                         var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
@@ -537,6 +538,8 @@ var products = function() {
                             k=0
                         }           
                         var record = metaRecord[this_idx].data[k], data = record;
+                        console.log("total_precipitable_water min [0]: ", Math.min.apply(null, metaRecord[0].data[2]))
+                        console.log("total_precipitable_water max [0]: ", Math.max.apply(null, metaRecord[0].data[2]))
                         
                         return {
                             header: metaRecord[this_idx].header,
@@ -547,21 +550,27 @@ var products = function() {
                         }
                     },
                     units: [
-                        {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
+                        {label: "kg/(s*m²)", conversion: function(x) { return x; }, precision: 8}
                     ],
                     scale: {
-                        bounds: [0, 255],
-                        gradient:
-                            µ.segmentedColorScale([
-                                [0, [230, 165, 30]],
-                                [0.00005, [120, 100, 95]],
-                                [0.0001, [40, 44, 92]],
-                                [0.00015, [21, 13, 193]],
-                                [0.0002, [75, 63, 235]],
-                                [0.00025, [25, 255, 255]],
-                                [0.0003, [150, 255, 255]],
-                                [0.00035, [200, 255, 255]]
-                            ])
+                        bounds: [0, 0.0005],
+                        gradient: function(v, a) {
+                            return µ.sinebowColor(Math.min(v, 0.0005) / 0.0005, a);
+                        }
+                    // }
+                    // scale: {
+                    //     bounds: [0, 255],
+                    //     gradient:
+                    //         µ.segmentedColorScale([
+                    //             [0, [230, 165, 30]],
+                    //             [0.00005, [120, 100, 95]],
+                    //             [0.0001, [40, 44, 92]],
+                    //             [0.00015, [21, 13, 193]],
+                    //             [0.0002, [75, 63, 235]],
+                    //             [0.00025, [25, 255, 255]],
+                    //             [0.0003, [150, 255, 255]],
+                    //             [0.00035, [200, 255, 255]]
+                    //         ])
                     }
                 });
             }

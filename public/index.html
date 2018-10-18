@@ -129,7 +129,7 @@
 
              <p class="wind-mode">Données |<span
                 class="mode text-button" id="temp" title="Surface">Temperature</span> – <span
-                class="mode text-button" id="precip">Precipitation</span> – <span
+                class="mode text-button" id="total_precipitable_water">Precipitation</span> – <span
                 class="mode text-button" id="cloud">Nuages</span> – <span
                 class="mode text-button" id="OX">Ozone</span>
             </p>
@@ -248,7 +248,7 @@
 
         //Disable Données and TimeLine text-buttons until variables have been selected
         d3.select("#temp").style("pointer-events", "none");
-        d3.select("#precip").style("pointer-events", "none");
+        d3.select("#total_precipitable_water").style("pointer-events", "none");
         d3.select("#cloud").style("pointer-events", "none");
         d3.select("#OX").style("pointer-events", "none");
         d3.selectAll(".mois").style("pointer-events", "none");
@@ -475,7 +475,8 @@
         d3.select("#doneButton").on("click", function() {
             //Activate Données text-buttons corresponding to variable selection
             if (fileDict.find(x => x.temp)) d3.select("#temp").style("pointer-events", "all");
-            if (fileDict.find(x => x.total_precipitable_water)) d3.select("#precip").style("pointer-events", "all");
+            if (fileDict.find(x => x.total_precipitable_water)) d3.select("#total_precipitable_water")
+                                                                  .style("pointer-events", "all");
             if (fileDict.find(x => x.total_cloud_water)) d3.select("#cloud").style("pointer-events", "all");
             if (fileDict.find(x => x.OX)) d3.select("#OX").style("pointer-events", "all");
 
