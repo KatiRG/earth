@@ -74,17 +74,11 @@
             </p>
 
             <p>
-                <span id="thisVar_dropdown" class="myText">ThisVar  </span><br>
-                <span id="t_dropdown" class="myText">Temperature  </span> 
-                <span id="p_dropdown" class="myText">  Precipitation  </span><br>
-                <span id="oz_dropdown" class="myText">  Ozone  </span><br>
-                <span id="cld_dropdown" class="myText">  Clouds  </span><br>
+                <span id="thisVar_dropdown" class="myText">Selected var </span><br>              
 
                 <span id="topoId" class="myText">  Cretaceous  </span><br>
 
-                <label id="doneButton" class="custom-file-upload"> Done
-                   <!--  <li id="doneButton"/> Done</li> -->
-                </label> 
+                <label id="doneButton" class="custom-file-upload"> Done </label> 
             </p>
        
          
@@ -129,11 +123,7 @@
              -->
 
              <p class="wind-mode">Données |<span
-                class="mode text-button" id="thisVar" title="Surface">thisVar</span> – <span
-                class="mode text-button" id="temp" title="Surface">Temperature</span> – <span
-                class="mode text-button" id="total_precipitable_water">Precipitation</span> – <span
-                class="mode text-button" id="total_cloud_water">Nuages</span> – <span
-                class="mode text-button" id="OX">Ozone</span>
+                class="mode text-button" id="thisVar" title="Surface"></span>
             </p>
 
             <p class="wind-mode">...TimeLine | <span
@@ -226,40 +216,15 @@
               .append('select')
                 .attr('class','select');
 
-        var select = d3.select("#t_dropdown")
-              .append('select')
-                .attr('class','select');
-
-        var select = d3.select("#p_dropdown")
-              .append('select')
-                .attr('class','select');
-
-        var select = d3.select("#oz_dropdown")
-              .append('select')
-                .attr('class','select');
-
-        var select = d3.select("#cld_dropdown")
-              .append('select')
-                .attr('class','select');
-
-        var t_options = [];
         //Hide drop-down menus initially
-         d3.select("#thisVar_dropdown").style("display", "none");
-        d3.select("#t_dropdown").style("display", "none");
-        d3.select("#p_dropdown").style("display", "none");
-        d3.select("#oz_dropdown").style("display", "none");
-        d3.select("#cld_dropdown").style("display", "none");
-        d3.select("#doneButton").style("display", "none");
+        d3.select("#thisVar_dropdown").style("display", "none");
+        
         //Hide Cretaceous selection
         d3.select("#topoId").style("display", "none");
 
         //Disable Données and TimeLine text-buttons until variables have been selected
         d3.select("#thisVar").style("pointer-events", "none");
-        d3.select("#temp").style("pointer-events", "none");
-        d3.select("#total_precipitable_water").style("pointer-events", "none");
-        d3.select("#cloud").style("pointer-events", "none");
-        d3.select("#OX").style("pointer-events", "none");
-        d3.selectAll(".mois").style("pointer-events", "none");
+
         //d3.select("#precip").style("pointer-events", "all") //to re-activate hover
 
 
@@ -308,8 +273,9 @@
 
                 if (v3Flag) {
                     //Get variable types according to units and fill in the drop-down menu accordingly
-                    var myObj = reader.header.variables;
-                    getVarTypes (myObj);                
+                    var ncvarObj = reader.header.variables;
+                    var ncdimObj = reader.header.dimensions;
+                    getVarTypes (ncvarObj, ncdimObj);
 
                 } else {//send nc file to backend for conversion via POST request
                     console.log("v3Flag here: ", v3Flag)
@@ -344,8 +310,9 @@
                             reader = new netcdfjs(returned_reader);
 
                             //Get variable types according to units and fill in the drop-down menu accordingly
-                            var myObj = reader.header.variables;
-                            getVarTypes (myObj);
+                            var ncvarObj = reader.header.variables;
+                            var ncdimObj = reader.header.dimensions;
+                            getVarTypes (ncvarObj, ncdimObj);
                         
                         } // .end xhr response onchange
 
@@ -367,11 +334,12 @@
         //Start event listener to check if a file has been selected
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
-        function getVarTypes (myObj) {//called after nc file is read by netcdfjs            
+        function getVarTypes (ncvarObj, ncdimObj) {//called after nc file is read by netcdfjs                 
             //Get variables according to units
-            console.log("myObj: ", myObj)
+            console.log("ncvarObj: ", ncvarObj)
+            console.log("ncdimObj: ", ncdimObj)
 
-            fillDropdown("thisVar_dropdown", myObj);
+            fillDropdown("thisVar_dropdown", ncvarObj, ncdimObj);
                       
             //User indicates whether period is Cretaceous or not (=modern)
             var selectPeriod = d3.select("#topoId")
@@ -385,17 +353,29 @@
                 .text(function (d) { return d; });
         }
 
-        function fillDropdown (this_id, myObj) { //called by getVarTypes()
+        function fillDropdown (this_id, ncvarObj, ncdimObj) { //called by getVarTypes()
             d3.select("#" + this_id).style("display", "inline");
 
-            var varList = []; //holds names of variables in myObj
-            myObj.find(function(val) {  varList.push( val.name) ;  })
+            var varList = []; //holds names of variables in ncvarObj
+            ncvarObj.find(function(val) {  varList.push( val.name) ;  });
+            console.log("varList: ", varList)
+
+            var excludeList = []; //variables in nc file that are not data variables to be plotted
+            ncdimObj.find(function(val) {  excludeList.push( val.name) ;  });
+            //add a few more to exclude
+            excludeList.push.apply(excludeList,["time_centered", "time_centered_bounds", "time_counter_bnds"]);
+            console.log("excludeList: ", excludeList)
+
+            var filteredList = varList.filter(function(element) {
+                return excludeList.indexOf(element) === -1;
+            });
+            console.log("filteredList: ", filteredList)
 
             var select = d3.select("#" + this_id + " .select")
                     .on('change',onchange);
 
             var options = select.selectAll('option')
-                .data(varList).enter()
+                .data(filteredList).enter()
                 .append('option')
                     .text(function (d) { return d; });
 
