@@ -394,10 +394,11 @@
             //User indicates whether period is Cretaceous or not (=modern)
             var selectPeriod = d3.select("#topoId")
                 .append('select')
-                .attr('class','select');
+                .attr('class','select')
+                .style("width", "25%");
 
             var periodFlag = selectPeriod.selectAll('option')
-                .data(["Select","Yes", "No"]).enter()
+                .data(["Default (Yes)","Yes", "No"]).enter()
                 .append('option')
                 .text(function (d) { return d; });
         }
