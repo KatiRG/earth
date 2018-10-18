@@ -320,7 +320,7 @@ var products = function() {
                         }
                     },
                     units: [
-                        {label: "-", conversion: function(x) { return x; }, precision: 12}
+                        {label: " [dimensionless]", conversion: function(x) { return x; }, precision: 12}
                     ],
                     scale: {
                         bounds: [0, 5* 1e-8],
@@ -491,22 +491,27 @@ var products = function() {
                         }
                     },
                     units: [
-                        {label: "kg/m²", conversion: function(x) { return x; }, precision: 3}
+                        {label: " [dimensionless]", conversion: function(x) { return x; }, precision: 3}
                     ],
+                    // scale: {
+                    //     bounds: [0, 0.5],
+                    //     gradient: function(v, a) {
+                    //         return µ.sinebowColor(Math.min(v, 0.5) / 0.5, a);
+                    //     }
                     scale: {
-                        bounds: [0, 1],
+                        bounds: [0, 0.5],
                         gradient: µ.segmentedColorScale([
                             [0.0, [0, 0, 0]],
-                            [0.1, [25, 25, 25]],
-                            [0.2, [50, 50, 50]],
-                            [0.3, [75, 75, 75]],
-                            [0.4, [100, 100, 100]],
-                            [0.5, [125, 125, 125]],
-                            [0.6, [150, 150, 150]],
-                            [0.7, [175, 175, 175]],
-                            [0.8, [200, 200, 200]],
-                            [0.9, [225, 225, 225]],
-                            [1.0, [255, 255, 255]]
+                            [0.05, [25, 25, 25]],
+                            [0.1, [50, 50, 50]],
+                            [0.15, [75, 75, 75]],
+                            [0.2, [100, 100, 100]],
+                            [0.25, [125, 125, 125]],
+                            [0.3, [150, 150, 150]],
+                            [0.35, [175, 175, 175]],
+                            [0.4, [200, 200, 200]],
+                            [0.45, [225, 225, 225]],
+                            [1.5, [255, 255, 255]]
                         ])
                     }
                 });
@@ -557,7 +562,6 @@ var products = function() {
                         gradient: function(v, a) {
                             return µ.sinebowColor(Math.min(v, 0.0005) / 0.0005, a);
                         }
-                    // }
                     // scale: {
                     //     bounds: [0, 255],
                     //     gradient:

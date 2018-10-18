@@ -130,7 +130,7 @@
              <p class="wind-mode">Données |<span
                 class="mode text-button" id="temp" title="Surface">Temperature</span> – <span
                 class="mode text-button" id="total_precipitable_water">Precipitation</span> – <span
-                class="mode text-button" id="cloud">Nuages</span> – <span
+                class="mode text-button" id="total_cloud_water">Nuages</span> – <span
                 class="mode text-button" id="OX">Ozone</span>
             </p>
 
@@ -477,7 +477,8 @@
             if (fileDict.find(x => x.temp)) d3.select("#temp").style("pointer-events", "all");
             if (fileDict.find(x => x.total_precipitable_water)) d3.select("#total_precipitable_water")
                                                                   .style("pointer-events", "all");
-            if (fileDict.find(x => x.total_cloud_water)) d3.select("#cloud").style("pointer-events", "all");
+            if (fileDict.find(x => x.total_cloud_water)) d3.select("#total_cloud_water")
+                                                           .style("pointer-events", "all");
             if (fileDict.find(x => x.OX)) d3.select("#OX").style("pointer-events", "all");
 
             //Activate TimeLine months
