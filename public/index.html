@@ -74,6 +74,8 @@
             </p>
 
             <p>
+                <span id="uwind_dropdown" class="myText"> Wind (u) </span>
+                <span id="vwind_dropdown" class="myText"> Wind (v) </span><br>
                 <span id="thisVar_dropdown" class="myText">Selected var </span><br>              
 
                 <span id="topoId" class="myText">  Cretaceous  </span><br>
@@ -212,11 +214,17 @@
         //----------------------------------------------------------------
 
         //Create drop-down menu select class
+        var select = d3.select("#uwind_dropdown")
+              .append('select')
+                .attr('class','select');
+
         var select = d3.select("#thisVar_dropdown")
               .append('select')
                 .attr('class','select');
 
         //Hide drop-down menus initially
+        d3.select("#uwind_dropdown").style("display", "none");
+        d3.select("#vwind_dropdown").style("display", "none");
         d3.select("#thisVar_dropdown").style("display", "none");
         
         //Hide Cretaceous selection
@@ -335,7 +343,22 @@
         run = document.getElementById('files').addEventListener('change', handleFileSelect, false);
 
         function getVarTypes (ncvarObj, ncdimObj) {//called after nc file is read by netcdfjs                 
-            //Get variables according to units
+            //Get wind variables            
+            var idx_u = [], idx_v = [];
+            for (idx=0; idx<ncvarObj.length; idx++) {
+                var this_unit = Object.values(ncvarObj)[idx].attributes.find(x => x.name === "units");
+                var this_lname = Object.values(ncvarObj)[idx].attributes.find(x => x.name === "long_name");
+                if (this_unit) {
+                    if (this_unit.value === "m/s" && this_lname.value.toLowerCase().indexOf("zon") >= 0) idx_u.push(idx);
+                    if (this_unit.value === "m/s" && this_lname.value.toLowerCase().indexOf("meri") >= 0) idx_v.push(idx);
+                }
+            }
+            console.log("idx_u: ", idx_u)
+            console.log("idx_v: ", idx_v)
+            if (idx_u.length > 0 && idx_u.length > 0) fillWindDropdown(idx_u, idx_v, ncvarObj);
+
+
+            //Get remaining variable list
             console.log("ncvarObj: ", ncvarObj)
             console.log("ncdimObj: ", ncdimObj)
 
@@ -351,6 +374,47 @@
                 .data(["Default (Yes)","Yes", "No"]).enter()
                 .append('option')
                 .text(function (d) { return d; });
+        }
+
+        function fillWindDropdown (this_idxu, this_idxv, ncvarObj) { //called by getVarTypes()
+            
+            //Make drop-down menu label visible
+            d3.select("#uwind_dropdown").style("display", "inline");
+            d3.select("#vwind_dropdown").style("display", "inline");
+            
+            var u_options = this_idxu.map(element => { return ncvarObj[element].name });
+            var v_options = this_idxv.map(element => { return ncvarObj[element].name });
+
+            //u wind
+            var umenu_options = ["Select:"].concat(u_options); //First element in list is not caught by onchange
+            console.log("umenu_options: ", umenu_options)
+            var select = d3.select("#uwind_dropdown" + " .select")
+                .on('change',onchange);
+            var options = select.selectAll('option')
+                .data(umenu_options).enter()
+                .append('option')
+                    .text(function (d) {
+                        console.log("d in menu options: ", d)
+                        return d; });           
+
+
+            function onchange() {
+                        
+                var uValue = d3.select("#uwind_dropdown").select("select").property("value");
+                var vValue = uValue.replace("u", "v");
+                console.log("Vad har vi det bra UWIND! ", uValue)
+                console.log("Vad har vi det bra VWIND! ", vValue)
+                
+                //fill in fileDict                
+                if (!fileDict.find(x => x.uwind)) fileDict.push( {"uwind": uValue} );
+                else fileDict.find(x => x.uwind).uwind = uValue;
+
+                if (!fileDict.find(x => x.vwind)) fileDict.push( {"vwind": vValue} );
+                else fileDict.find(x => x.vwind).vwind = vValue;   
+            
+            };
+
+
         }
 
         function fillDropdown (this_id, ncvarObj, ncdimObj) { //called by getVarTypes()
@@ -370,12 +434,13 @@
                 return excludeList.indexOf(element) === -1;
             });
             console.log("filteredList: ", filteredList)
+            var menu_options = ["Select:"].concat(filteredList); //First element in list is not caught by onchange
 
             var select = d3.select("#" + this_id + " .select")
                     .on('change',onchange);
 
             var options = select.selectAll('option')
-                .data(filteredList).enter()
+                .data(menu_options).enter()
                 .append('option')
                     .text(function (d) { return d; });
 
@@ -404,7 +469,7 @@
                 thisPeriod === "No" ? isCretaceous = false : isCretaceous = true;
             }
         
-        }
+        } //.end fillDropdown
 
         //Start event listener to check when user is done selecting nc variables
         d3.select("#doneButton").on("click", function() {
