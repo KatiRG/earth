@@ -404,6 +404,9 @@
                 var vValue = uValue.replace("u", "v");
                 console.log("Vad har vi det bra UWIND! ", uValue)
                 console.log("Vad har vi det bra VWIND! ", vValue)
+
+                //Display vwind on screen
+                d3.select("#vwind_dropdown").text("Wind (v) set to " + vValue);
                 
                 //fill in fileDict                
                 if (!fileDict.find(x => x.uwind)) fileDict.push( {"uwind": uValue} );
