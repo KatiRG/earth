@@ -206,8 +206,10 @@ var products = function() {
                             var vrecord = metaRecord[vwind_idx].data[k], vData = vrecord;
 
                             console.log("k: ", k)
-                            console.log("uData: ", uData);
-                            console.log("vData: ", vData);
+                            console.log("min uData: ", Math.min.apply(null, uData));
+                            console.log("max uData: ", Math.max.apply(null, uData));
+                            console.log("min vData: ", Math.min.apply(null, vData));
+                            console.log("max vData: ", Math.max.apply(null, vData));
                            
                             
                             return {
@@ -220,6 +222,10 @@ var products = function() {
 
                         } else {
                             var uData = file[k*2].data, vData = file[k*2+1].data;
+                            console.log("min dummy uData: ", Math.min.apply(null, uData));
+                            console.log("max dummy uData: ", Math.max.apply(null, uData));
+                            console.log("min dummy vData: ", Math.min.apply(null, vData));
+                            console.log("max dummy vData: ", Math.max.apply(null, vData));
                             //un fichier de vent contient pour chaque mois
                             // deux parties (u du vecteur et v du vecteur)
                             // elles sont disposées a la suite, on a : uJanvier
@@ -242,13 +248,19 @@ var products = function() {
                         {label: "kn",   conversion: function(x) { return x * 1.943844; }, precision: 0},
                         {label: "mph",  conversion: function(x) { return x * 2.236936; }, precision: 0}
                     ],
+                    // scale: {
+                    //     bounds: [0, 100],
+                    //     gradient: function(v, a) {
+                    //         return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
+                    //     }
+                    // },
                     scale: {
-                        bounds: [0, 100],
+                        bounds: [0, 10],
                         gradient: function(v, a) {
-                            return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
+                            return µ.sinebowColor(Math.min(v, 10) / 10, a);
                         }
                     },
-                    particles: {velocityScale: 1/60000, maxIntensity: 17}
+                    particles: {velocityScale: 1/60000, maxIntensity: 0.5}
                 });
             }
         },
@@ -341,7 +353,7 @@ var products = function() {
                             header: metaRecord[this_idx].header,
                             interpolate: bilinearInterpolateScalar,
                             data: function(i) {
-                                return data[i]; //NOTE!!! FAKE SCALE FACTOR FOR NOW!!!
+                                return data[i];
                             }
                         }
                     },
@@ -953,6 +965,7 @@ var products = function() {
                 results.push(factory.create(attr));
             }
         });
+        console.log("results: ", results)
         return results.filter(µ.isValue);
     }
 

@@ -453,14 +453,13 @@
             function onchange() {
                         
                 var selectValue = d3.select("#" + this_id).select("select").property("value");
-                console.log("Vad har vi det bra! ", selectValue)
 
                 //Done button becomes visible
                 d3.select("#doneButton").style("display", "inline")
                 
                 //fill in fileDict (either create new or replace existing value)
                 if (!fileDict.find(x => x.thisVar)) fileDict.push( {"thisVar": selectValue} );
-                else fileDict.find(x => x.thisVar).thisVar = selectValue;                
+                else fileDict.find(x => x.thisVar).thisVar = selectValue;
             
             };
 
