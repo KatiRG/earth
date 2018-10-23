@@ -413,7 +413,10 @@
                 else fileDict.find(x => x.uwind).uwind = uValue;
 
                 if (!fileDict.find(x => x.vwind)) fileDict.push( {"vwind": vValue} );
-                else fileDict.find(x => x.vwind).vwind = vValue;   
+                else fileDict.find(x => x.vwind).vwind = vValue;
+
+                //flag for wind in products.js
+                fileDict.find(x => x.wind).wind = "read from file";
             
             };
 
@@ -455,7 +458,7 @@
                 //Done button becomes visible
                 d3.select("#doneButton").style("display", "inline")
                 
-                //fill in fileDict                
+                //fill in fileDict (either create new or replace existing value)
                 if (!fileDict.find(x => x.thisVar)) fileDict.push( {"thisVar": selectValue} );
                 else fileDict.find(x => x.thisVar).thisVar = selectValue;                
             
@@ -476,24 +479,29 @@
 
         //Start event listener to check when user is done selecting nc variables
         d3.select("#doneButton").on("click", function() {
-            varName = "";  //clear varName        
+            varName = "";  //clear varName
             varName = fileDict.find(x => x.thisVar).thisVar;
-            console.log("varName ", varName)
+            // console.log("varName ", varName)
+            console.log("fileDict: ", fileDict)
+            console.log("fileDict uwind: ", fileDict.find(x => x.uwind).uwind)
+            console.log("fileDict vwind: ", fileDict.find(x => x.vwind).vwind)
 
             //Activate Données text-buttons corresponding to variable selection
             d3.select("#thisVar").style("pointer-events", "all");
             //Label with selected variable name
-            d3.select("#thisVar").text(varName);
+            d3.select("#thisVar").text( varName );
 
             //Activate TimeLine months
             d3.selectAll(".mois").style("pointer-events", "all");
             
-            //Fill varNamerding to fileDict which contains latest user selections
+            //Fill metaRecord for selected variable + uwind, vwind
+            fillMetaRecord(varName);
+            fillMetaRecord(fileDict.find(x => x.uwind).uwind);
+            fillMetaRecord(fileDict.find(x => x.vwind).vwind);
             
-
-            if (reader.version.indexOf("classic") >= 0) {
-                console.log("version: ", reader.version)
-                var thisRecord = {};            
+            console.log("version: ", reader.version)
+            function fillMetaRecord(varName) {
+                var thisRecord = {};
                 
                 var dataArray = reader.getDataVariable(varName);
                 console.log("dataArray.length: ", dataArray.length)
@@ -512,15 +520,10 @@
                 }
 
                 metaRecord.push( thisRecord );
-                
-                console.log("metaRecord for v3: ", metaRecord)
-            } else {//send nc file to backend for conversion via POST request
-                console.log("v3Flag here: ", v3Flag)
-
-               
-            } //.end v3Flag check
-
-
+            }
+            
+            console.log("metaRecord for v3: ", metaRecord)
+        
             
         });
 

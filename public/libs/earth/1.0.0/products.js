@@ -98,7 +98,7 @@ var products = function() {
         console.log("file: ", [WEATHER_PATH,file].join("/"))
         //return [WEATHER_PATH,file].join("/");
         return type === "wind" ? [WEATHER_PATH,file].join("/") : [WEATHER_PATH,"dummy.json"].join("/");
-    }
+       }
  
 
 //   function gfs1p0degPath(attr, type, surface, level) {
@@ -192,21 +192,47 @@ var products = function() {
                             k=dict.indexOf(attr.overlayType)//si le mois n'est pas trouvé, on met Janvier (le premier) par defaut
                         }else{
                             k=0
-                        }                        
+                        }
 
-                        var uData = file[k*2].data, vData = file[k*2+1].data;
-                        //un fichier de vent contient pour chaque mois
-                        // deux parties (u du vecteur et v du vecteur)
-                        // elles sont disposées a la suite, on a : uJanvier
-                        //                                         vJanvier
-                        //                                         uFevrier 
-                        //                                         vFevrier
-                        //                                         ...
-                        return {
-                            header: file[k*2].header,
-                            interpolate: bilinearInterpolateVector,
-                            data: function(i) {
-                                return [uData[i], vData[i]];
+                        if (fileDict.find(x => x.wind).wind === "read from file") {
+                            var uwind_var = fileDict.find(x => x["uwind"])["uwind"];
+                            var vwind_var = fileDict.find(x => x["vwind"])["vwind"];
+
+                            //find index of metaData wind obj arrays
+                            var uwind_idx = metaRecord.findIndex(x => x.ncvar === uwind_var);
+                            var vwind_idx = metaRecord.findIndex(x => x.ncvar === vwind_var);
+
+                            var urecord = metaRecord[uwind_idx].data[k], uData = urecord;
+                            var vrecord = metaRecord[vwind_idx].data[k], vData = vrecord;
+
+                            console.log("k: ", k)
+                            console.log("uData: ", uData);
+                            console.log("vData: ", vData);
+                           
+                            
+                            return {
+                                header: metaRecord[uwind_idx].header,
+                                interpolate: bilinearInterpolateScalar,
+                                data: function(i) {
+                                    return [uData[i], vData[i]];
+                                }
+                            }
+
+                        } else {
+                            var uData = file[k*2].data, vData = file[k*2+1].data;
+                            //un fichier de vent contient pour chaque mois
+                            // deux parties (u du vecteur et v du vecteur)
+                            // elles sont disposées a la suite, on a : uJanvier
+                            //                                         vJanvier
+                            //                                         uFevrier 
+                            //                                         vFevrier
+                            //                                         ...
+                            return {
+                                header: file[k*2].header,
+                                interpolate: bilinearInterpolateVector,
+                                data: function(i) {
+                                    return [uData[i], vData[i]];
+                                }
                             }
                         }
                     },
