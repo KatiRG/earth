@@ -284,6 +284,11 @@
                     var ncdimObj = reader.header.dimensions;
                     getVarTypes (ncvarObj, ncdimObj);
 
+                    //Display timeStamp in Date field
+                    var globalAttributes = reader.header.globalAttributes;
+                    var timeStamp = globalAttributes.find(x => x.name.toLocaleLowerCase() === "timestamp").value;
+                    d3.select("#data-date").text(timeStamp);
+
                 } else {//send nc file to backend for conversion via POST request
                     console.log("v3Flag here: ", v3Flag)
                     var returned_reader;
@@ -315,6 +320,11 @@
 
                             reader = new netcdfjs(returned_reader);
 
+                            //Display timeStamp in Date field
+                            var globalAttributes = reader.header.globalAttributes;
+                            var timeStamp = globalAttributes.find(x => x.name.toLocaleLowerCase() === "timestamp").value;
+                            d3.select("#data-date").text(timeStamp);
+
                             //Get variable types according to units and fill in the drop-down menu accordingly
                             var ncvarObj = reader.header.variables;
                             var ncdimObj = reader.header.dimensions;
@@ -331,9 +341,10 @@
                 }
                
                 //replace Date with timeStamp of nc file
-                var globalAttributes = reader.header.globalAttributes;
-                var timeStamp = globalAttributes.find(x => x.name === "timeStamp").value;
-                d3.select("#data-date").text(timeStamp);
+                // var globalAttributes = reader.header.globalAttributes;               
+                // var timeStamp = globalAttributes.find(x => x.name.toLocaleLowerCase() === "timeStamp").value;
+                // console.log("timeStamp: ", timeStamp)
+                // d3.select("#data-date").text(timeStamp);
 
             } //end reader.onload
             
@@ -398,7 +409,7 @@
                 .append('option')
                     .text(function (d) {
                         console.log("d in menu options: ", d)
-                        return d; });           
+                        return d; });
 
 
             function onchange() {
@@ -415,9 +426,6 @@
 
                 if (!fileDict.find(x => x.vwind)) fileDict.push( {"vwind": vValue} );
                 else fileDict.find(x => x.vwind).vwind = vValue;
-
-                //flag for wind in products.js
-                // fileDict.find(x => x.wind).wind = "read from file";
             
             };
 
@@ -493,10 +501,12 @@
             //Activate TimeLine months
             d3.selectAll(".mois").style("pointer-events", "all");
             
-            //Fill metaRecord for selected variable + uwind, vwind
+            //Fill metaRecord for selected variable + uwind, vwind if they exist
             fillMetaRecord(varName);
-            fillMetaRecord(fileDict.find(x => x.uwind).uwind);
-            fillMetaRecord(fileDict.find(x => x.vwind).vwind);
+            if (fileDict.find(x => x.uwind)) {
+                fillMetaRecord(fileDict.find(x => x.uwind).uwind);
+                fillMetaRecord(fileDict.find(x => x.vwind).vwind);
+            }
             
             console.log("version: ", reader.version)
             function fillMetaRecord(varName) {

@@ -58,18 +58,10 @@ var products = function() {
                 return gfsStep(this.date, step);
             },
             load: function(cancel) {
-                var thisType = this.type;
-                console.log("load THIS: ", this)
-                console.log("load thisType: ", thisType)
-                console.log("load THIS.type: ", this.type)
-                console.log("fileDict: ", fileDict)
-                this.type = fileDict.find(x => x[thisType])[thisType];
                 var me = this;
-                console.log("me: ", me)
-
+                // var thisType = this.type;
+                // this.type = fileDict.find(x => x[thisType])[thisType];
                 return when.map(this.paths, µ.loadJson).then(function(files) {
-                    console.log("cancel.requested? ", cancel.requested)
-                    console.log("then: ", _.extend(me, buildGrid(me.builder.apply(me, files))))
                     return cancel.requested ? null : _.extend(me, buildGrid(me.builder.apply(me, files)));
                 });
             }
@@ -191,39 +183,10 @@ var products = function() {
                     builder: function(file) {
                         if (dict.indexOf(attr.overlayType)!==-1){//recherche du bon mois grâce au dictionnaire des mois 
                             k=dict.indexOf(attr.overlayType)//si le mois n'est pas trouvé, on met Janvier (le premier) par defaut
-                        }else{
+                        } else{
                             k=0
                         }
-                        console.log("LOOKING FOR WIND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ", fileDict.find(x => x.wind).wind)
 
-                        // if (fileDict.find(x => x.uwind)) {//read from file
-                        //     console.log("read wind from nc file")
-                        //     var uwind_var = fileDict.find(x => x["uwind"])["uwind"];
-                        //     var vwind_var = fileDict.find(x => x["vwind"])["vwind"];
-
-                        //     //find index of metaData wind obj arrays
-                        //     var uwind_idx = metaRecord.findIndex(x => x.ncvar === uwind_var);
-                        //     var vwind_idx = metaRecord.findIndex(x => x.ncvar === vwind_var);
-
-                        //     var urecord = metaRecord[uwind_idx].data[k], uData = urecord;
-                        //     var vrecord = metaRecord[vwind_idx].data[k], vData = vrecord;
-
-                        //     console.log("k: ", k)
-                        //     console.log("min uData: ", Math.min.apply(null, uData));
-                        //     console.log("max uData: ", Math.max.apply(null, uData));
-                        //     console.log("min vData: ", Math.min.apply(null, vData));
-                        //     console.log("max vData: ", Math.max.apply(null, vData));
-                           
-                            
-                        //     return {
-                        //         header: metaRecord[uwind_idx].header,
-                        //         interpolate: bilinearInterpolateScalar,
-                        //         data: function(i) {
-                        //             return [uData[i], vData[i]];
-                        //         }
-                        //     }
-
-            
                         if (fileDict.find(x => x.uwind)) {
                             console.log("read wind from nc file");
 
@@ -310,7 +273,7 @@ var products = function() {
                         }           
                         var record = metaRecord[this_idx].data[k], data = record;
                         console.log("k: ", k)
-                        console.log("ozone record: ", record)
+                        console.log("thisVar record: ", record)
                         
                         return {
                             header: metaRecord[this_idx].header,
