@@ -288,8 +288,16 @@ var products = function() {
                         {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
                         {label: "K",  conversion: function(x) { return x; },                precision: 1}
                     ],
+                    // scale: {
+                    //     bounds: [0, 1],
+                    //     gradient: function(v, a) {
+                    //         return µ.sinebowColor(Math.min(v, 1) / 1, a);
+                    //     }
+                    // }
                     scale: {
-                        bounds: [193, 328],
+                        bounds: function(file) { 
+                            return [193, 328]
+                        },
                         gradient: µ.segmentedColorScale([
                             [193,     [37, 4, 42]],
                             [206,     [41, 10, 130]],

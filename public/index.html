@@ -321,9 +321,9 @@
                             reader = new netcdfjs(returned_reader);
 
                             //Display timeStamp in Date field
-                            var globalAttributes = reader.header.globalAttributes;
-                            var timeStamp = globalAttributes.find(x => x.name.toLocaleLowerCase() === "timestamp").value;
-                            d3.select("#data-date").text(timeStamp);
+                            // var globalAttributes = reader.header.globalAttributes;
+                            // var timeStamp = globalAttributes.find(x => x.name.toLocaleLowerCase() === "timestamp").value;
+                            // d3.select("#data-date").text(timeStamp);
 
                             //Get variable types according to units and fill in the drop-down menu accordingly
                             var ncvarObj = reader.header.variables;
@@ -520,6 +520,8 @@
                 var ny = reader.getDataVariable("lon").length;
                 var la1 = 90, la2 = -90, lo1 = -180, lo2 = 180; //FIXED
                 var dx = 360/nx, dy = 180/ny;
+                console.log("nx: ", nx)
+                console.log("ny: ", ny)                
                 console.log("dataArray length in v3Flag true: ", dataArray.length)
 
                 thisRecord = {
