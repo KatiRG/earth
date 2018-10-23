@@ -259,11 +259,10 @@
                 alert('File read cancelled');
             };
 
-            reader.onload = function(e) {                
+            reader.onload = function(e) {
 
                 //display selected file name on page
                 d3.select("#fname").text(evt.target.files[0].name);
-
                
                 console.log("evt.target.value: ", evt.target.value)
                 console.log("filename from evt: ", evt.target.files[0].name)
@@ -299,8 +298,7 @@
                     var xhr = new XMLHttpRequest();
                     xhr.responseType = "arraybuffer";
 
-                    // Add any event handlers here...
-                    //https://gomakethings.com/why-i-still-use-xhr-instead-of-the-fetch-api/. Bless this man's heart
+                    // Add any event handlers here
                     xhr.onreadystatechange = function () {
                         console.log("xhr.status initial: ", xhr.status)
 
@@ -332,6 +330,11 @@
                     v3Flag = true;
                 }
                
+                //replace Date with timeStamp of nc file
+                var globalAttributes = reader.header.globalAttributes;
+                var timeStamp = globalAttributes.find(x => x.name === "timeStamp").value;
+                d3.select("#data-date").text(timeStamp);
+
             } //end reader.onload
             
             console.log("What about here? ", evt.target.files[0])
@@ -402,8 +405,6 @@
                         
                 var uValue = d3.select("#uwind_dropdown").select("select").property("value");
                 var vValue = uValue.replace("u", "v");
-                console.log("Vad har vi det bra UWIND! ", uValue)
-                console.log("Vad har vi det bra VWIND! ", vValue)
 
                 //Display vwind on screen
                 d3.select("#vwind_dropdown").text("Wind (v) set to " + vValue);
@@ -419,7 +420,6 @@
                 fileDict.find(x => x.wind).wind = "read from file";
             
             };
-
 
         }
 
@@ -485,6 +485,10 @@
             console.log("fileDict: ", fileDict)
             console.log("fileDict uwind: ", fileDict.find(x => x.uwind).uwind)
             console.log("fileDict vwind: ", fileDict.find(x => x.vwind).vwind)
+
+            //Label "Data" field
+            d3.select("#data-layer").text("Wind @ Surface + " + varName);
+            //d3.select("#data-date").text();
 
             //Activate Données text-buttons corresponding to variable selection
             d3.select("#thisVar").style("pointer-events", "all");
