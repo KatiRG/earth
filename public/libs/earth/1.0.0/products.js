@@ -98,6 +98,7 @@ var products = function() {
         console.log("file: ", [WEATHER_PATH,file].join("/"))
         //return [WEATHER_PATH,file].join("/");
         return type === "wind" ? [WEATHER_PATH,file].join("/") : [WEATHER_PATH,"dummy.json"].join("/");
+        // return [WEATHER_PATH,"dummy.json"].join("/");
        }
  
 
@@ -193,54 +194,79 @@ var products = function() {
                         }else{
                             k=0
                         }
+                        console.log("LOOKING FOR WIND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ", fileDict.find(x => x.wind).wind)
 
-                        if (fileDict.find(x => x.wind).wind === "read from file") {
+                        // if (fileDict.find(x => x.uwind)) {//read from file
+                        //     console.log("read wind from nc file")
+                        //     var uwind_var = fileDict.find(x => x["uwind"])["uwind"];
+                        //     var vwind_var = fileDict.find(x => x["vwind"])["vwind"];
+
+                        //     //find index of metaData wind obj arrays
+                        //     var uwind_idx = metaRecord.findIndex(x => x.ncvar === uwind_var);
+                        //     var vwind_idx = metaRecord.findIndex(x => x.ncvar === vwind_var);
+
+                        //     var urecord = metaRecord[uwind_idx].data[k], uData = urecord;
+                        //     var vrecord = metaRecord[vwind_idx].data[k], vData = vrecord;
+
+                        //     console.log("k: ", k)
+                        //     console.log("min uData: ", Math.min.apply(null, uData));
+                        //     console.log("max uData: ", Math.max.apply(null, uData));
+                        //     console.log("min vData: ", Math.min.apply(null, vData));
+                        //     console.log("max vData: ", Math.max.apply(null, vData));
+                           
+                            
+                        //     return {
+                        //         header: metaRecord[uwind_idx].header,
+                        //         interpolate: bilinearInterpolateScalar,
+                        //         data: function(i) {
+                        //             return [uData[i], vData[i]];
+                        //         }
+                        //     }
+
+            
+                        if (fileDict.find(x => x.uwind)) {
+                            console.log("read wind from nc file");
+
+                            //find index of metaData wind obj arrays
                             var uwind_var = fileDict.find(x => x["uwind"])["uwind"];
                             var vwind_var = fileDict.find(x => x["vwind"])["vwind"];
 
-                            //find index of metaData wind obj arrays
                             var uwind_idx = metaRecord.findIndex(x => x.ncvar === uwind_var);
                             var vwind_idx = metaRecord.findIndex(x => x.ncvar === vwind_var);
+                            var this_header = metaRecord[vwind_idx].header;
 
+                            //data
                             var urecord = metaRecord[uwind_idx].data[k], uData = urecord;
                             var vrecord = metaRecord[vwind_idx].data[k], vData = vrecord;
 
-                            console.log("k: ", k)
-                            console.log("min uData: ", Math.min.apply(null, uData));
-                            console.log("max uData: ", Math.max.apply(null, uData));
-                            console.log("min vData: ", Math.min.apply(null, vData));
-                            console.log("max vData: ", Math.max.apply(null, vData));
-                           
-                            
-                            return {
-                                header: metaRecord[uwind_idx].header,
-                                interpolate: bilinearInterpolateScalar,
-                                data: function(i) {
-                                    return [uData[i], vData[i]];
-                                }
-                            }
 
                         } else {
+                            console.log("read wind from wind.json: ", file)
+                            var this_header = file[k*2].header;
                             var uData = file[k*2].data, vData = file[k*2+1].data;
-                            console.log("min dummy uData: ", Math.min.apply(null, uData));
-                            console.log("max dummy uData: ", Math.max.apply(null, uData));
-                            console.log("min dummy vData: ", Math.min.apply(null, vData));
-                            console.log("max dummy vData: ", Math.max.apply(null, vData));
-                            //un fichier de vent contient pour chaque mois
-                            // deux parties (u du vecteur et v du vecteur)
-                            // elles sont disposées a la suite, on a : uJanvier
-                            //                                         vJanvier
-                            //                                         uFevrier 
-                            //                                         vFevrier
-                            //                                         ...
-                            return {
-                                header: file[k*2].header,
-                                interpolate: bilinearInterpolateVector,
-                                data: function(i) {
-                                    return [uData[i], vData[i]];
-                                }
+                            console.log("uData from json: ", uData)
+                            console.log("vData from json: ", vData)
+
+                        } 
+                            
+                        console.log("min dummy uData: ", Math.min.apply(null, uData));
+                        console.log("max dummy uData: ", Math.max.apply(null, uData));
+                        console.log("min dummy vData: ", Math.min.apply(null, vData));
+                        console.log("max dummy vData: ", Math.max.apply(null, vData));
+                        //un fichier de vent contient pour chaque mois
+                        // deux parties (u du vecteur et v du vecteur)
+                        // elles sont disposées a la suite, on a : uJanvier
+                        //                                         vJanvier
+                        //                                         uFevrier 
+                        //                                         vFevrier
+                        //                                         ...
+                        return {
+                            header: this_header,
+                            interpolate: bilinearInterpolateVector,
+                            data: function(i) {
+                                return [uData[i], vData[i]];
                             }
-                        }
+                        }                      
                     },
                     units: [
                         {label: "km/h", conversion: function(x) { return x * 3.6; },      precision: 0},
@@ -248,22 +274,76 @@ var products = function() {
                         {label: "kn",   conversion: function(x) { return x * 1.943844; }, precision: 0},
                         {label: "mph",  conversion: function(x) { return x * 2.236936; }, precision: 0}
                     ],
-                    // scale: {
-                    //     bounds: [0, 100],
-                    //     gradient: function(v, a) {
-                    //         return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
-                    //     }
-                    // },
                     scale: {
-                        bounds: [0, 10],
+                        bounds: [0, 100],
                         gradient: function(v, a) {
-                            return µ.sinebowColor(Math.min(v, 10) / 10, a);
+                            return µ.extendedSinebowColor(Math.min(v, 100) / 100, a);
                         }
                     },
                     particles: {velocityScale: 1/60000, maxIntensity: 0.5}
                 });
             }
         },
+
+        "thisVar": {
+            matches: _.matches({param: "wind", mode: "thisVar"}),
+            create: function(attr) {
+                return buildProduct({
+                    field: "scalar",
+                    type: "thisVar",
+                    description: localize({
+                        name: {en: "thisVar", ja: "可降水量"},
+                        qualifier: ""
+                    }),
+                    // paths: [gfs1p0degPath("precip")],
+                    paths: [gfs1p0degPath( fileDict.find(x => x["thisVar"])["thisVar"] )],
+                    date: gfsDate(attr),
+                    builder: function(file) {
+                        var this_var = fileDict.find(x => x["thisVar"])["thisVar"];
+                        //find index of metaData obj array
+                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
+
+                        if (dict.indexOf(attr.overlayType)!==-1){
+                            k=dict.indexOf(attr.overlayType)
+                        } else {
+                            k=0
+                        }           
+                        var record = metaRecord[this_idx].data[k], data = record;
+                        console.log("k: ", k)
+                        console.log("ozone record: ", record)
+                        
+                        return {
+                            header: metaRecord[this_idx].header,
+                            interpolate: bilinearInterpolateScalar,
+                            data: function(i) {
+                                return data[i];
+                            }
+                        }
+                    },
+                    units: [
+                        {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
+                        {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
+                        {label: "K",  conversion: function(x) { return x; },                precision: 1}
+                    ],
+                    scale: {
+                        bounds: [193, 328],
+                        gradient: µ.segmentedColorScale([
+                            [193,     [37, 4, 42]],
+                            [206,     [41, 10, 130]],
+                            [219,     [81, 40, 40]],
+                            [233.15,  [192, 37, 149]],  // -40 C/F
+                            [255.372, [70, 215, 215]],  // 0 F
+                            [273.15,  [21, 84, 187]],   // 0 C
+                            [275.15,  [24, 132, 14]],   // just above 0 C
+                            [291,     [247, 251, 59]],
+                            [298,     [235, 167, 21]],
+                            [311,     [230, 71, 39]],
+                            [328,     [88, 27, 67]]
+                        ])
+                    }
+                });
+            }
+        }, //end general var
 
         "temp": {
             matches: _.matches({param: "wind", mode :"temp"}),//si "param" est de type wind et mode="temp" on rentre dans la fonction             
@@ -322,65 +402,7 @@ var products = function() {
             }
         },
 
-        "thisVar": {
-            matches: _.matches({param: "wind",mode: "thisVar"}),
-            create: function(attr) {
-                return buildProduct({
-                    field: "scalar",
-                    type: "thisVar",
-                    description: localize({
-                        name: {en: "thisVar", ja: "可降水量"},
-                        qualifier: ""
-                    }),
-                    // paths: [gfs1p0degPath("precip")],
-                    paths: [gfs1p0degPath( fileDict.find(x => x["thisVar"])["thisVar"] )],
-                    date: gfsDate(attr),
-                    builder: function(file) {
-                        var this_var = fileDict.find(x => x["thisVar"])["thisVar"];
-                        //find index of metaData obj array
-                        var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
-
-                        if (dict.indexOf(attr.overlayType)!==-1){
-                            k=dict.indexOf(attr.overlayType)
-                        } else {
-                            k=0
-                        }           
-                        var record = metaRecord[this_idx].data[k], data = record;
-                        console.log("k: ", k)
-                        console.log("ozone record: ", record)
-                        
-                        return {
-                            header: metaRecord[this_idx].header,
-                            interpolate: bilinearInterpolateScalar,
-                            data: function(i) {
-                                return data[i];
-                            }
-                        }
-                    },
-                    units: [
-                        {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
-                        {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
-                        {label: "K",  conversion: function(x) { return x; },                precision: 1}
-                    ],
-                    scale: {
-                        bounds: [193, 328],
-                        gradient: µ.segmentedColorScale([
-                            [193,     [37, 4, 42]],
-                            [206,     [41, 10, 130]],
-                            [219,     [81, 40, 40]],
-                            [233.15,  [192, 37, 149]],  // -40 C/F
-                            [255.372, [70, 215, 215]],  // 0 F
-                            [273.15,  [21, 84, 187]],   // 0 C
-                            [275.15,  [24, 132, 14]],   // just above 0 C
-                            [291,     [247, 251, 59]],
-                            [298,     [235, 167, 21]],
-                            [311,     [230, 71, 39]],
-                            [328,     [88, 27, 67]]
-                        ])
-                    }
-                });
-            }
-        }, //end general var
+       
 
         "OX": {
             matches: _.matches({param: "wind",mode: "OX"}),

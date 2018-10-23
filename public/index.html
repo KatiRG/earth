@@ -128,7 +128,7 @@
                 class="mode text-button" id="thisVar" title="Surface"></span>
             </p>
 
-            <p class="wind-mode">...TimeLine | <span
+            <p class="wind-mode">...Month | <span
                 class="mois text-button" id="Janvier" title="Janvier">J</span> – <span
                 class="mois text-button" id="Fevrier" title="Janvier">F</span> – <span
                 class="mois text-button" id="Mars" title="Mars">M</span> – <span
@@ -417,7 +417,7 @@
                 else fileDict.find(x => x.vwind).vwind = vValue;
 
                 //flag for wind in products.js
-                fileDict.find(x => x.wind).wind = "read from file";
+                // fileDict.find(x => x.wind).wind = "read from file";
             
             };
 
@@ -480,10 +480,6 @@
         d3.select("#doneButton").on("click", function() {
             varName = "";  //clear varName
             varName = fileDict.find(x => x.thisVar).thisVar;
-            // console.log("varName ", varName)
-            console.log("fileDict: ", fileDict)
-            console.log("fileDict uwind: ", fileDict.find(x => x.uwind).uwind)
-            console.log("fileDict vwind: ", fileDict.find(x => x.vwind).vwind)
 
             //Label "Data" field
             d3.select("#data-layer").text("Wind @ Surface + " + varName);
