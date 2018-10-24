@@ -11,8 +11,8 @@
  var metaRecord = []; //CN
  var fileDict = []; //CN
  fileDict.push( {"wind": "wind"} );
- var bd_upper = -999999999999; //CN, upper bd for scale
- var bd_lower = 1e6; //CN, lower bd for scale
+ var bd_upper, bd_lower; //CN
+ 
  
 
  // ce fichier recupere les données envoyées par index.html, les traite et affiche les informations demandées par l'utilisateur,
@@ -101,13 +101,19 @@ var products = function() {
         //find index of metaData obj array
         var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
 
+        bd_upper = Math.max.apply(null, metaRecord[this_idx].data[0]); //upper bd for scale
+        bd_lower = Math.min.apply(null, metaRecord[this_idx].data[0]); //lower bd for scale
+
         //upper and lower bds for scale
         metaRecord[this_idx].data
             .forEach(function(d, i) {
-                console.log(i)
-                console.log(d)
-                if ( Math.min.apply(null, d) < bd_lower ) bd_lower = Math.min.apply(null, d);
-                if ( Math.max.apply(null, d) > bd_upper ) bd_upper = Math.max.apply(null, d);
+                // console.log(i)
+                // console.log(d)
+                if (d < 100000002004087) {
+                    if ( Math.min.apply(null, d) < bd_lower ) bd_lower = Math.min.apply(null, d);
+                    if ( Math.max.apply(null, d) > bd_upper ) bd_upper = Math.max.apply(null, d);
+                }
+                
             })
         console.log("bd_lower: ", bd_lower)
         console.log("bd_upper: ", bd_upper)
@@ -229,15 +235,8 @@ var products = function() {
                             console.log("read wind from wind.json: ", file)
                             var this_header = file[k*2].header;
                             var uData = file[k*2].data, vData = file[k*2+1].data;
-                            console.log("uData from json: ", uData)
-                            console.log("vData from json: ", vData)
-
                         } 
-                            
-                        console.log("min dummy uData: ", Math.min.apply(null, uData));
-                        console.log("max dummy uData: ", Math.max.apply(null, uData));
-                        console.log("min dummy vData: ", Math.min.apply(null, vData));
-                        console.log("max dummy vData: ", Math.max.apply(null, vData));
+                                
                         //un fichier de vent contient pour chaque mois
                         // deux parties (u du vecteur et v du vecteur)
                         // elles sont disposées a la suite, on a : uJanvier
@@ -251,7 +250,7 @@ var products = function() {
                             data: function(i) {
                                 return [uData[i], vData[i]];
                             }
-                        }                      
+                        }
                     },
                     units: [
                         {label: "km/h", conversion: function(x) { return x * 3.6; },      precision: 0},
@@ -288,17 +287,6 @@ var products = function() {
                         //find index of metaData obj array
                         var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
 
-                        // //upper and lower bds for scale
-                        // metaRecord[this_idx].data
-                        //     .forEach(function(d, i) { 
-                        //         console.log(i)
-                        //         console.log(d)
-                        //         if ( Math.min.apply(null, d) < bd_lower ) bd_lower = Math.min.apply(null, d);
-                        //         if ( Math.max.apply(null, d) > bd_upper ) bd_upper = Math.max.apply(null, d);
-                        //     })
-                        // console.log("bd_lower: ", bd_lower)
-                        // console.log("bd_upper: ", bd_upper)
-
                         if (dict.indexOf(attr.overlayType)!==-1){
                             k=dict.indexOf(attr.overlayType)
                         } else {
@@ -316,30 +304,36 @@ var products = function() {
                             }
                         }
                     },
+                    // units: [
+                    //     {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
+                    //     {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
+                    //     {label: "K",  conversion: function(x) { return x; },                precision: 1}
+                    // ],
                     units: [
-                        {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
-                        {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
-                        {label: "K",  conversion: function(x) { return x; },                precision: 1}
+                        {label: " [dimensionless]", conversion: function(x) { return x; }, precision: 12}
                     ],
                     // scale: {
-                    //     bounds: [0, 1],
+                    //     bounds: setBounds(),
                     //     gradient: function(v, a) {
-                    //         // console.log("v init: ", v)
-                    //         var myData = [0, .2, .4, .6, .8, 1];
+                    //         var nseg = 5; //number of segments to divide range into
+                    //         var delta = (bd_upper - bd_lower)/nseg;
+                    //         var foo=Array.apply(null, Array(nseg));
+                    //         var dataRange = foo.map(function (x, i) { return bd_lower + i*delta });
+
                     //         // var quantileScale = d3.scale.quantile().domain(myData).range(['lightblue', 'orange', 'lightgreen', 'red']);
                     //         var quantileScale = d3.scale.quantile()
-                    //                               .domain(myData)
-                    //                               .range(['[5,113,176]','[146,197,222]','[244,165,130]','[202,0,32]' ]);
+                    //                               .domain(dataRange)
+                    //                               .range(['[5,113,176]', '[146,197,222]', '[247,247,247]', '[244,165,130]', '[202,0,32]'] );
 
                            
                     //         //RGB of value ( Math.min(v, 1) / 1 )
                     //         var rgb_v_str, rgb_return;
-                    //         rgb_v_str = quantileScale( Math.min(v, 1) / 1 ).split('[').pop().split(']')[0]; //string                            
+                    //         rgb_v_str = quantileScale( Math.min(v, bd_upper) / bd_upper ).split('[').pop().split(']')[0]; //string                            
                     //         rgb_return = rgb_v_str.split(',').map(Number).concat(a);
 
-                    //         // if (a === 1) {
-                    //         //     console.log("mu: ", µ.sinebowColor(Math.min(v, 1) / 1, a))
-                    //         //     console.log("v: ", Math.min(v, 1) / 1)
+                    //         if (a === 1) {
+                    //             console.log("mu: ", µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a))
+                    //             console.log("v: ", Math.min(v, bd_upper) / bd_upper)
 
                     //         //     console.log("scale v: ", quantileScale(Math.min(v, 1) / 1))
                     //         //     console.log("rgb_v_str: ", quantileScale(Math.min(v, 1) / 1).split('[').pop().split(']')[0])
@@ -347,50 +341,26 @@ var products = function() {
                     //         //     console.log("rgb_v split: ", rgb_v_str.split(','))
                     //         //     console.log("rgb_v split map: ", rgb_v_str.split(',').map(Number))
                     //         //     console.log("rgb_v split map push: ", rgb_v_str.split(',').map(Number).concat(a))                                
-                    //         //     console.log("rgb_return: ", rgb_return);
-                    //         // }
+                    //             console.log("rgb_return: ", rgb_return);
+                    //         }
     
                             
                     //         // quantileScale(60)       
                     //         // returns [r, g, b, a], e.g. [ 0, 0, 255, 102 ]
-                    //         //return µ.sinebowColor(Math.min(v, 1) / 1, a);
+                    //         // return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
                     //         //return quantileScale(v);
                     //         return rgb_return; //[ NaN, NaN, NaN, 1 ]
                     //     }
                     // }
 
-                    // scale: {
-                    //     bounds: [193, 328],
-                    //     gradient: µ.segmentedColorScale([
-                    //         [193,     [37, 4, 42]],
-                    //         [206,     [41, 10, 130]],
-                    //         [219,     [81, 40, 40]],
-                    //         [233.15,  [192, 37, 149]],  // -40 C/F
-                    //         [255.372, [70, 215, 215]],  // 0 F
-                    //         [273.15,  [21, 84, 187]],   // 0 C
-                    //         [275.15,  [24, 132, 14]],   // just above 0 C
-                    //         [291,     [247, 251, 59]],
-                    //         [298,     [235, 167, 21]],
-                    //         [311,     [230, 71, 39]],
-                    //         [328,     [88, 27, 67]]
-                    //     ])
-                    // }
                     scale: {
                         bounds: setBounds(),
-                        gradient: µ.segmentedColorScale([
-                            [193,     [37, 4, 42]],
-                            [206,     [41, 10, 130]],
-                            [219,     [81, 40, 40]],
-                            [233.15,  [192, 37, 149]],  // -40 C/F
-                            [255.372, [70, 215, 215]],  // 0 F
-                            [273.15,  [21, 84, 187]],   // 0 C
-                            [275.15,  [24, 132, 14]],   // just above 0 C
-                            [291,     [247, 251, 59]],
-                            [298,     [235, 167, 21]],
-                            [311,     [230, 71, 39]],
-                            [328,     [88, 27, 67]]
-                        ])
+                        gradient: function(v, a) {
+                            return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
+                        }
                     }
+
+ 
 
                     
 
