@@ -312,53 +312,53 @@ var products = function() {
                     units: [
                         {label: " [dimensionless]", conversion: function(x) { return x; }, precision: 12}
                     ],
-                    // scale: {
-                    //     bounds: setBounds(),
-                    //     gradient: function(v, a) {
-                    //         var nseg = 5; //number of segments to divide range into
-                    //         var delta = (bd_upper - bd_lower)/nseg;
-                    //         var foo=Array.apply(null, Array(nseg));
-                    //         var dataRange = foo.map(function (x, i) { return bd_lower + i*delta });
-
-                    //         // var quantileScale = d3.scale.quantile().domain(myData).range(['lightblue', 'orange', 'lightgreen', 'red']);
-                    //         var quantileScale = d3.scale.quantile()
-                    //                               .domain(dataRange)
-                    //                               .range(['[5,113,176]', '[146,197,222]', '[247,247,247]', '[244,165,130]', '[202,0,32]'] );
-
-                           
-                    //         //RGB of value ( Math.min(v, 1) / 1 )
-                    //         var rgb_v_str, rgb_return;
-                    //         rgb_v_str = quantileScale( Math.min(v, bd_upper) / bd_upper ).split('[').pop().split(']')[0]; //string                            
-                    //         rgb_return = rgb_v_str.split(',').map(Number).concat(a);
-
-                    //         if (a === 1) {
-                    //             console.log("mu: ", µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a))
-                    //             console.log("v: ", Math.min(v, bd_upper) / bd_upper)
-
-                    //         //     console.log("scale v: ", quantileScale(Math.min(v, 1) / 1))
-                    //         //     console.log("rgb_v_str: ", quantileScale(Math.min(v, 1) / 1).split('[').pop().split(']')[0])
-
-                    //         //     console.log("rgb_v split: ", rgb_v_str.split(','))
-                    //         //     console.log("rgb_v split map: ", rgb_v_str.split(',').map(Number))
-                    //         //     console.log("rgb_v split map push: ", rgb_v_str.split(',').map(Number).concat(a))                                
-                    //             console.log("rgb_return: ", rgb_return);
-                    //         }
-    
-                            
-                    //         // quantileScale(60)       
-                    //         // returns [r, g, b, a], e.g. [ 0, 0, 255, 102 ]
-                    //         // return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
-                    //         //return quantileScale(v);
-                    //         return rgb_return; //[ NaN, NaN, NaN, 1 ]
-                    //     }
-                    // }
-
                     scale: {
                         bounds: setBounds(),
                         gradient: function(v, a) {
-                            return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
+                            var nseg = 5; //number of segments to divide range into
+                            var delta = (bd_upper - bd_lower)/nseg;
+                            var foo=Array.apply(null, Array(nseg));
+                            var dataRange = foo.map(function (x, i) { return bd_lower + i*delta });
+
+                            // var quantileScale = d3.scale.quantile().domain(myData).range(['lightblue', 'orange', 'lightgreen', 'red']);
+                            var quantileScale = d3.scale.quantile()
+                                                  .domain(dataRange)
+                                                  .range(['[5,113,176]', '[146,197,222]', '[247,247,247]', '[244,165,130]', '[202,0,32]'] );
+
+                           
+                            //RGB of value ( Math.min(v, 1) / 1 )
+                            var rgb_v_str, rgb_return;
+                            rgb_v_str = quantileScale( Math.min(v, bd_upper) ).split('[').pop().split(']')[0]; //string                            
+                            rgb_return = rgb_v_str.split(',').map(Number).concat(a);
+
+                            // if (a === 1) {
+                            //     console.log("mu: ", µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a))
+                            //     console.log("v: ", Math.min(v, bd_upper) )
+
+                            //     console.log("scale v: ", quantileScale(Math.min(v, 1) / 1))
+                            //     console.log("rgb_v_str: ", quantileScale(Math.min(v, 1) / 1).split('[').pop().split(']')[0])
+
+                            //     console.log("rgb_v split: ", rgb_v_str.split(','))
+                            //     console.log("rgb_v split map: ", rgb_v_str.split(',').map(Number))
+                            //     console.log("rgb_v split map push: ", rgb_v_str.split(',').map(Number).concat(a))                                
+                            //     console.log("rgb_return: ", rgb_return);
+                            // }
+    
+                            
+                            // quantileScale(60)       
+                            // returns [r, g, b, a], e.g. [ 0, 0, 255, 102 ]
+                            // return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
+                            //return quantileScale(v);
+                            return rgb_return; //[ NaN, NaN, NaN, 1 ]
                         }
                     }
+
+                    // scale: {
+                    //     bounds: setBounds(),
+                    //     gradient: function(v, a) {
+                    //         return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
+                    //     }
+                    // }
 
  
 
