@@ -315,7 +315,7 @@ var products = function() {
                     scale: {
                         bounds: setBounds(),
                         gradient: function(v, a) {
-                            var nseg = 5; //number of segments to divide range into
+                            var nseg = 11; //number of segments to divide range into
                             var delta = (bd_upper - bd_lower)/nseg;
                             var foo=Array.apply(null, Array(nseg));
                             var dataRange = foo.map(function (x, i) { return bd_lower + i*delta });
@@ -323,7 +323,9 @@ var products = function() {
                             // var quantileScale = d3.scale.quantile().domain(myData).range(['lightblue', 'orange', 'lightgreen', 'red']);
                             var quantileScale = d3.scale.quantile()
                                                   .domain(dataRange)
-                                                  .range(['[5,113,176]', '[146,197,222]', '[247,247,247]', '[244,165,130]', '[202,0,32]'] );
+                                                  .range(['[5,48,97]', '[33,102,172]', '[67,147,195]', '[146,197,222]', 
+                                                    '[209,229,240]', '[247,247,247]', '[253,219,199]', '[244,165,130]', 
+                                                    '[214,96,77]', '[178,24,43]', '[103,0,31]'] );
 
                            
                             //RGB of value ( Math.min(v, 1) / 1 )
