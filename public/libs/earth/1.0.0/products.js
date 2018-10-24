@@ -288,30 +288,45 @@ var products = function() {
                         {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
                         {label: "K",  conversion: function(x) { return x; },                precision: 1}
                     ],
-                    // scale: {
-                    //     bounds: [0, 1],
-                    //     gradient: function(v, a) {
-                    //         return µ.sinebowColor(Math.min(v, 1) / 1, a);
-                    //     }
-                    // }
                     scale: {
-                        bounds: function(file) { 
-                            return [193, 328]
+                        bounds: function(d) {
+                            //console.log("d bounds: ", d)                            
+                            return [0, 1];
                         },
-                        gradient: µ.segmentedColorScale([
-                            [193,     [37, 4, 42]],
-                            [206,     [41, 10, 130]],
-                            [219,     [81, 40, 40]],
-                            [233.15,  [192, 37, 149]],  // -40 C/F
-                            [255.372, [70, 215, 215]],  // 0 F
-                            [273.15,  [21, 84, 187]],   // 0 C
-                            [275.15,  [24, 132, 14]],   // just above 0 C
-                            [291,     [247, 251, 59]],
-                            [298,     [235, 167, 21]],
-                            [311,     [230, 71, 39]],
-                            [328,     [88, 27, 67]]
-                        ])
+                        gradient: function(v, a) {
+                            var myData = [0, .05, .07, .08, .09, 1]
+                            // var quantileScale = d3.scale.quantile().domain(myData).range(['lightblue', 'orange', 'lightgreen', 'red']);
+                            var quantileScale = d3.scale.quantile().domain(myData).range(['[255,0,0]', 'orange', 'lightgreen', 'red']);
+                           
+                            console.log("scale: ", quantileScale(0))
+                            console.log("split: ", quantileScale(0).split('[').pop().split(']')[0])
+                            console.log("split: ", quantileScale(0).split('[').pop().split(']')[0] + "," + a )
+                            
+                            // quantileScale(60)       
+                            // returns [r, g, b, a], e.g. [ 0, 0, 255, 102 ]
+                            //return µ.sinebowColor(Math.min(v, 1) / 1, a);
+                            //return quantileScale(v);
+                            return [quantileScale(0).split('[').pop().split(']')[0] + "," + a];
+                        }
                     }
+                    // scale: {
+                    //     bounds: function(file) { 
+                    //         return [193, 328]
+                    //     },
+                    //     gradient: µ.segmentedColorScale([
+                    //         [193,     [37, 4, 42]],
+                    //         [206,     [41, 10, 130]],
+                    //         [219,     [81, 40, 40]],
+                    //         [233.15,  [192, 37, 149]],  // -40 C/F
+                    //         [255.372, [70, 215, 215]],  // 0 F
+                    //         [273.15,  [21, 84, 187]],   // 0 C
+                    //         [275.15,  [24, 132, 14]],   // just above 0 C
+                    //         [291,     [247, 251, 59]],
+                    //         [298,     [235, 167, 21]],
+                    //         [311,     [230, 71, 39]],
+                    //         [328,     [88, 27, 67]]
+                    //     ])
+                    // }
                 });
             }
         }, //end general var
