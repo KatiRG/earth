@@ -120,6 +120,21 @@ var products = function() {
 
         return [bd_lower, bd_upper];
     }
+
+    //CN
+    function setsegmentedColorScale() {
+        var nseg = 11; //number of segments to divide range into
+        var delta = (bd_upper - bd_lower)/nseg;
+        var foo=Array.apply(null, Array(nseg));
+        var dataRange = foo.map(function (x, i) { return bd_lower + i*delta; });
+        var rgb_array =  [  [37, 4, 42], [41, 10, 130], [81, 40, 40],  [192, 37, 149],
+                            [70, 215, 215], [21, 84, 187], [24, 132, 14], 
+                            [247, 251, 59], [235, 167, 21], [230, 71, 39], [88, 27, 67] ];
+
+        var segments = dataRange.map(function (x, i) { return [ x, rgb_array[i] ]; })
+
+        return µ.segmentedColorScale( segments );
+    }
     
 
 //   function gfs1p0degPath(attr, type, surface, level) {
@@ -312,48 +327,65 @@ var products = function() {
                     units: [
                         {label: " [dimensionless]", conversion: function(x) { return x; }, precision: 12}
                     ],
-                    scale: {
-                        bounds: setBounds(),
-                        gradient: function(v, a) {
-                            var nseg = 11; //number of segments to divide range into
-                            var delta = (bd_upper - bd_lower)/nseg;
-                            var foo=Array.apply(null, Array(nseg));
-                            var dataRange = foo.map(function (x, i) { return bd_lower + i*delta });
+                    // scale: {
+                    //     bounds: setBounds(),
+                    //     gradient: function(v, a) {
+                    //         var nseg = 11; //number of segments to divide range into
+                    //         var delta = (bd_upper - bd_lower)/nseg;
+                    //         var foo=Array.apply(null, Array(nseg));
+                    //         var dataRange = foo.map(function (x, i) { return bd_lower + i*delta });
 
-                            // var quantileScale = d3.scale.quantile().domain(myData).range(['lightblue', 'orange', 'lightgreen', 'red']);
-                            var quantileScale = d3.scale.quantile()
-                                                  .domain(dataRange)
-                                                  .range(['[5,48,97]', '[33,102,172]', '[67,147,195]', '[146,197,222]', 
-                                                    '[209,229,240]', '[247,247,247]', '[253,219,199]', '[244,165,130]', 
-                                                    '[214,96,77]', '[178,24,43]', '[103,0,31]'] );
+                    //         // var quantileScale = d3.scale.quantile().domain(myData).range(['lightblue', 'orange', 'lightgreen', 'red']);
+                    //         var quantileScale = d3.scale.quantile()
+                    //                               .domain(dataRange)
+                    //                               .range(['[5,48,97]', '[33,102,172]', '[67,147,195]', '[146,197,222]', 
+                    //                                 '[209,229,240]', '[247,247,247]', '[253,219,199]', '[244,165,130]', 
+                    //                                 '[214,96,77]', '[178,24,43]', '[103,0,31]'] );
 
                            
-                            //RGB of value ( Math.min(v, 1) / 1 )
-                            var rgb_v_str, rgb_return;
-                            rgb_v_str = quantileScale( Math.min(v, bd_upper) ).split('[').pop().split(']')[0]; //string                            
-                            rgb_return = rgb_v_str.split(',').map(Number).concat(a);
+                    //         //RGB of value ( Math.min(v, 1) / 1 )
+                    //         var rgb_v_str, rgb_return;
+                    //         rgb_v_str = quantileScale( Math.min(v, bd_upper) ).split('[').pop().split(']')[0]; //string                            
+                    //         rgb_return = rgb_v_str.split(',').map(Number).concat(a);
 
-                            // if (a === 1) {
-                            //     console.log("mu: ", µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a))
-                            //     console.log("v: ", Math.min(v, bd_upper) )
+                    //         // if (a === 1) {
+                    //         //     console.log("mu: ", µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a))
+                    //         //     console.log("v: ", Math.min(v, bd_upper) )
 
-                            //     console.log("scale v: ", quantileScale(Math.min(v, 1) / 1))
-                            //     console.log("rgb_v_str: ", quantileScale(Math.min(v, 1) / 1).split('[').pop().split(']')[0])
+                    //         //     console.log("scale v: ", quantileScale(Math.min(v, 1) / 1))
+                    //         //     console.log("rgb_v_str: ", quantileScale(Math.min(v, 1) / 1).split('[').pop().split(']')[0])
 
-                            //     console.log("rgb_v split: ", rgb_v_str.split(','))
-                            //     console.log("rgb_v split map: ", rgb_v_str.split(',').map(Number))
-                            //     console.log("rgb_v split map push: ", rgb_v_str.split(',').map(Number).concat(a))                                
-                            //     console.log("rgb_return: ", rgb_return);
-                            // }
+                    //         //     console.log("rgb_v split: ", rgb_v_str.split(','))
+                    //         //     console.log("rgb_v split map: ", rgb_v_str.split(',').map(Number))
+                    //         //     console.log("rgb_v split map push: ", rgb_v_str.split(',').map(Number).concat(a))                                
+                    //         //     console.log("rgb_return: ", rgb_return);
+                    //         // }
     
                             
-                            // quantileScale(60)       
-                            // returns [r, g, b, a], e.g. [ 0, 0, 255, 102 ]
-                            // return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
-                            //return quantileScale(v);
-                            return rgb_return; //[ NaN, NaN, NaN, 1 ]
-                        }
-                    }
+                    //         // quantileScale(60)       
+                    //         // returns [r, g, b, a], e.g. [ 0, 0, 255, 102 ]
+                    //         // return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
+                    //         //return quantileScale(v);
+                    //         return rgb_return; //[ NaN, NaN, NaN, 1 ]
+                    //     }
+                    // }
+
+                    //  scale: {
+                    //     bounds: [193, 328],
+                    //     gradient: µ.segmentedColorScale([
+                    //         [193,     [37, 4, 42]],
+                    //         [206,     [41, 10, 130]],
+                    //         [219,     [81, 40, 40]],
+                    //         [233.15,  [192, 37, 149]],  // -40 C/F
+                    //         [255.372, [70, 215, 215]],  // 0 F
+                    //         [273.15,  [21, 84, 187]],   // 0 C
+                    //         [275.15,  [24, 132, 14]],   // just above 0 C
+                    //         [291,     [247, 251, 59]],
+                    //         [298,     [235, 167, 21]],
+                    //         [311,     [230, 71, 39]],
+                    //         [328,     [88, 27, 67]]
+                    //     ])
+                    // }
 
                     // scale: {
                     //     bounds: setBounds(),
@@ -361,6 +393,11 @@ var products = function() {
                     //         return µ.sinebowColor(Math.min(v, bd_upper) / bd_upper, a);
                     //     }
                     // }
+
+                    scale: {
+                        bounds: setBounds(),
+                        gradient: setsegmentedColorScale()
+                    }
 
  
 
