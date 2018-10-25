@@ -12,6 +12,8 @@
  var fileDict = []; //CN
  fileDict.push( {"wind": "wind"} );
  var bd_upper, bd_lower; //CN
+ var isNiv = false; //CN
+ var myObj =[]; //TEMP
  
  
 
@@ -97,22 +99,22 @@ var products = function() {
  
     //CN Calculates upper and lower bds of selected variable for scale bar
     function setBounds() {//called from FACTORIES
+        var fillValue = 1e19;
         var this_var = fileDict.find(x => x["thisVar"])["thisVar"];
         //find index of metaData obj array
         var this_idx = metaRecord.findIndex(x => x.ncvar === this_var);
 
-        bd_upper = Math.max.apply(null, metaRecord[this_idx].data[0]); //upper bd for scale
-        bd_lower = Math.min.apply(null, metaRecord[this_idx].data[0]); //lower bd for scale
+        //set initial min and max based on first array
+        bd_upper = Math.max.apply(null, metaRecord[this_idx].data[0].filter(function (x) { return x < fillValue; }) ); //upper bd for scale
+        bd_lower = Math.min.apply(null, metaRecord[this_idx].data[0].filter(function (x) { return x < fillValue; }) ); //lower bd for scale
 
         //upper and lower bds for scale
         metaRecord[this_idx].data
             .forEach(function(d, i) {
-                // console.log(i)
-                // console.log(d)
-                if (d < 100000002004087) {
-                    if ( Math.min.apply(null, d) < bd_lower ) bd_lower = Math.min.apply(null, d);
-                    if ( Math.max.apply(null, d) > bd_upper ) bd_upper = Math.max.apply(null, d);
-                }
+                var m = d.filter(function (x) { return x < fillValue; });
+                if ( Math.min.apply(null, m) < bd_lower ) bd_lower = Math.min.apply(null, m);
+                if ( Math.max.apply(null, m) > bd_upper ) bd_upper = Math.max.apply(null, m);
+                
                 
             })
         console.log("bd_lower: ", bd_lower)
