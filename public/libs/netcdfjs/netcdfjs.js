@@ -50,15 +50,12 @@
                 return this.header.variables
             }      
             getDataVariable(k) {
-                console.log("TRACE 2")
-
-                var l, numpts;               
+                var l, numpts;
 
                 // numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
                 //         this.header.dimensions.find(function (val) {return val.name === "lon";}).size - 1; //ORIG
                 numpts = this.header.dimensions.find(function (val) {return val.name === "lat";}).size *
-                        this.header.dimensions.find(function (val) {return val.name === "lon";}).size;
-                console.log("numpts: ", numpts)
+                        this.header.dimensions.find(function (val) {return val.name === "lon";}).size;                
 
                 // return l = 'string' == typeof k ? 
                 //     this.header.variables.find(function(m) { return m.name === k }) : k, 
@@ -104,14 +101,13 @@
                     }
             }
         }        
-        a.exports = j        
+        a.exports = j
     }, 
     //FN 2
     function(a, b) {
         'use strict';
         const c = 8192,
             d = [];
-        console.log("TRACE 0")
         a.exports = class {
             constructor(f, g) {
                 g = g || {}, f === void 0 && (f = c), 'number' == typeof f && (f = new ArrayBuffer(f));
@@ -264,32 +260,18 @@
             0 != d.offset % 4 && d.skip(4 - d.offset % 4)
         }
         a.exports.notNetcdf = function(e, f) {
-            console.log("TRACE a.exports.notNetcdf");
-            console.log("*****************************************")
-            console.log("e in notNetcdf: ", e)
-            console.log("f in notNetcdf: ", f)            
-
             if (e) v3Flag = false;
             else if (e === "64-bit offset format not supported yet") v3Flag = false;
-            console.log("v3Flag in .notNetcdf: ", v3Flag)
         },
         a.exports.padding = c, 
 
 
         a.exports.readName = function(e) {
             
-            if (v3Flag) {
-                console.log("TRACE a.exports.readName: ", a);
-                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            if (v3Flag) { 
                 var f = e.readUint32(),
                     g = e.readChars(f);
-                console.log("e: ", e)
-                console.log("f: ", f)
-                if (g === 't2m') console.log("g: ", g)
 
-
-
-                console.log("c(e): ", c(e))
                 return c(e), g
             }
         }
