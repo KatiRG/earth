@@ -74,6 +74,7 @@ var path = require('path');
 app.post('/something', function (req, res) {
 
   const { spawn } = require('child_process');
+  const jsonfile = require('jsonfile');
 
   console.log("req in node!!!!!!!!!!!!!! ");  
   console.log("req.body.vars: ", req.body.vars);
@@ -89,46 +90,70 @@ app.post('/something', function (req, res) {
   console.log("tmpfile: ", tmpfile)
 
   var directory = path.dirname(tmpfile);
+
+  var myServerRecord;
   
 
-  const convFile = path.basename(tmpfile, '.nc') + "_conv.nc";
+  const convFile = path.basename(tmpfile, '.nc') + "_conv.json";
   const convFileJoin = path.join(directory, convFile);
   console.log("convFile: ", convFile)
   console.log("convFile HERE JOINED: ", convFileJoin)
 
   //Execute shell command to convert nc file
   //$ ncks -3 fileIN.nc fileOUT.nc
-  const nco_convert = spawn('ncks', ['-3', tmpfile, convFileJoin, '-O']); //-O to overwrite any existing filename
-  nco_convert.stdout.on('data', (data) => {
-    console.log("$data in nco_convert: ", `${data}`)
-  });
+  //const nco_convert = spawn('ncks', ['-3', tmpfile, convFileJoin, '-O']); //-O to overwrite any existing filename
 
-  nco_convert.on('close', (code) => {
-    // If you want to handle errors, could check code === 0 here for success
-    console.log("code: ", code)
+  // //$ ncks --json fileIN.nc fileOUT.nc
+  // const nco_convert = spawn('ncks', ['--json', tmpfile]);
+  // nco_convert.stdout.on('data', (data) => {
+  //   console.log("$data in nco_convert: ", `${data}`)
+
+  //   const user = JSON.parse(`${data}`);
+
+  //   //https://www.npmjs.com/package/jsonfile
+
+
+  // });
+
+  
+  jsonfile.readFile(tmpfile)
+    .then(obj => console.dir(obj))
+    .catch(error => console.error(error));
+
+  // nco_convert.on('close', (code) => {
+
+  //   // If you want to handle errors, could check code === 0 here for success
+  //   console.log("code: ", code)
     
-    const datafile = fs.readFileSync(convFileJoin);
-    console.log("datafile: ", datafile)
-
-
-    //Return to client-side JS
-    //https://fullstack-developer.academy/res-json-vs-res-send-vs-res-end-in-express/
-    // res.json( myServerRecord );
-    res.send(datafile);
-
-    //rm temp files using this format otherwise get deprecation error
-    //https://github.com/desmondmorris/node-tesseract/issues/57
-    fs.unlink(req.files.file.path, err => { 
-      if (err) console.log(err)
-      else console.log("tmp nc file deleted");
-    });
-    fs.unlink(convFileJoin, err => { 
-      if (err) console.log(err)
-      else console.log("tmp converted nc file deleted");
-    });
+  //   // const datafile = fs.readFileSync(convFileJoin);
+    
+    
     
 
-  }); //end .on close
+  //   const datafile = jsonfile.readFileSync(nco_convert);
+  //   // console.log("datafile: ", datafile)
+
+
+  //   //Return to client-side JS
+  //   //https://fullstack-developer.academy/res-json-vs-res-send-vs-res-end-in-express/
+  //   // res.json( myServerRecord );
+    
+  //   res.send(datafile); //send buffer
+
+
+  //   //rm temp files using this format otherwise get deprecation error
+  //   //https://github.com/desmondmorris/node-tesseract/issues/57
+  //   // fs.unlink(req.files.file.path, err => { 
+  //   //   if (err) console.log(err)
+  //   //   else console.log("tmp nc file deleted");
+  //   // });
+  //   // fs.unlink(convFileJoin, err => { 
+  //   //   if (err) console.log(err)
+  //   //   else console.log("tmp converted nc file deleted");
+  //   // });
+    
+
+  // }); //end .on close
    
 });
 //-------------------------------------------------------------------------------------------

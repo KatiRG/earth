@@ -317,8 +317,12 @@
 
                             returned_reader = xhr.response; //JSON.parse(xhr.responseText); //xhr.response;
                             console.log("parse in client: ", returned_reader);
+                            // reader = new netcdfjs(returned_reader);
+                            // console.log("reader: ", reader)
 
-                            reader = new netcdfjs(returned_reader);
+                            // returned_reader = JSON.parse(xhr.response); //xhr.response;
+                            // console.log("parse in client: ", returned_reader);
+                            
 
                             //Display timeStamp in Date field
                             // var globalAttributes = reader.header.globalAttributes;
@@ -326,8 +330,8 @@
                             // d3.select("#data-date").text(timeStamp);
 
                             //Get variable types according to units and fill in the drop-down menu accordingly
-                            var ncvarObj = reader.header.variables;
-                            var ncdimObj = reader.header.dimensions;
+                            // var ncvarObj = reader.header.variables;
+                            // var ncdimObj = reader.header.dimensions;
                             getVarTypes (ncvarObj, ncdimObj);
                         
                         } // .end xhr response onchange
