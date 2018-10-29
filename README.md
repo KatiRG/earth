@@ -12,15 +12,23 @@ building and launching
 
 After installing node.js and npm, clone "earth" and install dependencies:
 
-    git clone https://github.com/cambecc/earth
-    cd earth
-    npm install
+  $  git clone https://github.com/KatiRG/earth.git
+  $  cd earth
+  $  npm install
 
 Install [NCO](http://nco.sourceforge.net/) if you're planning to use netCDF v4x files.
 
+You will also need a few dependencies:
+
+  $  npm install express
+
+  $  npm install netcdfjs
+
+  $  npm install body-parser
+
 Next, launch the development web server:
 
-    node dev-server.js 8080
+  $  node dev-server.js 8080
 
 Finally, point your browser to:
 
